@@ -11,10 +11,12 @@ public class UserTestConstants {
 
     public static final String NEW_USER_INVALID_EMAIL = "Richie.Rich.at.pmb.com";
 
+    public static final Long EXISTING_USER_ID = 1L;
     public static final String EXISTING_USER_EMAIL = "Balthazar.Picsou@pmb.com";
     public static final String EXISTING_USER_FIRSTNAME = "Balthazar";
     public static final String EXISTING_USER_LASTNAME = "PICSOU";
     public static final String EXISTING_USER_PASSWORD = "BP2021!";
     public static final BigDecimal EXISTING_USER_WITH_HIGH_BALANCE = BigDecimal.valueOf(10000).setScale(2);
 
+    public static final Long UNKNOWN_USER_ID = 666L;
 }

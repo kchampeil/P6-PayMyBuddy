@@ -18,6 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,8 +44,8 @@ class BankAccountServiceTest {
     private IBankAccountService bankAccountService;
 
     @Nested
-    @DisplayName("createBankAccount tests")
-    class createBankAccountTest {
+    @DisplayName("CreateBankAccount tests")
+    class CreateBankAccountTest {
         private BankAccountDTO bankAccountDTOToCreate;
 
         private BankAccount bankAccountInDb;
@@ -168,6 +170,108 @@ class BankAccountServiceTest {
                     .findByIbanAndUser_UserId(bankAccountDTOToCreate.getIban(), bankAccountDTOToCreate.getUserId());
             verify(bankAccountRepositoryMock, Mockito.times(0))
                     .save(any(BankAccount.class));
+        }
+    }
+
+    @Nested
+    @DisplayName("getAllBankAccountsForUser tests")
+    class GetAllBankAccountsForUserTest {
+        //TTR private BankAccountDTO bankAccountDTOToCreate;
+
+        private BankAccount bankAccountInDb;
+        private User userInDb;
+
+        @BeforeEach
+        private void setUpPerTest() {
+            bankAccountInDb = new BankAccount();
+            bankAccountInDb.setBankAccountId(BankAccountTestConstants.EXISTING_BANK_ACCOUNT_ID);
+            bankAccountInDb.setIban(BankAccountTestConstants.EXISTING_BANK_ACCOUNT_IBAN);
+            bankAccountInDb.setName(BankAccountTestConstants.EXISTING_BANK_ACCOUNT_NAME);
+
+            userInDb = new User();
+            userInDb.setUserId(UserTestConstants.EXISTING_USER_ID);
+            userInDb.setEmail(UserTestConstants.EXISTING_USER_EMAIL);
+            userInDb.setFirstname(UserTestConstants.EXISTING_USER_FIRSTNAME);
+            userInDb.setLastname(UserTestConstants.EXISTING_USER_LASTNAME);
+            userInDb.setPassword(UserTestConstants.EXISTING_USER_PASSWORD);
+            userInDb.setBalance(UserTestConstants.EXISTING_USER_WITH_HIGH_BALANCE);
+            bankAccountInDb.setUser(userInDb);
+        }
+
+
+        @Test
+        @DisplayName("GIVEN bank accounts in DB for an existing user " +
+                "WHEN getting all the bank accounts for this user " +
+                "THEN the returned value is the list of bank accounts")
+        void getAllBankAccountsForUser_WithDataInDB() throws PMBException {
+            //GIVEN
+            List<BankAccount> bankAccountList = new ArrayList<>();
+            bankAccountList.add(bankAccountInDb);
+
+            when(userRepositoryMock.findById(userInDb.getUserId()))
+                    .thenReturn(Optional.ofNullable(userInDb));
+            when(bankAccountRepositoryMock.findAllByUserId(userInDb.getUserId()))
+                    .thenReturn(bankAccountList);
+
+            //THEN
+            List<BankAccountDTO> bankAccountDTOIterable = (List<BankAccountDTO>) bankAccountService.getAllBankAccountsForUser(userInDb.getUserId());
+            assertEquals(1, bankAccountDTOIterable.size());
+            assertEquals(bankAccountInDb.getBankAccountId(), bankAccountDTOIterable.get(0).getBankAccountId());
+            verify(userRepositoryMock, Mockito.times(1)).findById(userInDb.getUserId());
+            verify(bankAccountRepositoryMock, Mockito.times(1)).findAllByUserId(userInDb.getUserId());
+        }
+
+
+        @Test
+        @DisplayName("GIVEN no bank accounts in DB for an existing user " +
+                "WHEN getting all the bank accounts for this user " +
+                "THEN the returned value is an empty list of bank accounts")
+        void getAllBankAccountsForUser_WithNoDataInDB() throws PMBException {
+            //GIVEN
+            List<BankAccount> bankAccountList = new ArrayList<>();
+
+            when(userRepositoryMock.findById(userInDb.getUserId()))
+                    .thenReturn(Optional.ofNullable(userInDb));
+            when(bankAccountRepositoryMock.findAllByUserId(userInDb.getUserId()))
+                    .thenReturn(bankAccountList);
+
+            //THEN
+            List<BankAccountDTO> bankAccountDTOIterable = (List<BankAccountDTO>) bankAccountService.getAllBankAccountsForUser(userInDb.getUserId());
+            assertThat(bankAccountDTOIterable).isEmpty();
+            verify(userRepositoryMock, Mockito.times(1)).findById(userInDb.getUserId());
+            verify(bankAccountRepositoryMock, Mockito.times(1)).findAllByUserId(userInDb.getUserId());
+        }
+
+
+        @Test
+        @DisplayName("GIVEN an unknown user " +
+                "WHEN getting all the bank accounts for this user " +
+                "THEN an PMB Exception is thrown")
+        void getAllBankAccountsForUser_WithUnknownUser() {
+            //GIVEN
+            when(userRepositoryMock.findById(UserTestConstants.UNKNOWN_USER_ID))
+                    .thenReturn(Optional.empty());
+
+            //THEN
+            Exception exception = assertThrows(PMBException.class, () -> bankAccountService.getAllBankAccountsForUser(UserTestConstants.UNKNOWN_USER_ID));
+            assertThat(exception.getMessage()).contains(PMBExceptionConstants.DOES_NOT_EXISTS_USER);
+
+            verify(userRepositoryMock, Mockito.times(1)).findById(UserTestConstants.UNKNOWN_USER_ID);
+            verify(bankAccountRepositoryMock, Mockito.times(0)).findAllByUserId(UserTestConstants.UNKNOWN_USER_ID);
+        }
+
+
+        @Test
+        @DisplayName("GIVEN an null userId " +
+                "WHEN getting all the bank accounts for this user " +
+                "THEN an PMB Exception is thrown")
+        void getAllBankAccountsForUser_WithNullUserId() {
+            //THEN
+            Exception exception = assertThrows(PMBException.class, () -> bankAccountService.getAllBankAccountsForUser(null));
+            assertThat(exception.getMessage()).contains(PMBExceptionConstants.MISSING_INFORMATION_LIST_BANK_ACCOUNT);
+
+            verify(userRepositoryMock, Mockito.times(0)).findById(UserTestConstants.UNKNOWN_USER_ID);
+            verify(bankAccountRepositoryMock, Mockito.times(0)).findAllByUserId(UserTestConstants.UNKNOWN_USER_ID);
         }
     }
 }

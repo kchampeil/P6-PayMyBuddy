@@ -5,6 +5,7 @@ import com.paymybuddy.webapp.constants.PMBExceptionConstants;
 import com.paymybuddy.webapp.exception.PMBException;
 import com.paymybuddy.webapp.model.BankAccount;
 import com.paymybuddy.webapp.model.DTO.BankAccountDTO;
+import com.paymybuddy.webapp.model.User;
 import com.paymybuddy.webapp.repository.BankAccountRepository;
 import com.paymybuddy.webapp.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -75,9 +78,9 @@ public class BankAccountService implements IBankAccountService {
                     } else {
                         log.error(LogConstants.CREATE_BANK_ACCOUNT_ERROR
                                 + PMBExceptionConstants.ALREADY_EXIST_BANK_ACCOUNT
-                                + bankAccountDTOToCreate.getIban()+" // "+bankAccountDTOToCreate.getUserId());
+                                + bankAccountDTOToCreate.getIban() + " // " + bankAccountDTOToCreate.getUserId());
                         throw new PMBException(PMBExceptionConstants.ALREADY_EXIST_BANK_ACCOUNT
-                                + bankAccountDTOToCreate.getIban()+" // "+bankAccountDTOToCreate.getUserId());
+                                + bankAccountDTOToCreate.getIban() + " // " + bankAccountDTOToCreate.getUserId());
                     }
 
                 } else {
@@ -101,5 +104,41 @@ public class BankAccountService implements IBankAccountService {
         }
 
         return createdBankAccountDTO;
+    }
+
+
+    /**
+     * récupération de la liste de touts les comptes bancaires d un utilisateur donné
+     *
+     * @param userId id de l utilisateur dont on souhaite à récupérer la liste des comptes bancaire
+     * @return la liste des comptes bancaires (DTO)
+     */
+    @Override
+    public List<BankAccountDTO> getAllBankAccountsForUser(Long userId) throws PMBException {
+        List<BankAccountDTO> bankAccountDTOList = new ArrayList<>();
+
+        if (userId != null) {
+            Optional<User> user = userRepository.findById(userId);
+
+            if (user.isPresent()) {
+                List<BankAccount> bankAccountList = bankAccountRepository.findAllByUserId(userId);
+                ModelMapper modelMapper = new ModelMapper();
+                bankAccountList.forEach(bankAccount ->
+                        bankAccountDTOList
+                                .add(modelMapper.map(bankAccount, BankAccountDTO.class)));
+
+            } else {
+                log.error(LogConstants.LIST_BANK_ACCOUNT_ERROR
+                        + PMBExceptionConstants.DOES_NOT_EXISTS_USER + userId);
+                throw new PMBException(PMBExceptionConstants.DOES_NOT_EXISTS_USER + userId);
+            }
+
+        } else {
+            log.error(LogConstants.LIST_BANK_ACCOUNT_ERROR
+                    + PMBExceptionConstants.MISSING_INFORMATION_LIST_BANK_ACCOUNT);
+            throw new PMBException(PMBExceptionConstants.MISSING_INFORMATION_LIST_BANK_ACCOUNT);
+        }
+
+        return bankAccountDTOList;
     }
 }

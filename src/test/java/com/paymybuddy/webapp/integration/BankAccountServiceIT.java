@@ -20,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 import javax.transaction.Transactional;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -75,8 +76,8 @@ public class BankAccountServiceIT {
 
 
         @Test
-        @DisplayName("WHEN creating a new bank account with correct informations for an existing user" +
-                "THEN the returned value is the added bank account," +
+        @DisplayName("WHEN creating a new bank account with correct informations for an existing user " +
+                "THEN the returned value is the added bank account, " +
                 "AND the bank account is added in DB")
         public void createBankAccountIT_WithSuccess() throws Exception {
 
@@ -94,7 +95,7 @@ public class BankAccountServiceIT {
 
 
         @Test
-        @DisplayName("WHEN creating a new bank account with invalid IBAN" +
+        @DisplayName("WHEN creating a new bank account with invalid IBAN " +
                 "THEN an PMBException is thrown AND the bank account is not added in DB")
         public void createBankAccountIT_InvalidData() {
 
@@ -110,13 +111,13 @@ public class BankAccountServiceIT {
 
 
         @Test
-        @DisplayName("WHEN creating a new bank account with an existing IBAN for the user" +
+        @DisplayName("WHEN creating a new bank account with an existing IBAN for the user " +
                 "THEN an PMBException is thrown AND the bank account is not added in DB")
         @Transactional
         public void createBankAccountIT_AlreadyExists() {
             //initialisation du test avec un compte bancaire en base
             BankAccount existingBankAccount = new BankAccount();
-            existingBankAccount.setIban(BankAccountTestConstants.EXISTING_BANK_ACCOUNT);
+            existingBankAccount.setIban(BankAccountTestConstants.EXISTING_BANK_ACCOUNT_IBAN);
             existingBankAccount.setName(BankAccountTestConstants.EXISTING_BANK_ACCOUNT_NAME);
             existingBankAccount.setUser(existingUser);
             existingBankAccount = bankAccountRepository.save(existingBankAccount);
@@ -134,6 +135,30 @@ public class BankAccountServiceIT {
 
             //nettoyage de la DB en fin de test en supprimant le compte bancaire créé à l initialisation du test
             //TOASK le premier CB créé n est pas supprimé comme si la base ne pouvait pas être vide une fois alimentée
+            bankAccountRepository.deleteById(existingBankAccount.getBankAccountId());
+        }
+
+
+        @Test
+        @DisplayName("WHEN getting the list of bank accounts for an existing user " +
+                "THEN the list of bank accounts in DB is returned")
+        @Transactional
+        public void getAllBankAccountsForUser_WithData() throws PMBException {
+            
+            //initialisation du test avec un compte bancaire en base
+            BankAccount existingBankAccount = new BankAccount();
+            existingBankAccount.setIban(BankAccountTestConstants.EXISTING_BANK_ACCOUNT_IBAN);
+            existingBankAccount.setName(BankAccountTestConstants.EXISTING_BANK_ACCOUNT_NAME);
+            existingBankAccount.setUser(existingUser);
+            existingBankAccount = bankAccountRepository.save(existingBankAccount);
+
+            //test
+            List<BankAccountDTO> bankAccountDTOList = bankAccountService.getAllBankAccountsForUser(existingUser.getUserId());
+
+            assertThat(bankAccountDTOList).isNotEmpty();
+            assertEquals(existingBankAccount.getBankAccountId(), bankAccountDTOList.get(0).getBankAccountId());
+
+            //nettoyage de la DB en fin de test en supprimant le compte bancaire créé par le test
             bankAccountRepository.deleteById(existingBankAccount.getBankAccountId());
         }
     }
