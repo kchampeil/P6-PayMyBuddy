@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -154,6 +155,110 @@ class BankTransferServiceTest {
 
             //THEN
             Exception exception = assertThrows(PMBException.class, () -> bankTransferService.transferFromBankAccount(bankTransferDTOToCreate));
+            assertThat(exception.getMessage()).contains(PMBExceptionConstants.MISSING_INFORMATION_NEW_BANK_TRANSFER);
+
+            verify(bankAccountRepositoryMock, Mockito.times(0))
+                    .findById(bankTransferDTOToCreate.getBankAccountId());
+            verify(userRepositoryMock, Mockito.times(0))
+                    .save(any(User.class));
+            verify(bankTransferRepositoryMock, Mockito.times(0))
+                    .save(any(BankTransfer.class));
+        }
+    }
+
+
+    @Nested
+    @DisplayName("transferToBankAccount tests")
+    class TransferToBankAccountTest {
+
+        @Test
+        @DisplayName("GIVEN a new bank transfer to bank to add for an existing bank account " +
+                "WHEN saving this new bank bank transfer " +
+                "THEN the returned value is the added bank transfer and the user balance has been decreased")
+        void transferToBankAccount_WithSuccess() throws PMBException {
+            //GIVEN
+            bankTransferInDb.setType(BankTransferTypes.DEBIT);
+            when(bankAccountRepositoryMock.findById(bankTransferDTOToCreate.getBankAccountId()))
+                    .thenReturn(Optional.ofNullable(bankAccountInDb));
+            when(bankTransferRepositoryMock.save(any(BankTransfer.class))).thenReturn(bankTransferInDb);
+
+            //WHEN
+            Optional<BankTransferDTO> createdBankTransferDTO = bankTransferService.transferToBankAccount(bankTransferDTOToCreate);
+
+            //THEN
+            assertTrue(createdBankTransferDTO.isPresent());
+            assertNotNull(createdBankTransferDTO.get().getBankTransferId());
+            assertEquals(bankTransferDTOToCreate.getBankAccountId(), createdBankTransferDTO.get().getBankAccountId());
+            assertEquals(bankTransferDTOToCreate.getDate(), createdBankTransferDTO.get().getDate());
+            assertEquals(bankTransferDTOToCreate.getDescription(), createdBankTransferDTO.get().getDescription());
+            assertEquals(bankTransferDTOToCreate.getAmount(), createdBankTransferDTO.get().getAmount());
+
+            verify(bankAccountRepositoryMock, Mockito.times(1))
+                    .findById(bankTransferDTOToCreate.getBankAccountId());
+            verify(userRepositoryMock, Mockito.times(1))
+                    .save(any(User.class));
+            verify(bankTransferRepositoryMock, Mockito.times(1))
+                    .save(any(BankTransfer.class));
+        }
+
+
+        @Test
+        @DisplayName("GIVEN a new bank transfer to bank to add for an existing bank account " +
+                "but with an insufficient user's balance " +
+                "WHEN saving this new bank bank transfer " +
+                "THEN an PMB Exception is thrown")
+        void transferToBankAccount_WithInsufficientUserBalance() {
+            //GIVEN
+            userInDb.setBalance(bankTransferDTOToCreate.getAmount().subtract(BigDecimal.valueOf(100)));
+            when(bankAccountRepositoryMock.findById(bankTransferDTOToCreate.getBankAccountId()))
+                    .thenReturn(Optional.ofNullable(bankAccountInDb));
+            when(bankTransferRepositoryMock.save(any(BankTransfer.class))).thenReturn(bankTransferInDb);
+
+            //THEN
+            Exception exception = assertThrows(PMBException.class, () -> bankTransferService.transferToBankAccount(bankTransferDTOToCreate));
+            assertThat(exception.getMessage()).contains(PMBExceptionConstants.INSUFFICIENT_BALANCE);
+
+            verify(bankAccountRepositoryMock, Mockito.times(1))
+                    .findById(bankTransferDTOToCreate.getBankAccountId());
+            verify(userRepositoryMock, Mockito.times(0))
+                    .save(any(User.class));
+            verify(bankTransferRepositoryMock, Mockito.times(0))
+                    .save(any(BankTransfer.class));
+        }
+
+
+        @Test
+        @DisplayName("GIVEN a new bank transfer to bank to add with a non-existing bank account " +
+                "WHEN saving this new bank transfer " +
+                "THEN an PMB Exception is thrown")
+        void transferToBankAccount_WithNoExistingBankAccountInRepository() {
+            //GIVEN
+            when(bankAccountRepositoryMock.findById(bankTransferDTOToCreate.getBankAccountId()))
+                    .thenReturn(Optional.empty());
+
+            //THEN
+            Exception exception = assertThrows(PMBException.class, () -> bankTransferService.transferToBankAccount(bankTransferDTOToCreate));
+            assertThat(exception.getMessage()).contains(PMBExceptionConstants.DOES_NOT_EXISTS_BANK_ACCOUNT);
+
+            verify(bankAccountRepositoryMock, Mockito.times(1))
+                    .findById(bankTransferDTOToCreate.getBankAccountId());
+            verify(userRepositoryMock, Mockito.times(0))
+                    .save(any(User.class));
+            verify(bankTransferRepositoryMock, Mockito.times(0))
+                    .save(any(BankTransfer.class));
+        }
+
+
+        @Test
+        @DisplayName("GIVEN a new bank transfer to bank to add with missing informations" +
+                "WHEN saving this new bank transfer " +
+                "THEN an PMB Exception is thrown")
+        void transferToBankAccount_WithMissingInformations() {
+            //GIVEN
+            bankTransferDTOToCreate.setDescription(null);
+
+            //THEN
+            Exception exception = assertThrows(PMBException.class, () -> bankTransferService.transferToBankAccount(bankTransferDTOToCreate));
             assertThat(exception.getMessage()).contains(PMBExceptionConstants.MISSING_INFORMATION_NEW_BANK_TRANSFER);
 
             verify(bankAccountRepositoryMock, Mockito.times(0))

@@ -7,4 +7,6 @@ import java.util.Optional;
 
 public interface IBankTransferService {
     Optional<BankTransferDTO> transferFromBankAccount(BankTransferDTO bankTransferDTO) throws PMBException;
+
+    Optional<BankTransferDTO> transferToBankAccount(BankTransferDTO bankTransferDTOToCreate) throws PMBException;
 }

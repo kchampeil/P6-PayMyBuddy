@@ -17,6 +17,7 @@ public class UserTestConstants {
     public static final String EXISTING_USER_LASTNAME = "PICSOU";
     public static final String EXISTING_USER_PASSWORD = "BP2021!";
     public static final BigDecimal EXISTING_USER_WITH_HIGH_BALANCE = BigDecimal.valueOf(10000).setScale(2);
+    public static final BigDecimal EXISTING_USER_WITH_LOW_BALANCE = BigDecimal.valueOf(1).setScale(2);
 
     public static final Long UNKNOWN_USER_ID = 666L;
 }
