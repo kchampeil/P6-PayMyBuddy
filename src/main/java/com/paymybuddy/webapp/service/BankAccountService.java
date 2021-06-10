@@ -121,7 +121,7 @@ public class BankAccountService implements IBankAccountService {
             Optional<User> user = userRepository.findById(userId);
 
             if (user.isPresent()) {
-                List<BankAccount> bankAccountList = bankAccountRepository.findAllByUserId(userId);
+                List<BankAccount> bankAccountList = bankAccountRepository.findAllByUser_UserId(userId);
                 ModelMapper modelMapper = new ModelMapper();
                 bankAccountList.forEach(bankAccount ->
                         bankAccountDTOList

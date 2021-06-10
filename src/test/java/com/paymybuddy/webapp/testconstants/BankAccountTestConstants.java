@@ -11,4 +11,5 @@ public class BankAccountTestConstants {
     public static final String NEW_BANK_ACCOUNT_IBAN = "FR061212343456567878";
     public static final String NEW_BANK_ACCOUNT_NAME = "Compte secondaire Picsou";
 
+    public static final Long UNKNOWN_BANK_ACCOUNT_ID = 666L;
 }

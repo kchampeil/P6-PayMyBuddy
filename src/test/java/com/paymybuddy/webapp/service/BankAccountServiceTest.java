@@ -44,7 +44,7 @@ class BankAccountServiceTest {
     private IBankAccountService bankAccountService;
 
     @Nested
-    @DisplayName("CreateBankAccount tests")
+    @DisplayName("createBankAccount tests")
     class CreateBankAccountTest {
         private BankAccountDTO bankAccountDTOToCreate;
 
@@ -210,15 +210,15 @@ class BankAccountServiceTest {
 
             when(userRepositoryMock.findById(userInDb.getUserId()))
                     .thenReturn(Optional.ofNullable(userInDb));
-            when(bankAccountRepositoryMock.findAllByUserId(userInDb.getUserId()))
+            when(bankAccountRepositoryMock.findAllByUser_UserId(userInDb.getUserId()))
                     .thenReturn(bankAccountList);
 
             //THEN
-            List<BankAccountDTO> bankAccountDTOIterable = (List<BankAccountDTO>) bankAccountService.getAllBankAccountsForUser(userInDb.getUserId());
+            List<BankAccountDTO> bankAccountDTOIterable = bankAccountService.getAllBankAccountsForUser(userInDb.getUserId());
             assertEquals(1, bankAccountDTOIterable.size());
             assertEquals(bankAccountInDb.getBankAccountId(), bankAccountDTOIterable.get(0).getBankAccountId());
             verify(userRepositoryMock, Mockito.times(1)).findById(userInDb.getUserId());
-            verify(bankAccountRepositoryMock, Mockito.times(1)).findAllByUserId(userInDb.getUserId());
+            verify(bankAccountRepositoryMock, Mockito.times(1)).findAllByUser_UserId(userInDb.getUserId());
         }
 
 
@@ -232,14 +232,14 @@ class BankAccountServiceTest {
 
             when(userRepositoryMock.findById(userInDb.getUserId()))
                     .thenReturn(Optional.ofNullable(userInDb));
-            when(bankAccountRepositoryMock.findAllByUserId(userInDb.getUserId()))
+            when(bankAccountRepositoryMock.findAllByUser_UserId(userInDb.getUserId()))
                     .thenReturn(bankAccountList);
 
             //THEN
-            List<BankAccountDTO> bankAccountDTOIterable = (List<BankAccountDTO>) bankAccountService.getAllBankAccountsForUser(userInDb.getUserId());
+            List<BankAccountDTO> bankAccountDTOIterable = bankAccountService.getAllBankAccountsForUser(userInDb.getUserId());
             assertThat(bankAccountDTOIterable).isEmpty();
             verify(userRepositoryMock, Mockito.times(1)).findById(userInDb.getUserId());
-            verify(bankAccountRepositoryMock, Mockito.times(1)).findAllByUserId(userInDb.getUserId());
+            verify(bankAccountRepositoryMock, Mockito.times(1)).findAllByUser_UserId(userInDb.getUserId());
         }
 
 
@@ -257,7 +257,7 @@ class BankAccountServiceTest {
             assertThat(exception.getMessage()).contains(PMBExceptionConstants.DOES_NOT_EXISTS_USER);
 
             verify(userRepositoryMock, Mockito.times(1)).findById(UserTestConstants.UNKNOWN_USER_ID);
-            verify(bankAccountRepositoryMock, Mockito.times(0)).findAllByUserId(UserTestConstants.UNKNOWN_USER_ID);
+            verify(bankAccountRepositoryMock, Mockito.times(0)).findAllByUser_UserId(UserTestConstants.UNKNOWN_USER_ID);
         }
 
 
@@ -271,7 +271,7 @@ class BankAccountServiceTest {
             assertThat(exception.getMessage()).contains(PMBExceptionConstants.MISSING_INFORMATION_LIST_BANK_ACCOUNT);
 
             verify(userRepositoryMock, Mockito.times(0)).findById(UserTestConstants.UNKNOWN_USER_ID);
-            verify(bankAccountRepositoryMock, Mockito.times(0)).findAllByUserId(UserTestConstants.UNKNOWN_USER_ID);
+            verify(bankAccountRepositoryMock, Mockito.times(0)).findAllByUser_UserId(UserTestConstants.UNKNOWN_USER_ID);
         }
     }
 }

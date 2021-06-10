@@ -18,6 +18,7 @@ import javax.persistence.Table;
 public class BankAccount {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "bank_account_id", nullable = false)
     private Long bankAccountId;
 
     @Column(name = "iban", nullable = false, length = 34)
