@@ -176,7 +176,6 @@ class BankAccountServiceTest {
     @Nested
     @DisplayName("getAllBankAccountsForUser tests")
     class GetAllBankAccountsForUserTest {
-        //TTR private BankAccountDTO bankAccountDTOToCreate;
 
         private BankAccount bankAccountInDb;
         private User userInDb;
@@ -214,9 +213,9 @@ class BankAccountServiceTest {
                     .thenReturn(bankAccountList);
 
             //THEN
-            List<BankAccountDTO> bankAccountDTOIterable = bankAccountService.getAllBankAccountsForUser(userInDb.getUserId());
-            assertEquals(1, bankAccountDTOIterable.size());
-            assertEquals(bankAccountInDb.getBankAccountId(), bankAccountDTOIterable.get(0).getBankAccountId());
+            List<BankAccountDTO> bankAccountDTOList = bankAccountService.getAllBankAccountsForUser(userInDb.getUserId());
+            assertEquals(1, bankAccountDTOList.size());
+            assertEquals(bankAccountInDb.getBankAccountId(), bankAccountDTOList.get(0).getBankAccountId());
             verify(userRepositoryMock, Mockito.times(1)).findById(userInDb.getUserId());
             verify(bankAccountRepositoryMock, Mockito.times(1)).findAllByUser_UserId(userInDb.getUserId());
         }
@@ -236,8 +235,8 @@ class BankAccountServiceTest {
                     .thenReturn(bankAccountList);
 
             //THEN
-            List<BankAccountDTO> bankAccountDTOIterable = bankAccountService.getAllBankAccountsForUser(userInDb.getUserId());
-            assertThat(bankAccountDTOIterable).isEmpty();
+            List<BankAccountDTO> bankAccountDTOList = bankAccountService.getAllBankAccountsForUser(userInDb.getUserId());
+            assertThat(bankAccountDTOList).isEmpty();
             verify(userRepositoryMock, Mockito.times(1)).findById(userInDb.getUserId());
             verify(bankAccountRepositoryMock, Mockito.times(1)).findAllByUser_UserId(userInDb.getUserId());
         }

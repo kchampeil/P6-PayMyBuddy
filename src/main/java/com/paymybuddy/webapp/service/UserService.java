@@ -38,16 +38,16 @@ public class UserService implements IUserService {
 
         Optional<UserDTO> createdUserDTO;
 
-        // on vérifie qu il ne manque pas d informations
+        // vérifie qu il ne manque pas d informations
         if (userDTOToCreate.isValid()) {
 
-            //on vérifie que l email est valide
+            // vérifie que l email est valide
             if (validEmail(userDTOToCreate.getEmail())) {
 
-                //on vérifie que l utilisateur n existe pas déjà (email identique)
+                // vérifie que l utilisateur n existe pas déjà (email identique)
                 if (!userRepository.findByEmailIgnoreCase(userDTOToCreate.getEmail()).isPresent()) {
 
-                    // on mappe le DTO dans le DAO,
+                    // mappe le DTO dans le DAO,
                     // puis le nouvel utilisateur sauvegardé en base avant mappage inverse du DAO dans le DTO
                     ModelMapper modelMapper = new ModelMapper();
 

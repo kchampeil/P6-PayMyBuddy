@@ -108,9 +108,9 @@ public class BankAccountService implements IBankAccountService {
 
 
     /**
-     * récupération de la liste de touts les comptes bancaires d un utilisateur donné
+     * récupération de la liste de tous les comptes bancaires d un utilisateur donné
      *
-     * @param userId id de l utilisateur dont on souhaite à récupérer la liste des comptes bancaire
+     * @param userId id de l utilisateur dont on souhaite à récupérer la liste des comptes bancaires
      * @return la liste des comptes bancaires (DTO)
      */
     @Override

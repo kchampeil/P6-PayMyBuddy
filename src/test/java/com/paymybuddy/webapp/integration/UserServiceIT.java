@@ -1,11 +1,13 @@
 package com.paymybuddy.webapp.integration;
 
+import com.paymybuddy.webapp.constants.PMBExceptionConstants;
 import com.paymybuddy.webapp.exception.PMBException;
 import com.paymybuddy.webapp.model.DTO.UserDTO;
 import com.paymybuddy.webapp.model.User;
 import com.paymybuddy.webapp.repository.UserRepository;
 import com.paymybuddy.webapp.service.IUserService;
 import com.paymybuddy.webapp.testconstants.UserTestConstants;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -32,17 +34,25 @@ public class UserServiceIT {
     @Nested
     @DisplayName("createUser IT")
     class CreateUserIT {
-        @Test
-        @DisplayName("WHEN creating a new user with correct informations" +
-                "THEN the returned value is the added user," +
-                "AND the user is added in DB")
-        public void createPersonTest_WithSuccess() throws Exception {
-            UserDTO userDTOToCreate = new UserDTO();
+
+        private UserDTO userDTOToCreate;
+
+        @BeforeEach
+        private void setUpPerTest(){
+            userDTOToCreate = new UserDTO();
             userDTOToCreate.setEmail(UserTestConstants.NEW_USER_EMAIL);
             userDTOToCreate.setFirstname(UserTestConstants.NEW_USER_FIRSTNAME);
             userDTOToCreate.setLastname(UserTestConstants.NEW_USER_LASTNAME);
             userDTOToCreate.setPassword(UserTestConstants.NEW_USER_PASSWORD);
             userDTOToCreate.setBalance(UserTestConstants.NEW_USER_BALANCE);
+        }
+
+
+        @Test
+        @DisplayName("WHEN creating a new user with correct informations" +
+                "THEN the returned value is the added user," +
+                "AND the user is added in DB")
+        public void createUserIT_WithSuccess() throws Exception {
 
             Optional<UserDTO> userDTOCreated = userService.createUser(userDTOToCreate);
             Optional<User> userCreated = userRepository.findByEmailIgnoreCase(userDTOToCreate.getEmail());
@@ -51,18 +61,18 @@ public class UserServiceIT {
             assertThat(userCreated).isPresent();
             assertEquals(userDTOToCreate.getEmail(), userCreated.get().getEmail());
 
-            //on nettoie la DB en fin de test en supprimant la personne créée
+            //nettoyage de la DB en fin de test en supprimant l utilisateur créé
             userRepository.deleteById(userCreated.get().getUserId());
         }
 
 
         @Test
-        @DisplayName("WHEN creating a new user with an existing email in DB" +
+        @DisplayName("WHEN creating a new user with an existing email in DB " +
                 "THEN an PMBException is thrown AND the user is not added in DB (existing user is unchanged)")
-        public void createPersonTest_AlreadyExists() {
-            //initialisation du test avec une personne en base
+        public void createUserIT_AlreadyExists() {
+            //initialisation du test avec un user en base
             User existingUser = new User();
-            existingUser.setEmail(UserTestConstants.EXISTING_USER_EMAIL);
+            existingUser.setEmail(UserTestConstants.EXISTING_USER_EMAIL+"_2"); //TOASK à supprimer une fois pb sur suppression 1ère ligne résolue
             existingUser.setFirstname(UserTestConstants.EXISTING_USER_FIRSTNAME);
             existingUser.setLastname(UserTestConstants.EXISTING_USER_LASTNAME);
             existingUser.setBalance(UserTestConstants.EXISTING_USER_WITH_HIGH_BALANCE);
@@ -70,20 +80,16 @@ public class UserServiceIT {
             existingUser = userRepository.save(existingUser);
 
             //test
-            UserDTO userDTOToCreate = new UserDTO();
             userDTOToCreate.setEmail(existingUser.getEmail());
-            userDTOToCreate.setFirstname(UserTestConstants.NEW_USER_FIRSTNAME);
-            userDTOToCreate.setLastname(UserTestConstants.NEW_USER_LASTNAME);
-            userDTOToCreate.setPassword(UserTestConstants.NEW_USER_PASSWORD);
-            userDTOToCreate.setBalance(UserTestConstants.NEW_USER_BALANCE);
 
-            assertThrows(PMBException.class, () -> userService.createUser(userDTOToCreate));
+            Exception exception = assertThrows(PMBException.class, () -> userService.createUser(userDTOToCreate));
+            assertThat(exception.getMessage()).contains(PMBExceptionConstants.ALREADY_EXIST_USER);
 
             Optional<User> userWithDefinedEmail = userRepository.findByEmailIgnoreCase(userDTOToCreate.getEmail());
             assertThat(userWithDefinedEmail).isPresent();
             assertEquals(existingUser, userWithDefinedEmail.get());
 
-            //on nettoie la DB en fin de test en supprimant la personne créée
+            //nettoyage la DB en fin de test en supprimant l utilisateur créé
             userRepository.deleteById(existingUser.getUserId());
         }
     }
