@@ -10,6 +10,10 @@ public class LogConstants {
     public static final String CREATE_BANK_TRANSFER_OK = "Bank transfer added for: ";
     public static final String CREATE_BANK_TRANSFER_ERROR = "Error when saving bank transfer: ";
 
+    public static final String CREATE_RELATIONSHIP_OK = "Relationship added for: ";
+    public static final String CREATE_RELATIONSHIP_ERROR = "Error when saving relationship: ";
+
     public static final String LIST_BANK_ACCOUNT_ERROR = "Error when getting the list of bank accounts: ";
     public static final String LIST_BANK_TRANSFER_ERROR = "Error when getting the list of bank transfers: ";
+
 }
