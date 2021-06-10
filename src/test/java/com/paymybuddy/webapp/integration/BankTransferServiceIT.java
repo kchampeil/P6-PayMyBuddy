@@ -25,6 +25,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import javax.transaction.Transactional;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -190,5 +192,30 @@ public class BankTransferServiceIT {
             assertThat(userNotUpdated).isPresent();
             assertEquals(existingUser.getBalance(), userNotUpdated.get().getBalance());
         }
+    }
+
+    @Test
+    @DisplayName("WHEN getting the list of bank transfers for an existing user " +
+            "THEN the list of bank transfers in DB is returned")
+    @Transactional
+    public void getAllBankTransfersForUser_WithData() throws PMBException {
+
+        //initialisation du test avec un transfert bancaire en base
+        BankTransfer existingBankTransfer = new BankTransfer();
+        existingBankTransfer.setDate(dateUtil.getCurrentLocalDateTime());
+        existingBankTransfer.setDescription(BankTransferTestConstants.EXISTING_BANK_TRANSFER_DESCRIPTION);
+        existingBankTransfer.setAmount(BankTransferTestConstants.EXISTING_BANK_TRANSFER_AMOUNT);
+        existingBankTransfer.setType(BankTransferTypes.CREDIT);
+        existingBankTransfer.setBankAccount(existingBankAccount);
+        existingBankTransfer = bankTransferRepository.save(existingBankTransfer);
+
+        //test
+        List<BankTransferDTO> bankTransferDTOList = bankTransferService.getAllBankTransfersForUser(existingUser.getUserId());
+
+        assertThat(bankTransferDTOList).isNotEmpty();
+        assertEquals(existingBankTransfer.getBankTransferId(), bankTransferDTOList.get(0).getBankTransferId());
+
+        //nettoyage de la DB en fin de test en supprimant le compte bancaire créé par le test
+        bankTransferRepository.deleteById(existingBankTransfer.getBankTransferId());
     }
 }

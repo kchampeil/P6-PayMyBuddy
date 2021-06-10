@@ -17,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -186,5 +188,41 @@ public class BankTransferService implements IBankTransferService {
         }
 
         return createdBankTransferDTO;
+    }
+
+
+    /**
+     * récupération de la liste de tous les transferts bancaires d un utilisateur donné
+     *
+     * @param userId id de l utilisateur dont on souhaite à récupérer la liste des transferts bancaires
+     * @return la liste des transferts bancaires (DTO)
+     */
+    @Override
+    public List<BankTransferDTO> getAllBankTransfersForUser(Long userId) throws PMBException {
+        List<BankTransferDTO> bankTransferDTOList = new ArrayList<>();
+
+        if (userId != null) {
+            Optional<User> user = userRepository.findById(userId);
+
+            if (user.isPresent()) {
+                List<BankTransfer> bankTransferList = bankTransferRepository.findAllByBankAccount_User_UserId(userId);
+                ModelMapper modelMapper = new ModelMapper();
+                bankTransferList.forEach(bankTransfer ->
+                        bankTransferDTOList
+                                .add(modelMapper.map(bankTransfer, BankTransferDTO.class)));
+
+            } else {
+                log.error(LogConstants.LIST_BANK_TRANSFER_ERROR
+                        + PMBExceptionConstants.DOES_NOT_EXISTS_USER + userId);
+                throw new PMBException(PMBExceptionConstants.DOES_NOT_EXISTS_USER + userId);
+            }
+
+        } else {
+            log.error(LogConstants.LIST_BANK_TRANSFER_ERROR
+                    + PMBExceptionConstants.MISSING_INFORMATION_LIST_BANK_TRANSFER);
+            throw new PMBException(PMBExceptionConstants.MISSING_INFORMATION_LIST_BANK_TRANSFER);
+        }
+
+        return bankTransferDTOList;
     }
 }

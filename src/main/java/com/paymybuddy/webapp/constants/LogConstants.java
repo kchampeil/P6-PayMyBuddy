@@ -11,6 +11,5 @@ public class LogConstants {
     public static final String CREATE_BANK_TRANSFER_ERROR = "Error when saving bank transfer: ";
 
     public static final String LIST_BANK_ACCOUNT_ERROR = "Error when getting the list of bank accounts: ";
-
-
+    public static final String LIST_BANK_TRANSFER_ERROR = "Error when getting the list of bank transfers: ";
 }

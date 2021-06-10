@@ -6,6 +6,7 @@ public class PMBExceptionConstants {
     public static final String MISSING_INFORMATION_NEW_BANK_ACCOUNT = "All information must be specified for a new bank account";
     public static final String MISSING_INFORMATION_LIST_BANK_ACCOUNT = "A user id must be specified to get his list of bank accounts";
     public static final String MISSING_INFORMATION_NEW_BANK_TRANSFER = "All information must be specified for a new bank transfer";
+    public static final String MISSING_INFORMATION_LIST_BANK_TRANSFER = "A user id must be specified to get his list of bank transfers";
 
     //Invalid data
     public static final String INVALID_EMAIL = "Invalid email for user: ";
