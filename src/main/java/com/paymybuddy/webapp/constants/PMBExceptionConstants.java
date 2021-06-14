@@ -3,11 +3,15 @@ package com.paymybuddy.webapp.constants;
 public class PMBExceptionConstants {
     //Missing information
     public static final String MISSING_INFORMATION_NEW_USER = "All information must be specified for a new user";
+
     public static final String MISSING_INFORMATION_NEW_BANK_ACCOUNT = "All information must be specified for a new bank account";
     public static final String MISSING_INFORMATION_LIST_BANK_ACCOUNT = "A user id must be specified to get his list of bank accounts";
+
     public static final String MISSING_INFORMATION_NEW_BANK_TRANSFER = "All information must be specified for a new bank transfer";
     public static final String MISSING_INFORMATION_LIST_BANK_TRANSFER = "A user id must be specified to get his list of bank transfers";
+
     public static final String MISSING_INFORMATION_NEW_RELATIONSHIP = "All information must be specified for a new relationship";
+    public static final String MISSING_INFORMATION_LIST_RELATIONSHIP = "A user id must be specified to get his list of bank transfers";
 
     //Invalid data
     public static final String INVALID_EMAIL = "Invalid email for user: ";
@@ -24,5 +28,4 @@ public class PMBExceptionConstants {
 
     //Insufficient balance
     public static final String INSUFFICIENT_BALANCE = "Insufficient balance for: ";
-
 }

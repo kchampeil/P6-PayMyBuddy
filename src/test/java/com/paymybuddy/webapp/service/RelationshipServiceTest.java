@@ -18,6 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,6 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -173,7 +176,6 @@ class RelationshipServiceTest {
         }
 
 
-
         @Test
         @DisplayName("GIVEN a new relationship to add with an unknown friend " +
                 "WHEN saving this new relationship " +
@@ -198,6 +200,129 @@ class RelationshipServiceTest {
                     .findByUserAndFriend(userInDb, friendInDb);
             verify(relationshipRepositoryMock, Mockito.times(0))
                     .save(any(Relationship.class));
+        }
+    }
+
+
+    @Nested
+    @DisplayName("getAllRelationshipsForUser tests")
+    class GetAllRelationshipsForUserTest {
+
+        private Relationship relationshipInDb;
+        private User userInDb;
+        private User friendInDb;
+
+        @BeforeEach
+        private void setUpPerTest() {
+            relationshipInDb = new Relationship();
+            relationshipInDb.setRelationshipId(RelationshipTestConstants.EXISTING_RELATIONSHIP_ID);
+
+            userInDb = new User();
+            userInDb.setUserId(UserTestConstants.EXISTING_USER_ID);
+            userInDb.setEmail(UserTestConstants.EXISTING_USER_EMAIL);
+            userInDb.setFirstname(UserTestConstants.EXISTING_USER_FIRSTNAME);
+            userInDb.setLastname(UserTestConstants.EXISTING_USER_LASTNAME);
+            userInDb.setPassword(UserTestConstants.EXISTING_USER_PASSWORD);
+            userInDb.setBalance(UserTestConstants.EXISTING_USER_WITH_HIGH_BALANCE);
+            relationshipInDb.setUser(userInDb);
+
+            friendInDb = new User();
+            friendInDb.setUserId(UserTestConstants.EXISTING_USER_AS_FRIEND_ID);
+            friendInDb.setEmail(UserTestConstants.EXISTING_USER_AS_FRIEND_EMAIL);
+            friendInDb.setFirstname(UserTestConstants.EXISTING_USER_AS_FRIEND_FIRSTNAME);
+            friendInDb.setLastname(UserTestConstants.EXISTING_USER_AS_FRIEND_LASTNAME);
+            friendInDb.setPassword(UserTestConstants.EXISTING_USER_AS_FRIEND_PASSWORD);
+            friendInDb.setBalance(UserTestConstants.EXISTING_USER_AS_FRIEND_BALANCE);
+            relationshipInDb.setFriend(friendInDb);
+        }
+
+
+        @Test
+        @DisplayName("GIVEN relationships in DB for an existing user " +
+                "WHEN getting all the relationships for this user " +
+                "THEN the returned value is the list of relationships")
+        void getAllRelationshipsForUser_WithDataInDB() throws PMBException {
+            //GIVEN
+            List<Relationship> relationshipList = new ArrayList<>();
+            relationshipList.add(relationshipInDb);
+
+            when(userRepositoryMock.findById(userInDb.getUserId()))
+                    .thenReturn(Optional.ofNullable(userInDb));
+            when(relationshipRepositoryMock.findAllByUser_UserId(userInDb.getUserId()))
+                    .thenReturn(relationshipList);
+
+            //THEN
+            List<RelationshipDTO> relationshipDTOList =
+                    relationshipService.getAllRelationshipsForUser(userInDb.getUserId());
+            assertEquals(1, relationshipDTOList.size());
+            assertEquals(relationshipInDb.getRelationshipId(), relationshipDTOList.get(0).getRelationshipId());
+            assertEquals(friendInDb.getUserId(), relationshipDTOList.get(0).getFriendId());
+
+            verify(userRepositoryMock, Mockito.times(1)).findById(userInDb.getUserId());
+            verify(relationshipRepositoryMock, Mockito.times(1))
+                    .findAllByUser_UserId(userInDb.getUserId());
+        }
+
+
+        @Test
+        @DisplayName("GIVEN no relationships in DB for an existing user " +
+                "WHEN getting all the relationships for this user " +
+                "THEN the returned value is an empty list of relationships")
+        void getAllRelationshipsForUser_WithNoDataInDB() throws PMBException {
+            //GIVEN
+            List<Relationship> relationshipList = new ArrayList<>();
+
+            when(userRepositoryMock.findById(userInDb.getUserId()))
+                    .thenReturn(Optional.ofNullable(userInDb));
+            when(relationshipRepositoryMock.findAllByUser_UserId(userInDb.getUserId()))
+                    .thenReturn(relationshipList);
+
+            //THEN
+            List<RelationshipDTO> relationshipDTOList =
+                    relationshipService.getAllRelationshipsForUser(userInDb.getUserId());
+            assertThat(relationshipDTOList).isEmpty();
+
+            verify(userRepositoryMock, Mockito.times(1)).findById(userInDb.getUserId());
+            verify(relationshipRepositoryMock, Mockito.times(1))
+                    .findAllByUser_UserId(userInDb.getUserId());
+        }
+
+
+        @Test
+        @DisplayName("GIVEN an unknown user " +
+                "WHEN getting all the relationships for this user " +
+                "THEN an PMB Exception is thrown")
+        void getAllRelationshipsForUser_WithUnknownUser() {
+            //GIVEN
+            when(userRepositoryMock.findById(UserTestConstants.UNKNOWN_USER_ID))
+                    .thenReturn(Optional.empty());
+
+            //THEN
+            Exception exception = assertThrows(PMBException.class,
+                    () -> relationshipService.getAllRelationshipsForUser(UserTestConstants.UNKNOWN_USER_ID));
+            assertThat(exception.getMessage()).contains(PMBExceptionConstants.DOES_NOT_EXISTS_USER);
+
+            verify(userRepositoryMock, Mockito.times(1))
+                    .findById(UserTestConstants.UNKNOWN_USER_ID);
+            verify(relationshipRepositoryMock, Mockito.times(0))
+                    .findAllByUser_UserId(UserTestConstants.UNKNOWN_USER_ID);
+        }
+
+
+        @Test
+        @DisplayName("GIVEN an null userId " +
+                "WHEN getting all the relationships for this user " +
+                "THEN an PMB Exception is thrown")
+        void getAllRelationshipsForUser_WithNullUserId() {
+            //THEN
+            Exception exception = assertThrows(PMBException.class,
+                    () -> relationshipService.getAllRelationshipsForUser(null));
+            assertThat(exception.getMessage()).contains(PMBExceptionConstants.MISSING_INFORMATION_LIST_RELATIONSHIP);
+
+            verify(userRepositoryMock, Mockito.times(0))
+                    .findById(anyLong());
+            verify(relationshipRepositoryMock, Mockito.times(0))
+                    .findAllByUser_UserId(anyLong());
         }
     }
 }

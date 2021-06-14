@@ -1,6 +1,8 @@
 package com.paymybuddy.webapp.model;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -8,13 +10,18 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.IdClass;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-@Data
+/**
+ * La classe Relationship contient les liens déclaré par un utilisateur avec d'autres utilisateurs de l'application ("amis")
+ * Un utilisateur peut avoir plusieurs "amis" déclarés
+ */
+@Getter
+@Setter
 @Entity
+@RequiredArgsConstructor
 @Table(name = "relationship")
 public class Relationship {
     @Id

@@ -5,9 +5,12 @@ import com.paymybuddy.webapp.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface RelationshipRepository extends JpaRepository<Relationship, Long> {
     Optional<Relationship> findByUserAndFriend(User user, User friend);
+
+    List<Relationship> findAllByUser_UserId(Long userId);
 }

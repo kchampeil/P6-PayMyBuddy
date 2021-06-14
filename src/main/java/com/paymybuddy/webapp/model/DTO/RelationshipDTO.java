@@ -1,6 +1,7 @@
 package com.paymybuddy.webapp.model.DTO;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import javax.validation.constraints.NotEmpty;
@@ -8,6 +9,7 @@ import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
+@RequiredArgsConstructor
 public class RelationshipDTO {
     private Long relationshipId;
 

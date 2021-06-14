@@ -13,6 +13,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -109,5 +111,44 @@ public class RelationshipService implements IRelationshipService {
         }
 
         return createdRelationshipDTO;
+    }
+
+
+    /**
+     * récupération de la liste de toutes les relations ("amis") d'un utilisateur donné
+     *
+     * NB: ne récupère que la liste des "amis" déclarés par l'utilisateur.
+     * Les relations où l'utilisateur est déclaré comme "ami" ne sont pas restituées
+     *
+     * @param userId id de l utilisateur dont on souhaite à récupérer la liste des relations
+     * @return la liste des relations (DTO)
+     */
+    @Override
+    public List<RelationshipDTO> getAllRelationshipsForUser(Long userId) throws PMBException {
+        List<RelationshipDTO> relationshipDTOList = new ArrayList<>();
+
+        if (userId != null) {
+            Optional<User> user = userRepository.findById(userId);
+
+            if (user.isPresent()) {
+                List<Relationship> relationshipList = relationshipRepository.findAllByUser_UserId(userId);
+                ModelMapper modelMapper = new ModelMapper();
+                relationshipList.forEach(relationship ->
+                        relationshipDTOList
+                                .add(modelMapper.map(relationship, RelationshipDTO.class)));
+
+            } else {
+                log.error(LogConstants.LIST_RELATIONSHIP_ERROR
+                        + PMBExceptionConstants.DOES_NOT_EXISTS_USER + userId);
+                throw new PMBException(PMBExceptionConstants.DOES_NOT_EXISTS_USER + userId);
+            }
+
+        } else {
+            log.error(LogConstants.LIST_RELATIONSHIP_ERROR
+                    + PMBExceptionConstants.MISSING_INFORMATION_LIST_RELATIONSHIP);
+            throw new PMBException(PMBExceptionConstants.MISSING_INFORMATION_LIST_RELATIONSHIP);
+        }
+
+        return relationshipDTOList;
     }
 }

@@ -19,6 +19,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 import javax.transaction.Transactional;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,49 +38,53 @@ public class RelationshipIT {
     @Autowired
     UserRepository userRepository;
 
+    private User existingUser;
+    private User existingFriend;
+
+    @BeforeEach
+    private void setUpPerTest() {
+        //initialisation avec un user en base
+        existingUser = new User();
+        existingUser.setEmail(UserTestConstants.EXISTING_USER_EMAIL);
+        existingUser.setFirstname(UserTestConstants.EXISTING_USER_FIRSTNAME);
+        existingUser.setLastname(UserTestConstants.EXISTING_USER_LASTNAME);
+        existingUser.setPassword(UserTestConstants.EXISTING_USER_PASSWORD);
+        existingUser.setBalance(UserTestConstants.EXISTING_USER_WITH_HIGH_BALANCE);
+        existingUser = userRepository.save(existingUser);
+
+        //initialisation avec un user ami en base
+        existingFriend = new User();
+        existingFriend.setEmail(UserTestConstants.EXISTING_USER_EMAIL);
+        existingFriend.setFirstname(UserTestConstants.EXISTING_USER_FIRSTNAME);
+        existingFriend.setLastname(UserTestConstants.EXISTING_USER_LASTNAME);
+        existingFriend.setPassword(UserTestConstants.EXISTING_USER_PASSWORD);
+        existingFriend.setBalance(UserTestConstants.EXISTING_USER_WITH_HIGH_BALANCE);
+        existingFriend = userRepository.save(existingFriend);
+    }
+
+    @AfterEach
+    private void tearDownPerTest() {
+        //nettoyage la DB en fin de test en supprimant le user et l'ami créés à l initialisation
+        //TOASK le premier user créé n est pas supprimé
+        // comme si la base ne pouvait pas être vide une fois alimentée(même avec un deleteAll ça ne la supprime pas)
+        // userRepository.deleteAll();
+        userRepository.deleteById(existingUser.getUserId());
+        userRepository.deleteById(existingFriend.getUserId());
+    }
+
+
     @Nested
     @DisplayName("createRelationship IT")
     class CreateRelationshipIT {
 
-        private User existingUser;
-        private User existingFriend;
         private RelationshipDTO relationshipDTOToCreate;
-
 
         @BeforeEach
         private void setUpPerTest() {
-            //initialisation avec un user en base
-            existingUser = new User();
-            existingUser.setEmail(UserTestConstants.EXISTING_USER_EMAIL);
-            existingUser.setFirstname(UserTestConstants.EXISTING_USER_FIRSTNAME);
-            existingUser.setLastname(UserTestConstants.EXISTING_USER_LASTNAME);
-            existingUser.setPassword(UserTestConstants.EXISTING_USER_PASSWORD);
-            existingUser.setBalance(UserTestConstants.EXISTING_USER_WITH_HIGH_BALANCE);
-            existingUser = userRepository.save(existingUser);
-
-            //initialisation avec un user ami en base
-            existingFriend = new User();
-            existingFriend.setEmail(UserTestConstants.EXISTING_USER_EMAIL);
-            existingFriend.setFirstname(UserTestConstants.EXISTING_USER_FIRSTNAME);
-            existingFriend.setLastname(UserTestConstants.EXISTING_USER_LASTNAME);
-            existingFriend.setPassword(UserTestConstants.EXISTING_USER_PASSWORD);
-            existingFriend.setBalance(UserTestConstants.EXISTING_USER_WITH_HIGH_BALANCE);
-            existingFriend = userRepository.save(existingFriend);
-
             //initialisation de l objet bankAccountDTOToCreate
             relationshipDTOToCreate = new RelationshipDTO();
             relationshipDTOToCreate.setUserId(existingUser.getUserId());
             relationshipDTOToCreate.setFriendId(existingFriend.getUserId());
-        }
-
-        @AfterEach
-        private void tearDownPerTest() {
-            //nettoyage la DB en fin de test en supprimant le user et l'ami créés à l initialisation
-            //TOASK le premier user créé n est pas supprimé
-            // comme si la base ne pouvait pas être vide une fois alimentée(même avec un deleteAll ça ne la supprime pas)
-            // userRepository.deleteAll();
-            userRepository.deleteById(existingUser.getUserId());
-            userRepository.deleteById(existingFriend.getUserId());
         }
 
 
@@ -145,5 +150,28 @@ public class RelationshipIT {
             //TOASK le premier CB créé n est pas supprimé comme si la base ne pouvait pas être vide une fois alimentée
             relationshipRepository.deleteById(existingRelationship.getRelationshipId());
         }
+    }
+
+
+    @Test
+    @DisplayName("WHEN getting the list of relationships for an existing user " +
+            "THEN the list of relationships in DB is returned")
+    @Transactional
+    public void getAllRelationshipsForUser_WithData() throws PMBException {
+
+        //initialisation du test avec une relation en base
+        Relationship existingRelationship = new Relationship();
+        existingRelationship.setUser(existingUser);
+        existingRelationship.setFriend(existingFriend);
+        existingRelationship = relationshipRepository.save(existingRelationship);
+
+        //test
+        List<RelationshipDTO> relationshipDTOList = relationshipService.getAllRelationshipsForUser(existingUser.getUserId());
+
+        assertThat(relationshipDTOList).isNotEmpty();
+        assertEquals(existingRelationship.getRelationshipId(), relationshipDTOList.get(0).getRelationshipId());
+
+        //nettoyage de la DB en fin de test en supprimant le compte bancaire créé par le test
+        relationshipRepository.deleteById(existingRelationship.getRelationshipId());
     }
 }
