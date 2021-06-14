@@ -13,6 +13,8 @@ public class PMBExceptionConstants {
     public static final String MISSING_INFORMATION_NEW_RELATIONSHIP = "All information must be specified for a new relationship";
     public static final String MISSING_INFORMATION_LIST_RELATIONSHIP = "A user id must be specified to get his list of bank transfers";
 
+    public static final String MISSING_INFORMATION_NEW_TRANSACTION = "All information must be specified for a new transaction";
+
     //Invalid data
     public static final String INVALID_EMAIL = "Invalid email for user: ";
     public static final String INVALID_IBAN = "Invalid IBAN: ";
@@ -25,7 +27,9 @@ public class PMBExceptionConstants {
     //Does not exists
     public static final String DOES_NOT_EXISTS_USER = "No user not exists for: ";
     public static final String DOES_NOT_EXISTS_BANK_ACCOUNT = "No bank account exists for: ";
+    public static final String DOES_NOT_EXISTS_RELATIONSHIP = "No relationship exists for: ";
 
     //Insufficient balance
     public static final String INSUFFICIENT_BALANCE = "Insufficient balance for: ";
+
 }
