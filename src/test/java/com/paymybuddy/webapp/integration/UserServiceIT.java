@@ -5,7 +5,7 @@ import com.paymybuddy.webapp.exception.PMBException;
 import com.paymybuddy.webapp.model.DTO.UserDTO;
 import com.paymybuddy.webapp.model.User;
 import com.paymybuddy.webapp.repository.UserRepository;
-import com.paymybuddy.webapp.service.IUserService;
+import com.paymybuddy.webapp.service.contract.IUserService;
 import com.paymybuddy.webapp.testconstants.UserTestConstants;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -19,6 +19,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ActiveProfiles("test")
@@ -58,6 +59,8 @@ public class UserServiceIT {
             Optional<User> userCreated = userRepository.findByEmailIgnoreCase(userDTOToCreate.getEmail());
 
             assertThat(userDTOCreated).isPresent();
+            assertNotNull(userDTOCreated.get().getUserId());
+
             assertThat(userCreated).isPresent();
             assertEquals(userDTOToCreate.getEmail(), userCreated.get().getEmail());
 
@@ -72,7 +75,7 @@ public class UserServiceIT {
         public void createUserIT_AlreadyExists() {
             //initialisation du test avec un user en base
             User existingUser = new User();
-            existingUser.setEmail(UserTestConstants.EXISTING_USER_EMAIL+"_2"); //TOASK à supprimer une fois pb sur suppression 1ère ligne résolue
+            existingUser.setEmail(UserTestConstants.EXISTING_USER_EMAIL);
             existingUser.setFirstname(UserTestConstants.EXISTING_USER_FIRSTNAME);
             existingUser.setLastname(UserTestConstants.EXISTING_USER_LASTNAME);
             existingUser.setBalance(UserTestConstants.EXISTING_USER_WITH_HIGH_BALANCE);

@@ -11,6 +11,7 @@ import com.paymybuddy.webapp.model.User;
 import com.paymybuddy.webapp.repository.RelationshipRepository;
 import com.paymybuddy.webapp.repository.TransactionRepository;
 import com.paymybuddy.webapp.repository.UserRepository;
+import com.paymybuddy.webapp.service.contract.ITransactionService;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;

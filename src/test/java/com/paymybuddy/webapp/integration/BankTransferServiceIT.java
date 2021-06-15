@@ -11,7 +11,7 @@ import com.paymybuddy.webapp.model.User;
 import com.paymybuddy.webapp.repository.BankAccountRepository;
 import com.paymybuddy.webapp.repository.BankTransferRepository;
 import com.paymybuddy.webapp.repository.UserRepository;
-import com.paymybuddy.webapp.service.IBankTransferService;
+import com.paymybuddy.webapp.service.contract.IBankTransferService;
 import com.paymybuddy.webapp.testconstants.BankAccountTestConstants;
 import com.paymybuddy.webapp.testconstants.BankTransferTestConstants;
 import com.paymybuddy.webapp.testconstants.UserTestConstants;
@@ -25,12 +25,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ActiveProfiles("test")
@@ -83,11 +83,7 @@ public class BankTransferServiceIT {
     @AfterEach
     private void tearDownPerTest() {
         //nettoyage la DB en fin de test en supprimant le user créé à l initialisation
-        //TOASK le premier user créé n est pas supprimé
-        // comme si la base ne pouvait pas être vide une fois alimentée(même avec un deleteAll ça ne la supprime pas)
-        // userRepository.deleteAll();
         userRepository.deleteById(existingUser.getUserId());
-        bankAccountRepository.deleteById(existingBankAccount.getBankAccountId());
     }
 
 
@@ -105,19 +101,22 @@ public class BankTransferServiceIT {
 
             Optional<BankTransferDTO> bankTransferDTOCreated = bankTransferService.transferFromBankAccount(bankTransferDTOToCreate);
             assertThat(bankTransferDTOCreated).isPresent();
+            assertNotNull(bankTransferDTOCreated.get().getBankTransferId());
 
             Optional<BankTransfer> bankTransferCreated = bankTransferRepository
                     .findById(bankTransferDTOCreated.get().getBankTransferId());
             assertThat(bankTransferCreated).isPresent();
             assertEquals(bankTransferDTOToCreate.getDescription(), bankTransferCreated.get().getDescription());
-            assertEquals(BankTransferTypes.CREDIT,bankTransferCreated.get().getType());
+            assertEquals(BankTransferTypes.CREDIT, bankTransferCreated.get().getType());
 
             Optional<User> userUpdated = userRepository.findById(existingUser.getUserId());
             assertThat(userUpdated).isPresent();
-            assertEquals(existingUser.getBalance().add(bankTransferDTOToCreate.getAmount()), userUpdated.get().getBalance());
+            assertEquals(UserTestConstants.EXISTING_USER_WITH_HIGH_BALANCE.add(bankTransferDTOToCreate.getAmount())
+                    , userUpdated.get().getBalance());
 
             //nettoyage de la DB en fin de test en supprimant le compte bancaire créé par le test
             bankTransferRepository.deleteById(bankTransferCreated.get().getBankTransferId());
+            bankAccountRepository.deleteById(existingBankAccount.getBankAccountId());
         }
 
 
@@ -136,6 +135,9 @@ public class BankTransferServiceIT {
             Optional<BankTransfer> bankTransferCreated = bankTransferRepository
                     .findByDateAndBankAccount_BankAccountId(bankTransferDTOToCreate.getDate(), bankTransferDTOToCreate.getBankAccountId());
             assertThat(bankTransferCreated).isNotPresent();
+
+            //nettoyage de la DB en fin de test en supprimant le compte bancaire créé par le test
+            bankAccountRepository.deleteById(existingBankAccount.getBankAccountId());
         }
     }
 
@@ -154,19 +156,22 @@ public class BankTransferServiceIT {
 
             Optional<BankTransferDTO> bankTransferDTOCreated = bankTransferService.transferToBankAccount(bankTransferDTOToCreate);
             assertThat(bankTransferDTOCreated).isPresent();
+            assertNotNull(bankTransferDTOCreated.get().getBankTransferId());
 
             Optional<BankTransfer> bankTransferCreated = bankTransferRepository
                     .findById(bankTransferDTOCreated.get().getBankTransferId());
             assertThat(bankTransferCreated).isPresent();
             assertEquals(bankTransferDTOToCreate.getDescription(), bankTransferCreated.get().getDescription());
-            assertEquals(BankTransferTypes.DEBIT,bankTransferCreated.get().getType());
+            assertEquals(BankTransferTypes.DEBIT, bankTransferCreated.get().getType());
 
             Optional<User> userUpdated = userRepository.findById(existingUser.getUserId());
             assertThat(userUpdated).isPresent();
-            assertEquals(existingUser.getBalance().subtract(bankTransferDTOToCreate.getAmount()), userUpdated.get().getBalance());
+            assertEquals(UserTestConstants.EXISTING_USER_WITH_HIGH_BALANCE.subtract(bankTransferDTOToCreate.getAmount())
+                    , userUpdated.get().getBalance());
 
             //nettoyage de la DB en fin de test en supprimant le compte bancaire créé par le test
             bankTransferRepository.deleteById(bankTransferCreated.get().getBankTransferId());
+            bankAccountRepository.deleteById(existingBankAccount.getBankAccountId());
         }
 
 
@@ -175,7 +180,7 @@ public class BankTransferServiceIT {
                 "with correct informations but insufficient user's balance " +
                 "THEN an PMBException is thrown AND the bank transfer is not added in DB " +
                 "AND no user balance is updated")
-        public void transferToBankAccountIT_WithNotExistingBankAccount() {
+        public void transferToBankAccountIT_WithInsufficientBalance() {
             //initialisation du test avec un solde très faible
             existingUser.setBalance(UserTestConstants.EXISTING_USER_WITH_LOW_BALANCE);
             existingUser = userRepository.save(existingUser);
@@ -191,13 +196,15 @@ public class BankTransferServiceIT {
             Optional<User> userNotUpdated = userRepository.findById(existingUser.getUserId());
             assertThat(userNotUpdated).isPresent();
             assertEquals(existingUser.getBalance(), userNotUpdated.get().getBalance());
+
+            //nettoyage de la DB en fin de test en supprimant le compte bancaire créé par le test
+            bankAccountRepository.deleteById(existingBankAccount.getBankAccountId());
         }
     }
 
     @Test
     @DisplayName("WHEN getting the list of bank transfers for an existing user " +
             "THEN the list of bank transfers in DB is returned")
-    @Transactional
     public void getAllBankTransfersForUser_WithData() throws PMBException {
 
         //initialisation du test avec un transfert bancaire en base
@@ -217,5 +224,6 @@ public class BankTransferServiceIT {
 
         //nettoyage de la DB en fin de test en supprimant le compte bancaire créé par le test
         bankTransferRepository.deleteById(existingBankTransfer.getBankTransferId());
+        bankAccountRepository.deleteById(existingBankAccount.getBankAccountId());
     }
 }

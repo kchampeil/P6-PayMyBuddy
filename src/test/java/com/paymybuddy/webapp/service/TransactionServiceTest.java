@@ -9,6 +9,7 @@ import com.paymybuddy.webapp.model.User;
 import com.paymybuddy.webapp.repository.RelationshipRepository;
 import com.paymybuddy.webapp.repository.TransactionRepository;
 import com.paymybuddy.webapp.repository.UserRepository;
+import com.paymybuddy.webapp.service.contract.ITransactionService;
 import com.paymybuddy.webapp.testconstants.RelationshipTestConstants;
 import com.paymybuddy.webapp.testconstants.TransactionTestConstants;
 import com.paymybuddy.webapp.testconstants.UserTestConstants;
@@ -69,17 +70,6 @@ class TransactionServiceTest {
         transactionDTOToCreate.setAmountFeeExcluded(TransactionTestConstants.NEW_TRANSACTION_AMOUNT_FEE_EXCLUDED);
         transactionDTOToCreate.setRelationshipId(RelationshipTestConstants.EXISTING_RELATIONSHIP_ID);
 
-        transactionInDb = new Transaction();
-        transactionInDb.setTransactionId(TransactionTestConstants.NEW_TRANSACTION_ID);
-        transactionInDb.setDate(transactionDTOToCreate.getDate()); //TODO à voir si date n est pas plutôt la date d enregistrement plutôt que celle transmise dans DTO (à supprimer du DTO selon)
-        transactionInDb.setDescription(transactionDTOToCreate.getDescription());
-        transactionInDb.setAmountFeeExcluded(transactionDTOToCreate.getAmountFeeExcluded());
-        transactionInDb.setFeeAmount(transactionDTOToCreate.getFeeAmount());
-        transactionInDb.setFeeBilled(false);
-
-        relationshipInDb = new Relationship();
-        relationshipInDb.setRelationshipId(RelationshipTestConstants.EXISTING_RELATIONSHIP_ID);
-
         userInDb = new User();
         userInDb.setUserId(UserTestConstants.EXISTING_USER_ID);
         userInDb.setEmail(UserTestConstants.EXISTING_USER_EMAIL);
@@ -87,7 +77,6 @@ class TransactionServiceTest {
         userInDb.setLastname(UserTestConstants.EXISTING_USER_LASTNAME);
         userInDb.setPassword(UserTestConstants.EXISTING_USER_PASSWORD);
         userInDb.setBalance(UserTestConstants.EXISTING_USER_WITH_HIGH_BALANCE);
-        relationshipInDb.setUser(userInDb);
 
         User friendInDb = new User();
         friendInDb.setUserId(UserTestConstants.EXISTING_USER_AS_FRIEND_ID);
@@ -96,8 +85,20 @@ class TransactionServiceTest {
         friendInDb.setLastname(UserTestConstants.EXISTING_USER_AS_FRIEND_LASTNAME);
         friendInDb.setPassword(UserTestConstants.EXISTING_USER_AS_FRIEND_PASSWORD);
         friendInDb.setBalance(UserTestConstants.EXISTING_USER_AS_FRIEND_BALANCE);
+
+        relationshipInDb = new Relationship();
+        relationshipInDb.setRelationshipId(RelationshipTestConstants.EXISTING_RELATIONSHIP_ID);
+        relationshipInDb.setUser(userInDb);
         relationshipInDb.setFriend(friendInDb);
 
+        transactionInDb = new Transaction();
+        transactionInDb.setTransactionId(TransactionTestConstants.NEW_TRANSACTION_ID);
+        transactionInDb.setDate(transactionDTOToCreate.getDate());
+        //TOASK à voir si date n est pas plutôt la date d enregistrement plutôt que celle transmise dans DTO
+        transactionInDb.setDescription(transactionDTOToCreate.getDescription());
+        transactionInDb.setAmountFeeExcluded(transactionDTOToCreate.getAmountFeeExcluded());
+        transactionInDb.setFeeAmount(transactionDTOToCreate.getFeeAmount());
+        transactionInDb.setFeeBilled(false);
         transactionInDb.setRelationship(relationshipInDb);
     }
 
@@ -219,13 +220,6 @@ class TransactionServiceTest {
 
         @BeforeEach
         private void setUpPerTest() {
-            transactionInDb = new Transaction();
-            transactionInDb.setDate(dateUtil.getCurrentLocalDateTime());
-            transactionInDb.setDescription(TransactionTestConstants.EXISTING_TRANSACTION_DESCRIPTION);
-            transactionInDb.setAmountFeeExcluded(TransactionTestConstants.EXISTING_TRANSACTION_AMOUNT_FEE_EXCLUDED);
-            transactionInDb.setFeeAmount(TransactionTestConstants.EXISTING_TRANSACTION_FEE_AMOUNT);
-            transactionInDb.setFeeBilled(false);
-
             userInDb = new User();
             userInDb.setUserId(UserTestConstants.EXISTING_USER_ID);
             userInDb.setEmail(UserTestConstants.EXISTING_USER_EMAIL);
@@ -247,6 +241,12 @@ class TransactionServiceTest {
             relationshipInDb.setUser(userInDb);
             relationshipInDb.setFriend(friendInDb);
 
+            transactionInDb = new Transaction();
+            transactionInDb.setDate(dateUtil.getCurrentLocalDateTime());
+            transactionInDb.setDescription(TransactionTestConstants.EXISTING_TRANSACTION_DESCRIPTION);
+            transactionInDb.setAmountFeeExcluded(TransactionTestConstants.EXISTING_TRANSACTION_AMOUNT_FEE_EXCLUDED);
+            transactionInDb.setFeeAmount(TransactionTestConstants.EXISTING_TRANSACTION_FEE_AMOUNT);
+            transactionInDb.setFeeBilled(false);
             transactionInDb.setRelationship(relationshipInDb);
         }
 

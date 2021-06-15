@@ -11,6 +11,7 @@ import com.paymybuddy.webapp.model.User;
 import com.paymybuddy.webapp.repository.BankAccountRepository;
 import com.paymybuddy.webapp.repository.BankTransferRepository;
 import com.paymybuddy.webapp.repository.UserRepository;
+import com.paymybuddy.webapp.service.contract.IBankTransferService;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ import java.util.Optional;
 
 @Slf4j
 @Service
+@Transactional
 public class BankTransferService implements IBankTransferService {
 
     private final BankTransferRepository bankTransferRepository;
@@ -41,6 +43,7 @@ public class BankTransferService implements IBankTransferService {
 
     /**
      * opère un transfert du compte bancaire indiqué vers le compte utilisateur dans PMB
+     * NB : on ne se soucie pas de l'accord bancaire lors du transfert (hypothèse d'une validation en amont)
      *
      * @param bankTransferDTOToCreate contient les informations sur le mouvement à opérer
      * @return objet bankTransferDTO contenant le transfert bancaire créé
@@ -48,27 +51,25 @@ public class BankTransferService implements IBankTransferService {
      *                      ou que des données sont manquantes
      */
     @Override
-    @Transactional
     public Optional<BankTransferDTO> transferFromBankAccount(BankTransferDTO bankTransferDTOToCreate) throws PMBException {
         Optional<BankTransferDTO> createdBankTransferDTO;
 
         //vérifie qu il ne manque pas d informations
         if (bankTransferDTOToCreate.isValid()) {
 
-            //vérifie que le compte bancaire associé associé existe bien
+            //vérifie que le compte bancaire associé existe bien
             Optional<BankAccount> bankAccount = bankAccountRepository.findById(bankTransferDTOToCreate.getBankAccountId());
             if (bankAccount.isPresent()) {
 
                 ModelMapper modelMapper = new ModelMapper();
                 try {
-                    //TOASK : on ne se soucie pas de l accord bancaire lors du transfert et on part du principe que le CB est + ?
                     //augmente la balance du user du montant du transfert bancaire
                     User user = bankAccount.get().getUser();
                     user.setBalance(user.getBalance().add(bankTransferDTOToCreate.getAmount()));
 
                     //mappe le DTO dans le DAO et indique le type de transfert
                     BankTransfer bankTransferToCreate = modelMapper.map(bankTransferDTOToCreate, BankTransfer.class);
-                    bankTransferToCreate.setBankAccount(bankAccount.get()); //TOASK
+                    bankTransferToCreate.setBankAccount(bankAccount.get());
                     bankTransferToCreate.setType(BankTransferTypes.CREDIT);
 
                     // puis le compte client et le nouveau transfert bancaire sont sauvegardés en base
@@ -122,19 +123,18 @@ public class BankTransferService implements IBankTransferService {
      *                      ou que des données sont manquantes
      */
     @Override
-    @Transactional
     public Optional<BankTransferDTO> transferToBankAccount(BankTransferDTO bankTransferDTOToCreate) throws PMBException {
         Optional<BankTransferDTO> createdBankTransferDTO;
 
         //vérifie qu il ne manque pas d informations
         if (bankTransferDTOToCreate.isValid()) {
 
-            //vérifie que le compte bancaire associé associé existe bien
+            //vérifie que le compte bancaire associé existe bien
             Optional<BankAccount> bankAccount = bankAccountRepository.findById(bankTransferDTOToCreate.getBankAccountId());
             if (bankAccount.isPresent()) {
 
                 User user = bankAccount.get().getUser();
-                if (user.getBalance().compareTo(bankTransferDTOToCreate.getAmount()) == 1) {
+                if (user.getBalance().compareTo(bankTransferDTOToCreate.getAmount()) >= 0) {
                     ModelMapper modelMapper = new ModelMapper();
                     try {
                         //diminue la balance du user du montant du transfert bancaire
@@ -142,7 +142,7 @@ public class BankTransferService implements IBankTransferService {
 
                         //mappe le DTO dans le DAO et indique le type de transfert
                         BankTransfer bankTransferToCreate = modelMapper.map(bankTransferDTOToCreate, BankTransfer.class);
-                        bankTransferToCreate.setBankAccount(bankAccount.get()); //TOASK
+                        bankTransferToCreate.setBankAccount(bankAccount.get());
                         bankTransferToCreate.setType(BankTransferTypes.DEBIT);
 
                         // puis le compte client et le nouveau transfert bancaire sont sauvegardés en base
@@ -204,6 +204,7 @@ public class BankTransferService implements IBankTransferService {
         if (userId != null) {
             Optional<User> user = userRepository.findById(userId);
 
+            //vérifie que l'utilisateur existe
             if (user.isPresent()) {
                 List<BankTransfer> bankTransferList = bankTransferRepository.findAllByBankAccount_User_UserId(userId);
                 ModelMapper modelMapper = new ModelMapper();

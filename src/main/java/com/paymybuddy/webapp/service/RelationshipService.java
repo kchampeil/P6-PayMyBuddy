@@ -8,10 +8,12 @@ import com.paymybuddy.webapp.model.Relationship;
 import com.paymybuddy.webapp.model.User;
 import com.paymybuddy.webapp.repository.RelationshipRepository;
 import com.paymybuddy.webapp.repository.UserRepository;
+import com.paymybuddy.webapp.service.contract.IRelationshipService;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +21,7 @@ import java.util.Optional;
 
 @Slf4j
 @Service
+@Transactional
 public class RelationshipService implements IRelationshipService {
 
     private final RelationshipRepository relationshipRepository;

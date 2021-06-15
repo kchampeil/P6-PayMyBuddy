@@ -7,7 +7,7 @@ import com.paymybuddy.webapp.model.Relationship;
 import com.paymybuddy.webapp.model.User;
 import com.paymybuddy.webapp.repository.RelationshipRepository;
 import com.paymybuddy.webapp.repository.UserRepository;
-import com.paymybuddy.webapp.service.IRelationshipService;
+import com.paymybuddy.webapp.service.contract.IRelationshipService;
 import com.paymybuddy.webapp.testconstants.UserTestConstants;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,6 +23,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ActiveProfiles("test")
@@ -96,6 +97,8 @@ public class RelationshipServiceIT {
                     .findByUserAndFriend(existingUser, existingFriend);
 
             assertThat(relationshipDTOCreated).isPresent();
+            assertNotNull(relationshipDTOCreated.get().getRelationshipId());
+
             assertThat(relationshipCreated).isPresent();
             assertEquals(relationshipDTOToCreate.getFriendId(), relationshipCreated.get().getFriend().getUserId());
 

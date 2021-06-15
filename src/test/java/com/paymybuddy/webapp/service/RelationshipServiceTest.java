@@ -7,6 +7,7 @@ import com.paymybuddy.webapp.model.Relationship;
 import com.paymybuddy.webapp.model.User;
 import com.paymybuddy.webapp.repository.RelationshipRepository;
 import com.paymybuddy.webapp.repository.UserRepository;
+import com.paymybuddy.webapp.service.contract.IRelationshipService;
 import com.paymybuddy.webapp.testconstants.RelationshipTestConstants;
 import com.paymybuddy.webapp.testconstants.UserTestConstants;
 import org.junit.jupiter.api.BeforeEach;
@@ -61,10 +62,6 @@ class RelationshipServiceTest {
 
         @BeforeEach
         private void setUpPerTest() {
-            relationshipDTOToCreate = new RelationshipDTO();
-            relationshipDTOToCreate.setUserId(UserTestConstants.EXISTING_USER_ID);
-            relationshipDTOToCreate.setFriendId(UserTestConstants.EXISTING_USER_AS_FRIEND_ID);
-
             userInDb = new User();
             userInDb.setUserId(UserTestConstants.EXISTING_USER_ID);
             userInDb.setEmail(UserTestConstants.EXISTING_USER_EMAIL);
@@ -85,6 +82,10 @@ class RelationshipServiceTest {
             relationshipInDb.setRelationshipId(RelationshipTestConstants.EXISTING_RELATIONSHIP_ID);
             relationshipInDb.setUser(userInDb);
             relationshipInDb.setFriend(friendInDb);
+
+            relationshipDTOToCreate = new RelationshipDTO();
+            relationshipDTOToCreate.setUserId(userInDb.getUserId());
+            relationshipDTOToCreate.setFriendId(friendInDb.getUserId());
         }
 
         @Test
@@ -214,9 +215,6 @@ class RelationshipServiceTest {
 
         @BeforeEach
         private void setUpPerTest() {
-            relationshipInDb = new Relationship();
-            relationshipInDb.setRelationshipId(RelationshipTestConstants.EXISTING_RELATIONSHIP_ID);
-
             userInDb = new User();
             userInDb.setUserId(UserTestConstants.EXISTING_USER_ID);
             userInDb.setEmail(UserTestConstants.EXISTING_USER_EMAIL);
@@ -224,7 +222,6 @@ class RelationshipServiceTest {
             userInDb.setLastname(UserTestConstants.EXISTING_USER_LASTNAME);
             userInDb.setPassword(UserTestConstants.EXISTING_USER_PASSWORD);
             userInDb.setBalance(UserTestConstants.EXISTING_USER_WITH_HIGH_BALANCE);
-            relationshipInDb.setUser(userInDb);
 
             friendInDb = new User();
             friendInDb.setUserId(UserTestConstants.EXISTING_USER_AS_FRIEND_ID);
@@ -233,6 +230,10 @@ class RelationshipServiceTest {
             friendInDb.setLastname(UserTestConstants.EXISTING_USER_AS_FRIEND_LASTNAME);
             friendInDb.setPassword(UserTestConstants.EXISTING_USER_AS_FRIEND_PASSWORD);
             friendInDb.setBalance(UserTestConstants.EXISTING_USER_AS_FRIEND_BALANCE);
+
+            relationshipInDb = new Relationship();
+            relationshipInDb.setRelationshipId(RelationshipTestConstants.EXISTING_RELATIONSHIP_ID);
+            relationshipInDb.setUser(userInDb);
             relationshipInDb.setFriend(friendInDb);
         }
 

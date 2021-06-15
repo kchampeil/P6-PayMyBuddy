@@ -5,6 +5,7 @@ import com.paymybuddy.webapp.exception.PMBException;
 import com.paymybuddy.webapp.model.DTO.UserDTO;
 import com.paymybuddy.webapp.model.User;
 import com.paymybuddy.webapp.repository.UserRepository;
+import com.paymybuddy.webapp.service.contract.IUserService;
 import com.paymybuddy.webapp.testconstants.UserTestConstants;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

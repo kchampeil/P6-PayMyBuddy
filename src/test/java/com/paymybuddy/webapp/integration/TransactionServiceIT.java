@@ -9,7 +9,7 @@ import com.paymybuddy.webapp.model.User;
 import com.paymybuddy.webapp.repository.RelationshipRepository;
 import com.paymybuddy.webapp.repository.TransactionRepository;
 import com.paymybuddy.webapp.repository.UserRepository;
-import com.paymybuddy.webapp.service.ITransactionService;
+import com.paymybuddy.webapp.service.contract.ITransactionService;
 import com.paymybuddy.webapp.testconstants.TransactionTestConstants;
 import com.paymybuddy.webapp.testconstants.UserTestConstants;
 import com.paymybuddy.webapp.util.DateUtil;
@@ -22,12 +22,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -113,13 +115,13 @@ public class TransactionServiceIT {
 
             Optional<TransactionDTO> transactionDTOCreated = transactionService.transferToFriend(transactionDTOToCreate);
             assertThat(transactionDTOCreated).isPresent();
-            assertNotNull(transactionDTOCreated.get().getTransactionId()); //TODO à ajouter dans les autres tests IT
+            assertNotNull(transactionDTOCreated.get().getTransactionId());
 
             Optional<Transaction> transactionCreated = transactionRepository
                     .findById(transactionDTOCreated.get().getTransactionId());
             assertThat(transactionCreated).isPresent();
             assertEquals(transactionDTOToCreate.getDescription(), transactionCreated.get().getDescription());
-            //TODO assertEquals(false, transactionCreated.get().getFeeBilled());
+            assertNotEquals(BigDecimal.ZERO, transactionDTOCreated.get().getFeeAmount());
 
             Optional<User> userUpdated = userRepository.findById(existingUser.getUserId());
             assertThat(userUpdated).isPresent();

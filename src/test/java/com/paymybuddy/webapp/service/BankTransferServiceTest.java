@@ -10,6 +10,7 @@ import com.paymybuddy.webapp.model.User;
 import com.paymybuddy.webapp.repository.BankAccountRepository;
 import com.paymybuddy.webapp.repository.BankTransferRepository;
 import com.paymybuddy.webapp.repository.UserRepository;
+import com.paymybuddy.webapp.service.contract.IBankTransferService;
 import com.paymybuddy.webapp.testconstants.BankAccountTestConstants;
 import com.paymybuddy.webapp.testconstants.BankTransferTestConstants;
 import com.paymybuddy.webapp.testconstants.UserTestConstants;
@@ -34,6 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -67,18 +69,6 @@ class BankTransferServiceTest {
         bankTransferDTOToCreate.setAmount(BankTransferTestConstants.NEW_BANK_TRANSFER_AMOUNT);
         bankTransferDTOToCreate.setBankAccountId(BankAccountTestConstants.EXISTING_BANK_ACCOUNT_ID);
 
-        bankTransferInDb = new BankTransfer();
-        bankTransferInDb.setBankTransferId(BankTransferTestConstants.NEW_BANK_TRANSFER_ID);
-        bankTransferInDb.setDate(bankTransferDTOToCreate.getDate()); //TODO à voir si date n est pas plutôt la date d enregistrement plutôt que celle transmise dans DTO (à supprimer du DTO selon)
-        bankTransferInDb.setDescription(bankTransferDTOToCreate.getDescription());
-        bankTransferInDb.setAmount(bankTransferDTOToCreate.getAmount());
-
-        bankAccountInDb = new BankAccount();
-        bankAccountInDb.setBankAccountId(BankAccountTestConstants.EXISTING_BANK_ACCOUNT_ID);
-        bankAccountInDb.setIban(BankAccountTestConstants.EXISTING_BANK_ACCOUNT_IBAN);
-        bankAccountInDb.setName(BankAccountTestConstants.EXISTING_BANK_ACCOUNT_NAME);
-        bankTransferInDb.setBankAccount(bankAccountInDb);
-
         userInDb = new User();
         userInDb.setUserId(UserTestConstants.EXISTING_USER_ID);
         userInDb.setEmail(UserTestConstants.EXISTING_USER_EMAIL);
@@ -86,7 +76,20 @@ class BankTransferServiceTest {
         userInDb.setLastname(UserTestConstants.EXISTING_USER_LASTNAME);
         userInDb.setPassword(UserTestConstants.EXISTING_USER_PASSWORD);
         userInDb.setBalance(UserTestConstants.EXISTING_USER_WITH_HIGH_BALANCE);
+
+        bankAccountInDb = new BankAccount();
+        bankAccountInDb.setBankAccountId(BankAccountTestConstants.EXISTING_BANK_ACCOUNT_ID);
+        bankAccountInDb.setIban(BankAccountTestConstants.EXISTING_BANK_ACCOUNT_IBAN);
+        bankAccountInDb.setName(BankAccountTestConstants.EXISTING_BANK_ACCOUNT_NAME);
         bankAccountInDb.setUser(userInDb);
+
+        bankTransferInDb = new BankTransfer();
+        bankTransferInDb.setBankTransferId(BankTransferTestConstants.NEW_BANK_TRANSFER_ID);
+        bankTransferInDb.setDate(bankTransferDTOToCreate.getDate());
+        //TOASK à voir si date n est pas plutôt la date d enregistrement plutôt que celle transmise dans DTO
+        bankTransferInDb.setDescription(bankTransferDTOToCreate.getDescription());
+        bankTransferInDb.setAmount(bankTransferDTOToCreate.getAmount());
+        bankTransferInDb.setBankAccount(bankAccountInDb);
     }
 
 
@@ -175,7 +178,7 @@ class BankTransferServiceTest {
 
         @Test
         @DisplayName("GIVEN a new bank transfer to bank to add for an existing bank account " +
-                "WHEN saving this new bank bank transfer " +
+                "WHEN saving this new bank transfer " +
                 "THEN the returned value is the added bank transfer and the user balance has been decreased")
         void transferToBankAccount_WithSuccess() throws PMBException {
             //GIVEN
@@ -207,7 +210,7 @@ class BankTransferServiceTest {
         @Test
         @DisplayName("GIVEN a new bank transfer to bank to add for an existing bank account " +
                 "but with an insufficient user's balance " +
-                "WHEN saving this new bank bank transfer " +
+                "WHEN saving this new bank transfer " +
                 "THEN an PMB Exception is thrown")
         void transferToBankAccount_WithInsufficientUserBalance() {
             //GIVEN
@@ -282,17 +285,6 @@ class BankTransferServiceTest {
 
         @BeforeEach
         private void setUpPerTest() {
-            bankTransferInDb = new BankTransfer();
-            bankTransferInDb.setDate(dateUtil.getCurrentLocalDateTime());
-            bankTransferInDb.setDescription(BankTransferTestConstants.EXISTING_BANK_TRANSFER_DESCRIPTION);
-            bankTransferInDb.setAmount(BankTransferTestConstants.EXISTING_BANK_TRANSFER_AMOUNT);
-            bankTransferInDb.setType(BankTransferTypes.CREDIT);
-
-            BankAccount bankAccountInDb = new BankAccount();
-            bankAccountInDb.setBankAccountId(BankAccountTestConstants.EXISTING_BANK_ACCOUNT_ID);
-            bankAccountInDb.setIban(BankAccountTestConstants.EXISTING_BANK_ACCOUNT_IBAN);
-            bankAccountInDb.setName(BankAccountTestConstants.EXISTING_BANK_ACCOUNT_NAME);
-
             userInDb = new User();
             userInDb.setUserId(UserTestConstants.EXISTING_USER_ID);
             userInDb.setEmail(UserTestConstants.EXISTING_USER_EMAIL);
@@ -301,7 +293,17 @@ class BankTransferServiceTest {
             userInDb.setPassword(UserTestConstants.EXISTING_USER_PASSWORD);
             userInDb.setBalance(UserTestConstants.EXISTING_USER_WITH_HIGH_BALANCE);
 
+            BankAccount bankAccountInDb = new BankAccount();
+            bankAccountInDb.setBankAccountId(BankAccountTestConstants.EXISTING_BANK_ACCOUNT_ID);
+            bankAccountInDb.setIban(BankAccountTestConstants.EXISTING_BANK_ACCOUNT_IBAN);
+            bankAccountInDb.setName(BankAccountTestConstants.EXISTING_BANK_ACCOUNT_NAME);
             bankAccountInDb.setUser(userInDb);
+
+            bankTransferInDb = new BankTransfer();
+            bankTransferInDb.setDate(dateUtil.getCurrentLocalDateTime());
+            bankTransferInDb.setDescription(BankTransferTestConstants.EXISTING_BANK_TRANSFER_DESCRIPTION);
+            bankTransferInDb.setAmount(BankTransferTestConstants.EXISTING_BANK_TRANSFER_AMOUNT);
+            bankTransferInDb.setType(BankTransferTypes.CREDIT);
             bankTransferInDb.setBankAccount(bankAccountInDb);
         }
 
@@ -389,9 +391,9 @@ class BankTransferServiceTest {
                     .contains(PMBExceptionConstants.MISSING_INFORMATION_LIST_BANK_TRANSFER);
 
             verify(userRepositoryMock, Mockito.times(0))
-                    .findById(UserTestConstants.UNKNOWN_USER_ID);
+                    .findById(anyLong());
             verify(bankTransferRepositoryMock, Mockito.times(0))
-                    .findAllByBankAccount_User_UserId(UserTestConstants.UNKNOWN_USER_ID);
+                    .findAllByBankAccount_User_UserId(anyLong());
         }
     }
 }
