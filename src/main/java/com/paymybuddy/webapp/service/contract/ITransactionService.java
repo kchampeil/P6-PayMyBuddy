@@ -1,4 +1,4 @@
-package com.paymybuddy.webapp.service;
+package com.paymybuddy.webapp.service.contract;
 
 import com.paymybuddy.webapp.exception.PMBException;
 import com.paymybuddy.webapp.model.DTO.TransactionDTO;

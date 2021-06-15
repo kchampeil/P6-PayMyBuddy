@@ -18,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ActiveProfiles("test")
 @SpringBootTest
-public class RelationshipIT {
+public class RelationshipServiceIT {
     @Autowired
     IRelationshipService relationshipService;
 
@@ -65,9 +64,6 @@ public class RelationshipIT {
     @AfterEach
     private void tearDownPerTest() {
         //nettoyage la DB en fin de test en supprimant le user et l'ami créés à l initialisation
-        //TOASK le premier user créé n est pas supprimé
-        // comme si la base ne pouvait pas être vide une fois alimentée(même avec un deleteAll ça ne la supprime pas)
-        // userRepository.deleteAll();
         userRepository.deleteById(existingUser.getUserId());
         userRepository.deleteById(existingFriend.getUserId());
     }
@@ -127,7 +123,6 @@ public class RelationshipIT {
         @Test
         @DisplayName("WHEN creating a new relationship for an existing user/friend relationship " +
                 "THEN an PMBException is thrown AND the relationship is not added in DB")
-        @Transactional
         public void createRelationshipIT_AlreadyExists() {
             //initialisation du test avec une relation en base en base
             Relationship existingRelationship = new Relationship();
@@ -142,12 +137,12 @@ public class RelationshipIT {
             assertThat(exception.getMessage()).contains(PMBExceptionConstants.ALREADY_EXIST_RELATIONSHIP);
 
             Optional<Relationship> relationshipAlreadyExisting = relationshipRepository
-                    .findByUserAndFriend(existingUser, existingFriend);
+                    .findById(existingRelationship.getRelationshipId());
             assertThat(relationshipAlreadyExisting).isNotEmpty();
-            assertEquals(existingRelationship, relationshipAlreadyExisting.get());
+            assertEquals(existingRelationship.getUser().getUserId(),relationshipAlreadyExisting.get().getUser().getUserId());
+            assertEquals(existingRelationship.getFriend().getUserId(), relationshipAlreadyExisting.get().getFriend().getUserId());
 
             //nettoyage de la DB en fin de test en supprimant la relation user/friend créée à l initialisation du test
-            //TOASK le premier CB créé n est pas supprimé comme si la base ne pouvait pas être vide une fois alimentée
             relationshipRepository.deleteById(existingRelationship.getRelationshipId());
         }
     }
@@ -156,7 +151,6 @@ public class RelationshipIT {
     @Test
     @DisplayName("WHEN getting the list of relationships for an existing user " +
             "THEN the list of relationships in DB is returned")
-    @Transactional
     public void getAllRelationshipsForUser_WithData() throws PMBException {
 
         //initialisation du test avec une relation en base
