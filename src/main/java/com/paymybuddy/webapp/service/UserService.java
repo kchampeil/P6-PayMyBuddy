@@ -57,7 +57,7 @@ public class UserService implements IUserService {
                     try {
                         User createdUser = userRepository.save(modelMapper.map(userDTOToCreate, User.class));
                         createdUserDTO = Optional.ofNullable(modelMapper.map((createdUser), UserDTO.class));
-                        log.info(LogConstants.CREATE_USER_OK + userDTOToCreate.getEmail());
+                        log.info(LogConstants.CREATE_USER_OK + userDTOToCreate.getUserId());
 
                     } catch (Exception exception) {
                         log.error(LogConstants.CREATE_USER_ERROR + userDTOToCreate.getEmail());
@@ -65,7 +65,8 @@ public class UserService implements IUserService {
                     }
 
                 } else {
-                    log.error(PMBExceptionConstants.ALREADY_EXIST_USER + userDTOToCreate.getEmail());
+                    log.error(LogConstants.CREATE_USER_ERROR
+                            + PMBExceptionConstants.ALREADY_EXIST_USER + userDTOToCreate.getEmail());
                     throw new PMBException(PMBExceptionConstants.ALREADY_EXIST_USER + userDTOToCreate.getEmail());
 
                 }

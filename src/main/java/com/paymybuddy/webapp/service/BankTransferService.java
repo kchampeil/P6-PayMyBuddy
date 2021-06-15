@@ -80,7 +80,8 @@ public class BankTransferService implements IBankTransferService {
                                 user.setBalance(user.getBalance().subtract(bankTransferDTOToCreate.getAmount()));
                             } else {
                                 log.error(LogConstants.CREATE_BANK_TRANSFER_ERROR
-                                        + PMBExceptionConstants.INSUFFICIENT_BALANCE + user.getUserId() + " // " + user.getBalance()
+                                        + PMBExceptionConstants.INSUFFICIENT_BALANCE
+                                        + user.getUserId() + " // " + user.getBalance()
                                         + " // " + bankTransferDTOToCreate.getAmount());
                                 throw new PMBException(PMBExceptionConstants.INSUFFICIENT_BALANCE + user.getUserId());
                             }
@@ -108,11 +109,7 @@ public class BankTransferService implements IBankTransferService {
                     createdBankTransferDTO =
                             Optional.ofNullable(modelMapper.map((createdBankTransfer), BankTransferDTO.class));
 
-                    log.info(LogConstants.CREATE_BANK_TRANSFER_OK + bankTransferDTOToCreate.getBankAccountId()
-                            + " // " + bankTransferDTOToCreate.getDate()
-                            + " // " + bankTransferDTOToCreate.getDescription()
-                            + " // " + createdBankTransfer.getBankAccount().getUser().getUserId()
-                            + " // " + createdBankTransfer.getType());
+                    log.info(LogConstants.CREATE_BANK_TRANSFER_OK + bankTransferDTOToCreate.getBankTransferId());
 
                 } else {
                     log.error(LogConstants.CREATE_BANK_TRANSFER_ERROR
@@ -161,6 +158,7 @@ public class BankTransferService implements IBankTransferService {
                 bankTransferList.forEach(bankTransfer ->
                         bankTransferDTOList
                                 .add(modelMapper.map(bankTransfer, BankTransferDTO.class)));
+                log.info(LogConstants.LIST_BANK_TRANSFER_OK + bankTransferDTOList.size());
 
             } else {
                 log.error(LogConstants.LIST_BANK_TRANSFER_ERROR

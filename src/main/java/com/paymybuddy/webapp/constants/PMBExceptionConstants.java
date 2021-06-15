@@ -11,7 +11,7 @@ public class PMBExceptionConstants {
     public static final String MISSING_INFORMATION_LIST_BANK_TRANSFER = "A user id must be specified to get his list of bank transfers";
 
     public static final String MISSING_INFORMATION_NEW_RELATIONSHIP = "All information must be specified for a new relationship";
-    public static final String MISSING_INFORMATION_LIST_RELATIONSHIP = "A user id must be specified to get his list of bank transfers";
+    public static final String MISSING_INFORMATION_LIST_RELATIONSHIP = "A user id must be specified to get his list of relationships";
 
     public static final String MISSING_INFORMATION_NEW_TRANSACTION = "All information must be specified for a new transaction";
     public static final String MISSING_INFORMATION_LIST_TRANSACTION = "A user id must be specified to get his list of transactions";
@@ -22,7 +22,7 @@ public class PMBExceptionConstants {
     public static final String INVALID_BANK_TRANSFER_TYPE = "Invalid bank transfer type: ";
 
     //Already exists
-    public static final String ALREADY_EXIST_USER = "There is already one user with email: ";
+    public static final String ALREADY_EXIST_USER = "One user already exists with email: ";
     public static final String ALREADY_EXIST_BANK_ACCOUNT = "This bank account (IBAN) already exists for user (ID): ";
     public static final String ALREADY_EXIST_RELATIONSHIP = "This relationship already exists for users (IDs): ";
 
@@ -32,5 +32,5 @@ public class PMBExceptionConstants {
     public static final String DOES_NOT_EXISTS_RELATIONSHIP = "No relationship exists for: ";
 
     //Insufficient balance
-    public static final String INSUFFICIENT_BALANCE = "Insufficient balance for: ";
+    public static final String INSUFFICIENT_BALANCE = "Insufficient balance for user (ID): ";
 }

@@ -102,13 +102,7 @@ public class TransactionService implements ITransactionService {
                         createdTransactionDTO =
                                 Optional.ofNullable(modelMapper.map((createdTransaction), TransactionDTO.class));
 
-                        log.info(LogConstants.CREATE_TRANSACTION_OK + transactionDTOToCreate.getTransactionId()
-                                + " // " + transactionDTOToCreate.getDate()
-                                + " // " + transactionDTOToCreate.getDescription()
-                                + " // " + createdTransaction.getRelationship().getUser().getUserId()
-                                + " // " + createdTransaction.getRelationship().getFriend().getUserId()
-                                + " // " + createdTransaction.getAmountFeeExcluded()
-                                + " // " + createdTransaction.getFeeAmount());
+                        log.info(LogConstants.CREATE_TRANSACTION_OK + transactionDTOToCreate.getTransactionId());
 
                     } catch (Exception exception) {
                         log.error(LogConstants.CREATE_TRANSACTION_ERROR + transactionDTOToCreate.getTransactionId()
@@ -129,15 +123,17 @@ public class TransactionService implements ITransactionService {
 
             } else {
                 log.error(LogConstants.CREATE_TRANSACTION_ERROR
-                        + PMBExceptionConstants.DOES_NOT_EXISTS_RELATIONSHIP + transactionDTOToCreate.getRelationshipId());
-                throw new PMBException(PMBExceptionConstants.DOES_NOT_EXISTS_RELATIONSHIP + transactionDTOToCreate.getRelationshipId());
+                        + PMBExceptionConstants.DOES_NOT_EXISTS_RELATIONSHIP
+                        + transactionDTOToCreate.getRelationshipId());
+                throw new PMBException(PMBExceptionConstants.DOES_NOT_EXISTS_RELATIONSHIP
+                        + transactionDTOToCreate.getRelationshipId());
 
             }
 
         } else {
             log.error(LogConstants.CREATE_TRANSACTION_ERROR
                     + PMBExceptionConstants.MISSING_INFORMATION_NEW_TRANSACTION
-                    + "for: " + transactionDTOToCreate.getTransactionId()
+                    + "for: " + transactionDTOToCreate.getRelationshipId()
                     + " // " + transactionDTOToCreate.getDate()
                     + " // " + transactionDTOToCreate.getDescription());
             throw new PMBException(PMBExceptionConstants.MISSING_INFORMATION_NEW_TRANSACTION);
@@ -169,6 +165,7 @@ public class TransactionService implements ITransactionService {
                 transactionList.forEach(transaction ->
                         transactionDTOList
                                 .add(modelMapper.map(transaction, TransactionDTO.class)));
+                log.info(LogConstants.LIST_TRANSACTION_OK + transactionDTOList.size());
 
             } else {
                 log.error(LogConstants.LIST_TRANSACTION_ERROR

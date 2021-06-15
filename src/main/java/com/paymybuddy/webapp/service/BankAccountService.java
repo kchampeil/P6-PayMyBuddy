@@ -59,7 +59,9 @@ public class BankAccountService implements IBankAccountService {
                 if (userRepository.findById(bankAccountDTOToCreate.getUserId()).isPresent()) {
 
                     //vérifie que le compte bancaire n existe pas déjà pour l utilisateur
-                    if (!bankAccountRepository.findByIbanAndUser_UserId(bankAccountDTOToCreate.getIban(), bankAccountDTOToCreate.getUserId()).isPresent()) {
+                    if (!bankAccountRepository
+                            .findByIbanAndUser_UserId(bankAccountDTOToCreate.getIban()
+                                    , bankAccountDTOToCreate.getUserId()).isPresent()) {
 
                         //mappe le DTO dans le DAO,
                         // puis le nouveau compte bancaire est sauvegardé en base avant mappage inverse du DAO dans le DTO
@@ -70,8 +72,7 @@ public class BankAccountService implements IBankAccountService {
                                     bankAccountRepository.save(modelMapper.map(bankAccountDTOToCreate, BankAccount.class));
                             createdBankAccountDTO =
                                     Optional.ofNullable(modelMapper.map((createdBankAccount), BankAccountDTO.class));
-                            log.info(LogConstants.CREATE_BANK_ACCOUNT_OK + bankAccountDTOToCreate.getName()
-                                    + " // " + bankAccountDTOToCreate.getIban());
+                            log.info(LogConstants.CREATE_BANK_ACCOUNT_OK + bankAccountDTOToCreate.getBankAccountId());
 
                         } catch (Exception exception) {
                             log.error(LogConstants.CREATE_BANK_ACCOUNT_ERROR + bankAccountDTOToCreate.getName()
@@ -129,6 +130,7 @@ public class BankAccountService implements IBankAccountService {
                 bankAccountList.forEach(bankAccount ->
                         bankAccountDTOList
                                 .add(modelMapper.map(bankAccount, BankAccountDTO.class)));
+                log.info(LogConstants.LIST_BANK_ACCOUNT_OK + bankAccountDTOList.size());
 
             } else {
                 log.error(LogConstants.LIST_BANK_ACCOUNT_ERROR

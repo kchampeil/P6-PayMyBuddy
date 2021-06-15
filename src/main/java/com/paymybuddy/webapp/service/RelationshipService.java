@@ -73,8 +73,7 @@ public class RelationshipService implements IRelationshipService {
                         ModelMapper modelMapper = new ModelMapper();
                         createdRelationshipDTO =
                                 Optional.ofNullable(modelMapper.map(createdRelationship, RelationshipDTO.class));
-                        log.info(LogConstants.CREATE_RELATIONSHIP_OK + relationshipDTOToCreate.getUserId()
-                                + " // " + relationshipDTOToCreate.getFriendId());
+                        log.info(LogConstants.CREATE_RELATIONSHIP_OK + relationshipDTOToCreate.getRelationshipId());
 
                     } catch (Exception exception) {
                         log.error(LogConstants.CREATE_RELATIONSHIP_ERROR + relationshipDTOToCreate.getUserId()
@@ -108,7 +107,8 @@ public class RelationshipService implements IRelationshipService {
 
         } else {
             log.error(LogConstants.CREATE_RELATIONSHIP_ERROR
-                    + PMBExceptionConstants.MISSING_INFORMATION_NEW_RELATIONSHIP + "for: " + relationshipDTOToCreate.getUserId()
+                    + PMBExceptionConstants.MISSING_INFORMATION_NEW_RELATIONSHIP
+                    + "for: " + relationshipDTOToCreate.getUserId()
                     + " // " + relationshipDTOToCreate.getFriendId());
             throw new PMBException(PMBExceptionConstants.MISSING_INFORMATION_NEW_RELATIONSHIP);
         }
@@ -139,6 +139,7 @@ public class RelationshipService implements IRelationshipService {
                 relationshipList.forEach(relationship ->
                         relationshipDTOList
                                 .add(modelMapper.map(relationship, RelationshipDTO.class)));
+                log.info(LogConstants.LIST_RELATIONSHIP_OK + relationshipDTOList.size());
 
             } else {
                 log.error(LogConstants.LIST_RELATIONSHIP_ERROR
