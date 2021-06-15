@@ -7,9 +7,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IBankTransferService {
-    Optional<BankTransferDTO> transferFromBankAccount(BankTransferDTO bankTransferDTO) throws PMBException;
 
-    Optional<BankTransferDTO> transferToBankAccount(BankTransferDTO bankTransferDTOToCreate) throws PMBException;
+    Optional<BankTransferDTO> transferWithBankAccount(BankTransferDTO bankTransferDTOToCreate) throws PMBException;
 
     List<BankTransferDTO> getAllBankTransfersForUser(Long userId) throws PMBException;
 }

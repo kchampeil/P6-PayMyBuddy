@@ -77,6 +77,7 @@ public class BankTransferServiceIT {
         bankTransferDTOToCreate.setDate(dateUtil.getCurrentLocalDateTime());
         bankTransferDTOToCreate.setDescription(BankTransferTestConstants.NEW_BANK_TRANSFER_DESCRIPTION);
         bankTransferDTOToCreate.setAmount(BankTransferTestConstants.NEW_BANK_TRANSFER_AMOUNT);
+        bankTransferDTOToCreate.setType(BankTransferTypes.CREDIT);
         bankTransferDTOToCreate.setBankAccountId(existingBankAccount.getBankAccountId());
     }
 
@@ -88,18 +89,18 @@ public class BankTransferServiceIT {
 
 
     @Nested
-    @DisplayName("transferFromBankAccount IT")
-    class TransferFromBankAccountIT {
+    @DisplayName("transferWithBankAccount IT")
+    class TransferWithBankAccountIT {
 
         @Test
-        @DisplayName("WHEN creating a new bank transfer from bank " +
+        @DisplayName("WHEN creating a new bank transfer from bank (ie CREDIT) " +
                 "with correct informations for an existing bank account " +
                 "THEN the returned value is the added bank transfer, " +
                 "AND the bank transfer is added in DB " +
                 "AND the user's balance is increased by the bank transfer amount")
-        public void transferFromBankAccountIT_WithSuccess() throws Exception {
+        public void transferWithBankAccountIT_CreditWithSuccess() throws Exception {
 
-            Optional<BankTransferDTO> bankTransferDTOCreated = bankTransferService.transferFromBankAccount(bankTransferDTOToCreate);
+            Optional<BankTransferDTO> bankTransferDTOCreated = bankTransferService.transferWithBankAccount(bankTransferDTOToCreate);
             assertThat(bankTransferDTOCreated).isPresent();
             assertNotNull(bankTransferDTOCreated.get().getBankTransferId());
 
@@ -122,15 +123,15 @@ public class BankTransferServiceIT {
 
 
         @Test
-        @DisplayName("WHEN creating a new bank transfer from bank " +
+        @DisplayName("WHEN creating a new bank transfer from bank (ie CREDIT)" +
                 "with correct informations for a non-existing bank account " +
                 "THEN an PMBException is thrown AND the bank transfer is not added in DB " +
                 "AND no user balance is updated")
-        public void transferFromBankAccountIT_WithNotExistingBankAccount() {
+        public void transferWithBankAccountIT_WithNotExistingBankAccount() {
 
             bankTransferDTOToCreate.setBankAccountId(BankAccountTestConstants.UNKNOWN_BANK_ACCOUNT_ID);
 
-            Exception exception = assertThrows(PMBException.class, () -> bankTransferService.transferFromBankAccount(bankTransferDTOToCreate));
+            Exception exception = assertThrows(PMBException.class, () -> bankTransferService.transferWithBankAccount(bankTransferDTOToCreate));
             assertThat(exception.getMessage()).contains(PMBExceptionConstants.DOES_NOT_EXISTS_BANK_ACCOUNT);
 
             Optional<BankTransfer> bankTransferCreated = bankTransferRepository
@@ -142,67 +143,6 @@ public class BankTransferServiceIT {
         }
     }
 
-
-    @Nested
-    @DisplayName("transferToBankAccount IT")
-    class TransferToBankAccountIT {
-
-        @Test
-        @DisplayName("WHEN creating a new bank transfer to bank " +
-                "with correct informations for an existing bank account " +
-                "THEN the returned value is the added bank transfer, " +
-                "AND the bank transfer is added in DB " +
-                "AND the user's balance is decreased by the bank transfer amount")
-        public void transferToBankAccountIT_WithSuccess() throws Exception {
-
-            Optional<BankTransferDTO> bankTransferDTOCreated = bankTransferService.transferToBankAccount(bankTransferDTOToCreate);
-            assertThat(bankTransferDTOCreated).isPresent();
-            assertNotNull(bankTransferDTOCreated.get().getBankTransferId());
-
-            Optional<BankTransfer> bankTransferCreated = bankTransferRepository
-                    .findById(bankTransferDTOCreated.get().getBankTransferId());
-            assertThat(bankTransferCreated).isPresent();
-            assertEquals(bankTransferDTOToCreate.getDescription(), bankTransferCreated.get().getDescription());
-            assertEquals(BankTransferTypes.DEBIT, bankTransferCreated.get().getType());
-
-            Optional<User> userUpdated = userRepository.findById(existingUser.getUserId());
-            assertThat(userUpdated).isPresent();
-            assertEquals(UserTestConstants.EXISTING_USER_WITH_HIGH_BALANCE.subtract(bankTransferDTOToCreate.getAmount())
-                    , userUpdated.get().getBalance());
-
-            //nettoyage de la DB en fin de test en supprimant le compte bancaire créé à l'initialisation
-            // et le transfert créé par le test
-            bankTransferRepository.deleteById(bankTransferCreated.get().getBankTransferId());
-            bankAccountRepository.deleteById(existingBankAccount.getBankAccountId());
-        }
-
-
-        @Test
-        @DisplayName("WHEN creating a new bank transfer to bank " +
-                "with correct informations but insufficient user's balance " +
-                "THEN an PMBException is thrown AND the bank transfer is not added in DB " +
-                "AND no user balance is updated")
-        public void transferToBankAccountIT_WithInsufficientBalance() {
-            //initialisation du test avec un solde très faible
-            existingUser.setBalance(UserTestConstants.EXISTING_USER_WITH_LOW_BALANCE);
-            existingUser = userRepository.save(existingUser);
-
-            //test
-            Exception exception = assertThrows(PMBException.class, () -> bankTransferService.transferToBankAccount(bankTransferDTOToCreate));
-            assertThat(exception.getMessage()).contains(PMBExceptionConstants.INSUFFICIENT_BALANCE);
-
-            Optional<BankTransfer> bankTransferCreated = bankTransferRepository
-                    .findByDateAndBankAccount_BankAccountId(bankTransferDTOToCreate.getDate(), bankTransferDTOToCreate.getBankAccountId());
-            assertThat(bankTransferCreated).isNotPresent();
-
-            Optional<User> userNotUpdated = userRepository.findById(existingUser.getUserId());
-            assertThat(userNotUpdated).isPresent();
-            assertEquals(existingUser.getBalance(), userNotUpdated.get().getBalance());
-
-            //nettoyage de la DB en fin de test en supprimant le compte bancaire créé à l'initialisation
-            bankAccountRepository.deleteById(existingBankAccount.getBankAccountId());
-        }
-    }
 
     @Test
     @DisplayName("WHEN getting the list of bank transfers for an existing user " +

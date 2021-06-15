@@ -19,6 +19,7 @@ public class PMBExceptionConstants {
     //Invalid data
     public static final String INVALID_EMAIL = "Invalid email for user: ";
     public static final String INVALID_IBAN = "Invalid IBAN: ";
+    public static final String INVALID_BANK_TRANSFER_TYPE = "Invalid bank transfer type: ";
 
     //Already exists
     public static final String ALREADY_EXIST_USER = "There is already one user with email: ";

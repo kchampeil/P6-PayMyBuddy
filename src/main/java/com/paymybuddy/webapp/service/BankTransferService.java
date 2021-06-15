@@ -1,6 +1,5 @@
 package com.paymybuddy.webapp.service;
 
-import com.paymybuddy.webapp.constants.BankTransferTypes;
 import com.paymybuddy.webapp.constants.LogConstants;
 import com.paymybuddy.webapp.constants.PMBExceptionConstants;
 import com.paymybuddy.webapp.exception.PMBException;
@@ -42,39 +41,68 @@ public class BankTransferService implements IBankTransferService {
     }
 
     /**
-     * opère un transfert du compte bancaire indiqué vers le compte utilisateur dans PMB
-     * NB : on ne se soucie pas de l'accord bancaire lors du transfert (hypothèse d'une validation en amont)
+     * opère un transfert entre le compte utilisateur et le compte bancaire indiqués
+     * selon le sens mentionné dans l'attribut 'type'
+     * NB : on ne se soucie pas de l'accord bancaire lors du transfert banque -> utilisateur (hypothèse d'une validation en amont)
      *
      * @param bankTransferDTOToCreate contient les informations sur le mouvement à opérer
      * @return objet bankTransferDTO contenant le transfert bancaire créé
      * @throws PMBException si le compte bancaire indiqué n existe pas
+     *                      ou que le compte utilisateur n'est pas suffisamment créditeur (dans le cas d'un DEBIT)
      *                      ou que des données sont manquantes
      */
     @Override
-    public Optional<BankTransferDTO> transferFromBankAccount(BankTransferDTO bankTransferDTOToCreate) throws PMBException {
+    public Optional<BankTransferDTO> transferWithBankAccount(BankTransferDTO bankTransferDTOToCreate) throws PMBException {
         Optional<BankTransferDTO> createdBankTransferDTO;
 
         //vérifie qu il ne manque pas d informations
         if (bankTransferDTOToCreate.isValid()) {
 
-            //vérifie que le compte bancaire associé existe bien
-            Optional<BankAccount> bankAccount = bankAccountRepository.findById(bankTransferDTOToCreate.getBankAccountId());
-            if (bankAccount.isPresent()) {
+            //vérifie que le type de transfert est valide
+            if (bankTransferDTOToCreate.typeIsValid()) {
 
-                ModelMapper modelMapper = new ModelMapper();
-                try {
-                    //augmente la balance du user du montant du transfert bancaire
+                //vérifie que le compte bancaire associé existe bien
+                Optional<BankAccount> bankAccount = bankAccountRepository.findById(bankTransferDTOToCreate.getBankAccountId());
+                if (bankAccount.isPresent()) {
+
                     User user = bankAccount.get().getUser();
-                    user.setBalance(user.getBalance().add(bankTransferDTOToCreate.getAmount()));
+                    ModelMapper modelMapper = new ModelMapper();
+                    switch (bankTransferDTOToCreate.getType()) {
+                        case CREDIT: {
+                            //augmente la balance du compte utilisateur du montant du transfert bancaire
+                            user.setBalance(user.getBalance().add(bankTransferDTOToCreate.getAmount()));
+                            break;
+                        }
+                        case DEBIT: {
+                            //vérifie que le compte utilisateur est suffisamment créditeur
+                            //et diminue la balance du user du montant du transfert bancaire
+                            if (user.getBalance().compareTo(bankTransferDTOToCreate.getAmount()) >= 0) {
+                                user.setBalance(user.getBalance().subtract(bankTransferDTOToCreate.getAmount()));
+                            } else {
+                                log.error(LogConstants.CREATE_BANK_TRANSFER_ERROR
+                                        + PMBExceptionConstants.INSUFFICIENT_BALANCE + user.getUserId() + " // " + user.getBalance()
+                                        + " // " + bankTransferDTOToCreate.getAmount());
+                                throw new PMBException(PMBExceptionConstants.INSUFFICIENT_BALANCE + user.getUserId());
+                            }
+                            break;
+                        }
+                    }
 
-                    //mappe le DTO dans le DAO et indique le type de transfert
+                    //mappe le DTO dans le DAO et associe le compte bancaire au transfert
                     BankTransfer bankTransferToCreate = modelMapper.map(bankTransferDTOToCreate, BankTransfer.class);
                     bankTransferToCreate.setBankAccount(bankAccount.get());
-                    bankTransferToCreate.setType(BankTransferTypes.CREDIT);
 
                     // puis le compte client et le nouveau transfert bancaire sont sauvegardés en base
-                    userRepository.save(user);
-                    BankTransfer createdBankTransfer = bankTransferRepository.save(bankTransferToCreate);
+                    BankTransfer createdBankTransfer;
+                    try {
+                        userRepository.save(user);
+                        createdBankTransfer = bankTransferRepository.save(bankTransferToCreate);
+                    } catch (Exception exception) {
+                        log.error(LogConstants.CREATE_BANK_TRANSFER_ERROR + bankTransferDTOToCreate.getBankAccountId()
+                                + " // " + bankTransferDTOToCreate.getDate()
+                                + " // " + bankTransferDTOToCreate.getDescription());
+                        throw exception;
+                    }
 
                     // avant mappage inverse du DAO dans le DTO
                     createdBankTransferDTO =
@@ -86,96 +114,18 @@ public class BankTransferService implements IBankTransferService {
                             + " // " + createdBankTransfer.getBankAccount().getUser().getUserId()
                             + " // " + createdBankTransfer.getType());
 
-                } catch (Exception exception) {
-                    log.error(LogConstants.CREATE_BANK_TRANSFER_ERROR + bankTransferDTOToCreate.getBankAccountId()
-                            + " // " + bankTransferDTOToCreate.getDate()
-                            + " // " + bankTransferDTOToCreate.getDescription());
-                    throw exception;
-                }
-
-            } else {
-                log.error(LogConstants.CREATE_BANK_TRANSFER_ERROR
-                        + PMBExceptionConstants.DOES_NOT_EXISTS_BANK_ACCOUNT + bankTransferDTOToCreate.getBankAccountId());
-                throw new PMBException(PMBExceptionConstants.DOES_NOT_EXISTS_BANK_ACCOUNT + bankTransferDTOToCreate.getBankAccountId());
-
-            }
-
-        } else {
-            log.error(LogConstants.CREATE_BANK_TRANSFER_ERROR
-                    + PMBExceptionConstants.MISSING_INFORMATION_NEW_BANK_TRANSFER
-                    + "for: " + bankTransferDTOToCreate.getBankAccountId()
-                    + " // " + bankTransferDTOToCreate.getDate()
-                    + " // " + bankTransferDTOToCreate.getDescription());
-            throw new PMBException(PMBExceptionConstants.MISSING_INFORMATION_NEW_BANK_TRANSFER);
-        }
-
-        return createdBankTransferDTO;
-    }
-
-
-    /**
-     * opère un transfert du compte utilisateur indiqué vers le compte bancaire
-     *
-     * @param bankTransferDTOToCreate contient les informations sur le mouvement à opérer
-     * @return objet bankTransferDTO contenant le transfert bancaire créé
-     * @throws PMBException si le compte bancaire indiqué n existe pas
-     *                      ou que le compte utilisateur n'est pas suffisamment créditeur
-     *                      ou que des données sont manquantes
-     */
-    @Override
-    public Optional<BankTransferDTO> transferToBankAccount(BankTransferDTO bankTransferDTOToCreate) throws PMBException {
-        Optional<BankTransferDTO> createdBankTransferDTO;
-
-        //vérifie qu il ne manque pas d informations
-        if (bankTransferDTOToCreate.isValid()) {
-
-            //vérifie que le compte bancaire associé existe bien
-            Optional<BankAccount> bankAccount = bankAccountRepository.findById(bankTransferDTOToCreate.getBankAccountId());
-            if (bankAccount.isPresent()) {
-
-                User user = bankAccount.get().getUser();
-                if (user.getBalance().compareTo(bankTransferDTOToCreate.getAmount()) >= 0) {
-                    ModelMapper modelMapper = new ModelMapper();
-                    try {
-                        //diminue la balance du user du montant du transfert bancaire
-                        user.setBalance(user.getBalance().subtract(bankTransferDTOToCreate.getAmount()));
-
-                        //mappe le DTO dans le DAO et indique le type de transfert
-                        BankTransfer bankTransferToCreate = modelMapper.map(bankTransferDTOToCreate, BankTransfer.class);
-                        bankTransferToCreate.setBankAccount(bankAccount.get());
-                        bankTransferToCreate.setType(BankTransferTypes.DEBIT);
-
-                        // puis le compte client et le nouveau transfert bancaire sont sauvegardés en base
-                        userRepository.save(user);
-                        BankTransfer createdBankTransfer = bankTransferRepository.save(bankTransferToCreate);
-
-                        // avant mappage inverse du DAO dans le DTO
-                        createdBankTransferDTO =
-                                Optional.ofNullable(modelMapper.map((createdBankTransfer), BankTransferDTO.class));
-
-                        log.info(LogConstants.CREATE_BANK_TRANSFER_OK + bankTransferDTOToCreate.getBankAccountId()
-                                + " // " + bankTransferDTOToCreate.getDate()
-                                + " // " + bankTransferDTOToCreate.getDescription()
-                                + " // " + createdBankTransfer.getBankAccount().getUser().getUserId()
-                                + " // " + createdBankTransfer.getType());
-
-                    } catch (Exception exception) {
-                        log.error(LogConstants.CREATE_BANK_TRANSFER_ERROR + bankTransferDTOToCreate.getBankAccountId()
-                                + " // " + bankTransferDTOToCreate.getDate()
-                                + " // " + bankTransferDTOToCreate.getDescription());
-                        throw exception;
-                    }
                 } else {
-                    log.error(LogConstants.CREATE_BANK_TRANSFER_ERROR + PMBExceptionConstants.INSUFFICIENT_BALANCE
-                            + user.getUserId() + " // " + user.getBalance() + " // " + bankTransferDTOToCreate.getAmount());
-                    throw new PMBException(PMBExceptionConstants.INSUFFICIENT_BALANCE + user.getUserId());
-                }
+                    log.error(LogConstants.CREATE_BANK_TRANSFER_ERROR
+                            + PMBExceptionConstants.DOES_NOT_EXISTS_BANK_ACCOUNT
+                            + bankTransferDTOToCreate.getBankAccountId());
+                    throw new PMBException(PMBExceptionConstants.DOES_NOT_EXISTS_BANK_ACCOUNT
+                            + bankTransferDTOToCreate.getBankAccountId());
 
+                }
             } else {
                 log.error(LogConstants.CREATE_BANK_TRANSFER_ERROR
-                        + PMBExceptionConstants.DOES_NOT_EXISTS_BANK_ACCOUNT + bankTransferDTOToCreate.getBankAccountId());
-                throw new PMBException(PMBExceptionConstants.DOES_NOT_EXISTS_BANK_ACCOUNT + bankTransferDTOToCreate.getBankAccountId());
-
+                        + PMBExceptionConstants.INVALID_BANK_TRANSFER_TYPE + bankTransferDTOToCreate.getBankAccountId());
+                throw new PMBException(PMBExceptionConstants.INVALID_BANK_TRANSFER_TYPE + bankTransferDTOToCreate.getType());
             }
 
         } else {

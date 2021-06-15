@@ -1,8 +1,10 @@
 package com.paymybuddy.webapp.model.DTO;
 
+import com.paymybuddy.webapp.constants.BankTransferTypes;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.apache.commons.lang3.EnumUtils;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotEmpty;
@@ -32,6 +34,10 @@ public class BankTransferDTO {
 
     @NotNull
     @NotEmpty
+    private BankTransferTypes type;
+
+    @NotNull
+    @NotEmpty
     private Long bankAccountId;
 
     /**
@@ -43,7 +49,17 @@ public class BankTransferDTO {
         return this.date != null
                 && this.description != null && !this.description.isEmpty()
                 && this.amount != null
+                && this.type != null
                 && this.bankAccountId != null;
+    }
+
+    /**
+     * vérifie que le type de transfert à une valeur valide dans l'énumération BankTransferTypes
+     *
+     * @return true si type est correct, sinon false
+     */
+    public boolean typeIsValid() {
+        return EnumUtils.isValidEnum(BankTransferTypes.class, this.type.toString());
     }
 
 }
