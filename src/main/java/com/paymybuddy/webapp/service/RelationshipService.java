@@ -46,71 +46,33 @@ public class RelationshipService implements IRelationshipService {
      */
     @Override
     public Optional<RelationshipDTO> createRelationship(RelationshipDTO relationshipDTOToCreate) throws PMBException {
-        Optional<RelationshipDTO> createdRelationshipDTO;
 
-        //vérifie qu il ne manque pas d informations
-        if (relationshipDTOToCreate.isValid()) {
+        Optional<RelationshipDTO> createdRelationshipDTO = Optional.empty();
 
-            //vérifie que les deux utilisateurs existent bien
-            Optional<User> user = userRepository.findById(relationshipDTOToCreate.getUserId());
-            Optional<User> friend = userRepository.findById(relationshipDTOToCreate.getFriendId());
+        Optional<User> user = userRepository.findById(relationshipDTOToCreate.getUserId());
+        Optional<User> friend = userRepository.findById(relationshipDTOToCreate.getFriendId());
 
-            if (user.isPresent() && friend.isPresent()) {
+        if (checksBeforeCreatingRelationship(relationshipDTOToCreate, user, friend)) {
+            //mappe le DTO dans le DAO,
+            // puis la nouvelle relation est sauvegardée en base avant mappage inverse du DAO dans le DTO
+            Relationship relationshipToCreate = new Relationship();
+            relationshipToCreate.setUser(user.get());
+            relationshipToCreate.setFriend(friend.get());
+            Relationship createdRelationship;
 
-                //vérifie que la relation n existe pas déjà pour l utilisateur
-                if (!relationshipRepository
-                        .findByUserAndFriend(user.get(), friend.get()).isPresent()) {
+            try {
+                createdRelationship = relationshipRepository.save(relationshipToCreate);
 
-                    //mappe le DTO dans le DAO,
-                    // puis la nouvelle relation est sauvegardée en base avant mappage inverse du DAO dans le DTO
-                    try {
-                        Relationship relationshipToCreate = new Relationship();
-                        relationshipToCreate.setUser(user.get());
-                        relationshipToCreate.setFriend(friend.get());
-                        Relationship createdRelationship =
-                                relationshipRepository.save(relationshipToCreate);
-
-                        ModelMapper modelMapper = new ModelMapper();
-                        createdRelationshipDTO =
-                                Optional.ofNullable(modelMapper.map(createdRelationship, RelationshipDTO.class));
-                        log.info(LogConstants.CREATE_RELATIONSHIP_OK + relationshipDTOToCreate.getRelationshipId());
-
-                    } catch (Exception exception) {
-                        log.error(LogConstants.CREATE_RELATIONSHIP_ERROR + relationshipDTOToCreate.getUserId()
-                                + " // " + relationshipDTOToCreate.getFriendId());
-                        throw exception;
-                    }
-                } else {
-                    log.error(LogConstants.CREATE_RELATIONSHIP_ERROR
-                            + PMBExceptionConstants.ALREADY_EXIST_RELATIONSHIP
-                            + relationshipDTOToCreate.getUserId() + " // " + relationshipDTOToCreate.getFriendId());
-                    throw new PMBException(PMBExceptionConstants.ALREADY_EXIST_RELATIONSHIP
-                            + relationshipDTOToCreate.getUserId() + " // " + relationshipDTOToCreate.getFriendId());
-                }
-
-            } else {
-                String msgComplement;
-                if (!user.isPresent()) {
-                    if (!friend.isPresent()) {
-                        msgComplement = relationshipDTOToCreate.getUserId().toString()
-                                + " // " + relationshipDTOToCreate.getFriendId().toString();
-                    } else {
-                        msgComplement = relationshipDTOToCreate.getUserId().toString();
-                    }
-                } else {
-                    msgComplement = relationshipDTOToCreate.getFriendId().toString();
-                }
-                log.error(LogConstants.CREATE_RELATIONSHIP_ERROR + PMBExceptionConstants.DOES_NOT_EXISTS_USER + msgComplement);
-                throw new PMBException(PMBExceptionConstants.DOES_NOT_EXISTS_USER + msgComplement);
+            } catch (Exception exception) {
+                log.error(LogConstants.CREATE_RELATIONSHIP_ERROR + relationshipDTOToCreate.getUserId()
+                        + " // " + relationshipDTOToCreate.getFriendId());
+                throw exception;
             }
 
-
-        } else {
-            log.error(LogConstants.CREATE_RELATIONSHIP_ERROR
-                    + PMBExceptionConstants.MISSING_INFORMATION_NEW_RELATIONSHIP
-                    + "for: " + relationshipDTOToCreate.getUserId()
-                    + " // " + relationshipDTOToCreate.getFriendId());
-            throw new PMBException(PMBExceptionConstants.MISSING_INFORMATION_NEW_RELATIONSHIP);
+            ModelMapper modelMapper = new ModelMapper();
+            createdRelationshipDTO =
+                    Optional.ofNullable(modelMapper.map(createdRelationship, RelationshipDTO.class));
+            log.info(LogConstants.CREATE_RELATIONSHIP_OK + relationshipDTOToCreate.getRelationshipId());
         }
 
         return createdRelationshipDTO;
@@ -119,7 +81,7 @@ public class RelationshipService implements IRelationshipService {
 
     /**
      * récupération de la liste de toutes les relations ("amis") d'un utilisateur donné
-     *
+     * <p>
      * NB: ne récupère que la liste des "amis" déclarés par l'utilisateur.
      * Les relations où l'utilisateur est déclaré comme "ami" ne sont pas restituées
      *
@@ -130,29 +92,94 @@ public class RelationshipService implements IRelationshipService {
     public List<RelationshipDTO> getAllRelationshipsForUser(Long userId) throws PMBException {
         List<RelationshipDTO> relationshipDTOList = new ArrayList<>();
 
-        if (userId != null) {
-            Optional<User> user = userRepository.findById(userId);
+        if (checksBeforeGettingRelationships(userId)) {
+            List<Relationship> relationshipList = relationshipRepository.findAllByUser_UserId(userId);
+            ModelMapper modelMapper = new ModelMapper();
+            relationshipList.forEach(relationship ->
+                    relationshipDTOList
+                            .add(modelMapper.map(relationship, RelationshipDTO.class)));
+            log.info(LogConstants.LIST_RELATIONSHIP_OK + relationshipDTOList.size());
+        }
 
-            if (user.isPresent()) {
-                List<Relationship> relationshipList = relationshipRepository.findAllByUser_UserId(userId);
-                ModelMapper modelMapper = new ModelMapper();
-                relationshipList.forEach(relationship ->
-                        relationshipDTOList
-                                .add(modelMapper.map(relationship, RelationshipDTO.class)));
-                log.info(LogConstants.LIST_RELATIONSHIP_OK + relationshipDTOList.size());
+        return relationshipDTOList;
+    }
 
-            } else {
-                log.error(LogConstants.LIST_RELATIONSHIP_ERROR
-                        + PMBExceptionConstants.DOES_NOT_EXISTS_USER + userId);
-                throw new PMBException(PMBExceptionConstants.DOES_NOT_EXISTS_USER + userId);
-            }
 
-        } else {
+    /**
+     * vérifie que les informations transmises sont correctes
+     * en amont de la création de la relation entre deux utilisateurs
+     *
+     * @param relationshipDTOToCreate contient les informations sur la relation à créer
+     * @param user utilisateur
+     * @param friend utilisateur 'ami'
+     * @return true si tout est correct
+     * @throws PMBException si des données sont manquantes
+     *                      ou que l utilisateur n existe pas
+     *                      ou que l'utilisateur 'ami' n'existe pas
+     *                      ou que la relation existe déjà
+     */
+    private boolean checksBeforeCreatingRelationship(RelationshipDTO relationshipDTOToCreate,
+                                                     Optional<User> user, Optional<User> friend) throws PMBException {
+        //vérifie qu il ne manque pas d informations
+        if (!relationshipDTOToCreate.isValid()) {
+            log.error(LogConstants.CREATE_RELATIONSHIP_ERROR
+                    + PMBExceptionConstants.MISSING_INFORMATION_NEW_RELATIONSHIP
+                    + "for: " + relationshipDTOToCreate.getUserId()
+                    + " // " + relationshipDTOToCreate.getFriendId());
+            throw new PMBException(PMBExceptionConstants.MISSING_INFORMATION_NEW_RELATIONSHIP);
+        }
+
+        //vérifie que les deux utilisateurs existent bien
+        if (!user.isPresent()) {
+            log.error(LogConstants.CREATE_RELATIONSHIP_ERROR
+                    + PMBExceptionConstants.DOES_NOT_EXISTS_USER + relationshipDTOToCreate.getUserId());
+            throw new PMBException(PMBExceptionConstants.DOES_NOT_EXISTS_USER + relationshipDTOToCreate.getUserId());
+        }
+
+        if (!friend.isPresent()) {
+            log.error(LogConstants.CREATE_RELATIONSHIP_ERROR
+                    + PMBExceptionConstants.DOES_NOT_EXISTS_USER + relationshipDTOToCreate.getFriendId());
+            throw new PMBException(PMBExceptionConstants.DOES_NOT_EXISTS_USER + relationshipDTOToCreate.getFriendId());
+        }
+
+        //vérifie que la relation n existe pas déjà pour l'utilisateur
+        if (relationshipRepository
+                .findByUserAndFriend(user.get(), friend.get()).isPresent()) {
+            log.error(LogConstants.CREATE_RELATIONSHIP_ERROR
+                    + PMBExceptionConstants.ALREADY_EXIST_RELATIONSHIP
+                    + relationshipDTOToCreate.getUserId() + " // " + relationshipDTOToCreate.getFriendId());
+            throw new PMBException(PMBExceptionConstants.ALREADY_EXIST_RELATIONSHIP
+                    + relationshipDTOToCreate.getUserId() + " // " + relationshipDTOToCreate.getFriendId());
+        }
+
+        return true;
+    }
+
+
+    /**
+     * vérifie que les informations transmises sont correctes en amont de la récupération de la liste des relations
+     *
+     * @param userId identifiant de l'utilisateur pour lequel on souhaite récupérer la liste des relations
+     * @return true si tout est correct
+     * @throws PMBException si l'identifiant transmis est nul
+     *                      ou que l'utilisateur n'existe pas
+     */
+    private boolean checksBeforeGettingRelationships(Long userId) throws PMBException {
+        //vérifie qu il ne manque pas d informations
+        if (userId == null) {
             log.error(LogConstants.LIST_RELATIONSHIP_ERROR
                     + PMBExceptionConstants.MISSING_INFORMATION_LIST_RELATIONSHIP);
             throw new PMBException(PMBExceptionConstants.MISSING_INFORMATION_LIST_RELATIONSHIP);
         }
 
-        return relationshipDTOList;
+        //vérifie que l'utilisateur existe
+        Optional<User> user = userRepository.findById(userId);
+        if (!user.isPresent()) {
+            log.error(LogConstants.LIST_RELATIONSHIP_ERROR
+                    + PMBExceptionConstants.DOES_NOT_EXISTS_USER + userId);
+            throw new PMBException(PMBExceptionConstants.DOES_NOT_EXISTS_USER + userId);
+        }
+
+        return true;
     }
 }

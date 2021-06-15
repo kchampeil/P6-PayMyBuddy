@@ -51,4 +51,15 @@ public class UserDTO {
                 && this.password != null && !this.password.isEmpty()
                 && this.balance != null;
     }
+
+    /**
+     * vérifie si l email est correct
+     * NB : à ce stade seule la présence du @ est vérifiée.
+     * TODO : A voir si d autres exigences sont requises au niveau de la validité du mail
+     *
+     * @return true si l'email est correct, sinon false
+     */
+    public boolean hasValidEmail() {
+        return this.email.contains("@");
+    }
 }

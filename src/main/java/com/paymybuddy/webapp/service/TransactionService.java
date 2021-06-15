@@ -55,90 +55,57 @@ public class TransactionService implements ITransactionService {
     @Override
     public Optional<TransactionDTO> transferToFriend(TransactionDTO transactionDTOToCreate) throws PMBException {
 
-        Optional<TransactionDTO> createdTransactionDTO;
+        Optional<TransactionDTO> createdTransactionDTO = Optional.empty();
 
-        //vérifie qu il ne manque pas d informations
-        if (transactionDTOToCreate.isValid()) {
+        Optional<Relationship> relationship = relationshipRepository.findById(transactionDTOToCreate.getRelationshipId());
 
-            //vérifie que la relation entre utilisateurs existe bien
-            Optional<Relationship> relationship = relationshipRepository.findById(transactionDTOToCreate.getRelationshipId());
-            if (relationship.isPresent()) {
+        //calcule le montant des frais de transaction à appliquer
+        BigDecimal feeAmountToAdd = transactionDTOToCreate.getAmountFeeExcluded()
+                .multiply(TransactionConstants.FEE_PERCENTAGE)
+                .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+        transactionDTOToCreate.setFeeAmount(feeAmountToAdd);
 
-                //calcule le montant des frais de transaction à appliquer
-                BigDecimal feeAmountToAdd = transactionDTOToCreate.getAmountFeeExcluded()
-                        .multiply(TransactionConstants.FEE_PERCENTAGE)
-                        .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
-                transactionDTOToCreate.setFeeAmount(feeAmountToAdd);
+        if (checksBeforeCreatingTransaction(transactionDTOToCreate, relationship)) {
+            User user = relationship.get().getUser();
 
-                //vérifie que le compte de l'utilisateur est suffisamment créditeur pour couvrir la transaction et les frais
-                User user = relationship.get().getUser();
-                if (user.getBalance()
-                        .compareTo(transactionDTOToCreate.getAmountFeeExcluded()
-                                .add(feeAmountToAdd)) >= 0) {
+            ModelMapper modelMapper = new ModelMapper();
 
-                    ModelMapper modelMapper = new ModelMapper();
-                    try {
-                        //diminue la balance du user du montant de la transaction + frais
-                        user.setBalance(user.getBalance()
-                                .subtract(transactionDTOToCreate.getAmountFeeExcluded()
-                                        .add(transactionDTOToCreate.getFeeAmount())));
+            //diminue la balance du user du montant de la transaction + frais
+            user.setBalance(user.getBalance()
+                    .subtract(transactionDTOToCreate.getAmountFeeExcluded()
+                            .add(transactionDTOToCreate.getFeeAmount())));
 
-                        //augmente la balance du user "ami" du montant de la transaction seulement
-                        User friend = relationship.get().getFriend();
-                        friend.setBalance(friend.getBalance()
-                                .add(transactionDTOToCreate.getAmountFeeExcluded()));
+            //augmente la balance du user "ami" du montant de la transaction seulement
+            User friend = relationship.get().getFriend();
+            friend.setBalance(friend.getBalance()
+                    .add(transactionDTOToCreate.getAmountFeeExcluded()));
 
-                        //mappe le DTO dans le DAO et indique le type de transfert
-                        Transaction transactionToCreate = modelMapper.map(transactionDTOToCreate, Transaction.class);
-                        transactionToCreate.setRelationship(relationship.get());
-                        transactionToCreate.setFeeBilled(false);
+            //mappe le DTO dans le DAO et indique le type de transfert
+            Transaction transactionToCreate = modelMapper.map(transactionDTOToCreate, Transaction.class);
+            transactionToCreate.setRelationship(relationship.get());
+            transactionToCreate.setFeeBilled(false);
 
-                        // puis le compte utilisateur, le compte ami et la nouvelle transaction sont sauvegardés en base
-                        userRepository.save(user);
-                        userRepository.save(friend);
-                        Transaction createdTransaction = transactionRepository.save(transactionToCreate);
+            Transaction createdTransaction;
+            try {
+                // puis le compte utilisateur, le compte ami et la nouvelle transaction sont sauvegardés en base
+                userRepository.save(user);
+                userRepository.save(friend);
+                createdTransaction = transactionRepository.save(transactionToCreate);
 
-                        // avant mappage inverse du DAO dans le DTO
-                        createdTransactionDTO =
-                                Optional.ofNullable(modelMapper.map((createdTransaction), TransactionDTO.class));
-
-                        log.info(LogConstants.CREATE_TRANSACTION_OK + transactionDTOToCreate.getTransactionId());
-
-                    } catch (Exception exception) {
-                        log.error(LogConstants.CREATE_TRANSACTION_ERROR + transactionDTOToCreate.getTransactionId()
-                                + " // " + transactionDTOToCreate.getDate()
-                                + " // " + transactionDTOToCreate.getDescription()
-                                + " // " + transactionDTOToCreate.getRelationshipId());
-                        throw exception;
-                    }
-                } else {
-                    log.error(LogConstants.CREATE_TRANSACTION_ERROR
-                            + PMBExceptionConstants.INSUFFICIENT_BALANCE
-                            + user.getUserId()
-                            + " // " + user.getBalance()
-                            + " // " + transactionDTOToCreate.getAmountFeeExcluded()
-                            + " // " + transactionDTOToCreate.getFeeAmount());
-                    throw new PMBException(PMBExceptionConstants.INSUFFICIENT_BALANCE + user.getUserId());
-                }
-
-            } else {
-                log.error(LogConstants.CREATE_TRANSACTION_ERROR
-                        + PMBExceptionConstants.DOES_NOT_EXISTS_RELATIONSHIP
-                        + transactionDTOToCreate.getRelationshipId());
-                throw new PMBException(PMBExceptionConstants.DOES_NOT_EXISTS_RELATIONSHIP
-                        + transactionDTOToCreate.getRelationshipId());
-
+            } catch (Exception exception) {
+                log.error(LogConstants.CREATE_TRANSACTION_ERROR + transactionDTOToCreate.getTransactionId()
+                        + " // " + transactionDTOToCreate.getDate()
+                        + " // " + transactionDTOToCreate.getDescription()
+                        + " // " + transactionDTOToCreate.getRelationshipId());
+                throw exception;
             }
 
-        } else {
-            log.error(LogConstants.CREATE_TRANSACTION_ERROR
-                    + PMBExceptionConstants.MISSING_INFORMATION_NEW_TRANSACTION
-                    + "for: " + transactionDTOToCreate.getRelationshipId()
-                    + " // " + transactionDTOToCreate.getDate()
-                    + " // " + transactionDTOToCreate.getDescription());
-            throw new PMBException(PMBExceptionConstants.MISSING_INFORMATION_NEW_TRANSACTION);
-        }
+            // avant mappage inverse du DAO dans le DTO
+            createdTransactionDTO =
+                    Optional.ofNullable(modelMapper.map((createdTransaction), TransactionDTO.class));
 
+            log.info(LogConstants.CREATE_TRANSACTION_OK + transactionDTOToCreate.getTransactionId());
+        }
         return createdTransactionDTO;
     }
 
@@ -155,30 +122,88 @@ public class TransactionService implements ITransactionService {
     public List<TransactionDTO> getAllTransactionsForUser(Long userId) throws PMBException {
         List<TransactionDTO> transactionDTOList = new ArrayList<>();
 
-        if (userId != null) {
-            Optional<User> user = userRepository.findById(userId);
+        if (checksBeforeGettingTransactions(userId)) {
+            List<Transaction> transactionList = transactionRepository.findAllByRelationship_User_UserId(userId);
+            ModelMapper modelMapper = new ModelMapper();
+            transactionList.forEach(transaction ->
+                    transactionDTOList
+                            .add(modelMapper.map(transaction, TransactionDTO.class)));
+            log.info(LogConstants.LIST_TRANSACTION_OK + transactionDTOList.size());
+        }
 
-            //vérifie que l'utilisateur existe
-            if (user.isPresent()) {
-                List<Transaction> transactionList = transactionRepository.findAllByRelationship_User_UserId(userId);
-                ModelMapper modelMapper = new ModelMapper();
-                transactionList.forEach(transaction ->
-                        transactionDTOList
-                                .add(modelMapper.map(transaction, TransactionDTO.class)));
-                log.info(LogConstants.LIST_TRANSACTION_OK + transactionDTOList.size());
+        return transactionDTOList;
+    }
 
-            } else {
-                log.error(LogConstants.LIST_TRANSACTION_ERROR
-                        + PMBExceptionConstants.DOES_NOT_EXISTS_USER + userId);
-                throw new PMBException(PMBExceptionConstants.DOES_NOT_EXISTS_USER + userId);
-            }
 
-        } else {
+    /**
+     * vérifie que les informations transmises sont correctes en amont de la création de la transaction
+     *
+     * @param transactionDTOToCreate contient les informations sur le transfert bancaire à créer
+     * @param relationship           relation entre utilisateurs en lien avec le transfert
+     * @return true si tout est correct
+     * @throws PMBException si des données sont manquantes
+     *                      ou que la relation entre utilisateurs n'existe pas
+     *                      ou que le compte utilisateur n'est pas suffisamment créditeur
+     *                      pour couvrir la transaction et les frais
+     */
+    private boolean checksBeforeCreatingTransaction(TransactionDTO transactionDTOToCreate, Optional<Relationship> relationship) throws PMBException {
+        //vérifie qu il ne manque pas d informations
+        if (!transactionDTOToCreate.isValid()) {
+            log.error(LogConstants.CREATE_TRANSACTION_ERROR
+                    + PMBExceptionConstants.MISSING_INFORMATION_NEW_TRANSACTION
+                    + "for: " + transactionDTOToCreate.getRelationshipId()
+                    + " // " + transactionDTOToCreate.getDate()
+                    + " // " + transactionDTOToCreate.getDescription());
+            throw new PMBException(PMBExceptionConstants.MISSING_INFORMATION_NEW_TRANSACTION);
+        }
+
+        //vérifie que la relation entre utilisateurs existe bien
+        if (!relationship.isPresent()) {
+            log.error(LogConstants.CREATE_TRANSACTION_ERROR
+                    + PMBExceptionConstants.DOES_NOT_EXISTS_RELATIONSHIP
+                    + transactionDTOToCreate.getRelationshipId());
+            throw new PMBException(PMBExceptionConstants.DOES_NOT_EXISTS_RELATIONSHIP
+                    + transactionDTOToCreate.getRelationshipId());
+        }
+
+        //vérifie que le compte de l'utilisateur est suffisamment créditeur pour couvrir la transaction et les frais
+        if (relationship.get().getUser().getBalance()
+                .compareTo(transactionDTOToCreate.getAmountFeeExcluded()
+                        .add(transactionDTOToCreate.getFeeAmount())) < 0) {
+
+            log.error(LogConstants.CREATE_TRANSACTION_ERROR
+                    + PMBExceptionConstants.INSUFFICIENT_BALANCE + relationship.get().getUser().getUserId());
+            throw new PMBException(PMBExceptionConstants.INSUFFICIENT_BALANCE + relationship.get().getUser().getUserId());
+        }
+
+        return true;
+    }
+
+
+    /**
+     * vérifie que les informations transmises sont correctes en amont de la récupération de la liste des transactions
+     *
+     * @param userId identifiant de l'utilisateur pour lequel on souhaite récupérer la liste des transactions
+     * @return true si tout est correct
+     * @throws PMBException si l'identifiant transmis est nul
+     *                      ou que l'utilisateur n'existe pas
+     */
+    private boolean checksBeforeGettingTransactions(Long userId) throws PMBException {
+        //vérifie qu il ne manque pas d informations
+        if (userId == null) {
             log.error(LogConstants.LIST_TRANSACTION_ERROR
                     + PMBExceptionConstants.MISSING_INFORMATION_LIST_TRANSACTION);
             throw new PMBException(PMBExceptionConstants.MISSING_INFORMATION_LIST_TRANSACTION);
         }
 
-        return transactionDTOList;
+        Optional<User> user = userRepository.findById(userId);
+        //vérifie que l'utilisateur existe
+        if (!user.isPresent()) {
+            log.error(LogConstants.LIST_TRANSACTION_ERROR
+                    + PMBExceptionConstants.DOES_NOT_EXISTS_USER + userId);
+            throw new PMBException(PMBExceptionConstants.DOES_NOT_EXISTS_USER + userId);
+        }
+
+        return true;
     }
 }

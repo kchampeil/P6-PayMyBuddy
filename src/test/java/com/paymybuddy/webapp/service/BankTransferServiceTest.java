@@ -195,7 +195,7 @@ class BankTransferServiceTest {
                     () -> bankTransferService.transferWithBankAccount(bankTransferDTOToCreate));
             assertThat(exception.getMessage()).contains(PMBExceptionConstants.MISSING_INFORMATION_NEW_BANK_TRANSFER);
 
-            verify(bankAccountRepositoryMock, Mockito.times(0))
+            verify(bankAccountRepositoryMock, Mockito.times(1))
                     .findById(bankTransferDTOToCreate.getBankAccountId());
             verify(userRepositoryMock, Mockito.times(0))
                     .save(any(User.class));

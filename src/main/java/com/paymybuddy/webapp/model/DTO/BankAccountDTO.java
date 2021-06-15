@@ -48,7 +48,7 @@ public class BankAccountDTO {
      *
      * @return true si l IBAN est correct, sinon false
      */
-    public boolean ibanIsValid() {
+    public boolean hasValidIban() {
         return (this.iban.length() < BankAccountConstants.MAX_LENGTH_FOR_IBAN
                 && EnumUtils.isValidEnum(IbanPrefixes.class, this.iban.substring(0, 2)));
 

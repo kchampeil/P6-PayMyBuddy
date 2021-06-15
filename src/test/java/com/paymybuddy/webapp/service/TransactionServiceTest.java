@@ -201,7 +201,7 @@ class TransactionServiceTest {
             Exception exception = assertThrows(PMBException.class, () -> transactionService.transferToFriend(transactionDTOToCreate));
             assertThat(exception.getMessage()).contains(PMBExceptionConstants.MISSING_INFORMATION_NEW_TRANSACTION);
 
-            verify(relationshipRepositoryMock, Mockito.times(0))
+            verify(relationshipRepositoryMock, Mockito.times(1))
                     .findById(transactionDTOToCreate.getRelationshipId());
             verify(userRepositoryMock, Mockito.times(0))
                     .save(any(User.class));

@@ -47,64 +47,28 @@ public class BankAccountService implements IBankAccountService {
      */
     @Override
     public Optional<BankAccountDTO> createBankAccount(BankAccountDTO bankAccountDTOToCreate) throws PMBException {
-        Optional<BankAccountDTO> createdBankAccountDTO;
 
-        //vérifie qu il ne manque pas d informations
-        if (bankAccountDTOToCreate.isValid()) {
+        Optional<BankAccountDTO> createdBankAccountDTO = Optional.empty();
 
-            //vérifie que l IBAN est valide
-            if (bankAccountDTOToCreate.ibanIsValid()) {
+        if (checksBeforeCreatingBankAccount(bankAccountDTOToCreate)) {
+            //mappe le DTO dans le DAO,
+            // puis le nouveau compte bancaire est sauvegardé en base avant mappage inverse du DAO dans le DTO
+            ModelMapper modelMapper = new ModelMapper();
+            BankAccount createdBankAccount;
 
-                //vérifie que l utilisateur associé existe bien
-                if (userRepository.findById(bankAccountDTOToCreate.getUserId()).isPresent()) {
+            try {
+                createdBankAccount =
+                        bankAccountRepository.save(modelMapper.map(bankAccountDTOToCreate, BankAccount.class));
 
-                    //vérifie que le compte bancaire n existe pas déjà pour l utilisateur
-                    if (!bankAccountRepository
-                            .findByIbanAndUser_UserId(bankAccountDTOToCreate.getIban()
-                                    , bankAccountDTOToCreate.getUserId()).isPresent()) {
-
-                        //mappe le DTO dans le DAO,
-                        // puis le nouveau compte bancaire est sauvegardé en base avant mappage inverse du DAO dans le DTO
-                        ModelMapper modelMapper = new ModelMapper();
-
-                        try {
-                            BankAccount createdBankAccount =
-                                    bankAccountRepository.save(modelMapper.map(bankAccountDTOToCreate, BankAccount.class));
-                            createdBankAccountDTO =
-                                    Optional.ofNullable(modelMapper.map((createdBankAccount), BankAccountDTO.class));
-                            log.info(LogConstants.CREATE_BANK_ACCOUNT_OK + bankAccountDTOToCreate.getBankAccountId());
-
-                        } catch (Exception exception) {
-                            log.error(LogConstants.CREATE_BANK_ACCOUNT_ERROR + bankAccountDTOToCreate.getName()
-                                    + " // " + bankAccountDTOToCreate.getIban());
-                            throw exception;
-                        }
-                    } else {
-                        log.error(LogConstants.CREATE_BANK_ACCOUNT_ERROR
-                                + PMBExceptionConstants.ALREADY_EXIST_BANK_ACCOUNT
-                                + bankAccountDTOToCreate.getIban() + " // " + bankAccountDTOToCreate.getUserId());
-                        throw new PMBException(PMBExceptionConstants.ALREADY_EXIST_BANK_ACCOUNT
-                                + bankAccountDTOToCreate.getIban() + " // " + bankAccountDTOToCreate.getUserId());
-                    }
-
-                } else {
-                    log.error(LogConstants.CREATE_BANK_ACCOUNT_ERROR
-                            + PMBExceptionConstants.DOES_NOT_EXISTS_USER + bankAccountDTOToCreate.getUserId());
-                    throw new PMBException(PMBExceptionConstants.DOES_NOT_EXISTS_USER + bankAccountDTOToCreate.getUserId());
-
-                }
-
-            } else {
-                log.error(LogConstants.CREATE_BANK_ACCOUNT_ERROR
-                        + PMBExceptionConstants.INVALID_IBAN + bankAccountDTOToCreate.getIban());
-                throw new PMBException(PMBExceptionConstants.INVALID_IBAN + bankAccountDTOToCreate.getIban());
+            } catch (Exception exception) {
+                log.error(LogConstants.CREATE_BANK_ACCOUNT_ERROR + bankAccountDTOToCreate.getName()
+                        + " // " + bankAccountDTOToCreate.getIban());
+                throw exception;
             }
 
-        } else {
-            log.error(LogConstants.CREATE_BANK_ACCOUNT_ERROR
-                    + PMBExceptionConstants.MISSING_INFORMATION_NEW_BANK_ACCOUNT + "for: " + bankAccountDTOToCreate.getName()
-                    + " // " + bankAccountDTOToCreate.getIban());
-            throw new PMBException(PMBExceptionConstants.MISSING_INFORMATION_NEW_BANK_ACCOUNT);
+            createdBankAccountDTO =
+                    Optional.ofNullable(modelMapper.map((createdBankAccount), BankAccountDTO.class));
+            log.info(LogConstants.CREATE_BANK_ACCOUNT_OK + bankAccountDTOToCreate.getBankAccountId());
         }
 
         return createdBankAccountDTO;
@@ -121,29 +85,88 @@ public class BankAccountService implements IBankAccountService {
     public List<BankAccountDTO> getAllBankAccountsForUser(Long userId) throws PMBException {
         List<BankAccountDTO> bankAccountDTOList = new ArrayList<>();
 
-        if (userId != null) {
-            Optional<User> user = userRepository.findById(userId);
+        if (checksBeforeGettingBankAccounts(userId)) {
+            List<BankAccount> bankAccountList = bankAccountRepository.findAllByUser_UserId(userId);
+            ModelMapper modelMapper = new ModelMapper();
+            bankAccountList.forEach(bankAccount ->
+                    bankAccountDTOList.add(modelMapper.map(bankAccount, BankAccountDTO.class)));
+            log.info(LogConstants.LIST_BANK_ACCOUNT_OK + bankAccountDTOList.size());
+        }
 
-            if (user.isPresent()) {
-                List<BankAccount> bankAccountList = bankAccountRepository.findAllByUser_UserId(userId);
-                ModelMapper modelMapper = new ModelMapper();
-                bankAccountList.forEach(bankAccount ->
-                        bankAccountDTOList
-                                .add(modelMapper.map(bankAccount, BankAccountDTO.class)));
-                log.info(LogConstants.LIST_BANK_ACCOUNT_OK + bankAccountDTOList.size());
+        return bankAccountDTOList;
+    }
 
-            } else {
-                log.error(LogConstants.LIST_BANK_ACCOUNT_ERROR
-                        + PMBExceptionConstants.DOES_NOT_EXISTS_USER + userId);
-                throw new PMBException(PMBExceptionConstants.DOES_NOT_EXISTS_USER + userId);
-            }
 
-        } else {
+    /**
+     * vérifie que les informations transmises sont correctes en amont de la création du compte bancaire
+     *
+     * @param bankAccountDTOToCreate contient les informations sur le compte bancaire à créer
+     * @return true si tout est correct
+     * @throws PMBException si des données sont manquantes
+     *                      ou que l IBAN est invalide
+     *                      ou que l utilisateur n existe pas
+     *                      ou que le compte bancaire existe déjà
+     */
+    private boolean checksBeforeCreatingBankAccount(BankAccountDTO bankAccountDTOToCreate) throws PMBException {
+        //vérifie qu il ne manque pas d informations
+        if (!bankAccountDTOToCreate.isValid()) {
+            log.error(LogConstants.CREATE_BANK_ACCOUNT_ERROR
+                    + PMBExceptionConstants.MISSING_INFORMATION_NEW_BANK_ACCOUNT + "for: " + bankAccountDTOToCreate.getName()
+                    + " // " + bankAccountDTOToCreate.getIban());
+            throw new PMBException(PMBExceptionConstants.MISSING_INFORMATION_NEW_BANK_ACCOUNT);
+        }
+
+        //vérifie que l'IBAN est valide
+        if (!bankAccountDTOToCreate.hasValidIban()) {
+            log.error(LogConstants.CREATE_BANK_ACCOUNT_ERROR
+                    + PMBExceptionConstants.INVALID_IBAN + bankAccountDTOToCreate.getIban());
+            throw new PMBException(PMBExceptionConstants.INVALID_IBAN + bankAccountDTOToCreate.getIban());
+        }
+
+        //vérifie que l'utilisateur associé existe bien
+        if (!userRepository.findById(bankAccountDTOToCreate.getUserId()).isPresent()) {
+            log.error(LogConstants.CREATE_BANK_ACCOUNT_ERROR
+                    + PMBExceptionConstants.DOES_NOT_EXISTS_USER + bankAccountDTOToCreate.getUserId());
+            throw new PMBException(PMBExceptionConstants.DOES_NOT_EXISTS_USER + bankAccountDTOToCreate.getUserId());
+        }
+
+        //vérifie que le compte bancaire n'existe pas déjà pour l'utilisateur
+        if (bankAccountRepository
+                .findByIbanAndUser_UserId(bankAccountDTOToCreate.getIban(), bankAccountDTOToCreate.getUserId()).isPresent()) {
+            log.error(LogConstants.CREATE_BANK_ACCOUNT_ERROR
+                    + PMBExceptionConstants.ALREADY_EXIST_BANK_ACCOUNT
+                    + bankAccountDTOToCreate.getIban() + " // " + bankAccountDTOToCreate.getUserId());
+            throw new PMBException(PMBExceptionConstants.ALREADY_EXIST_BANK_ACCOUNT
+                    + bankAccountDTOToCreate.getIban() + " // " + bankAccountDTOToCreate.getUserId());
+        }
+        return true;
+    }
+
+
+    /**
+     * vérifie que les informations transmises sont correctes en amont de la récupération de la liste des comptes bancaires
+     *
+     * @param userId identifiant de l'utilisateur pour lequel on souhaite récupérer la liste des comptes bancaires
+     * @return true si tout est correct
+     * @throws PMBException si l'identifiant transmis est nul
+     *                      ou que l'utilisateur n'existe pas
+     */
+    private boolean checksBeforeGettingBankAccounts(Long userId) throws PMBException {
+        //vérifie qu il ne manque pas d informations
+        if (userId == null) {
             log.error(LogConstants.LIST_BANK_ACCOUNT_ERROR
                     + PMBExceptionConstants.MISSING_INFORMATION_LIST_BANK_ACCOUNT);
             throw new PMBException(PMBExceptionConstants.MISSING_INFORMATION_LIST_BANK_ACCOUNT);
         }
 
-        return bankAccountDTOList;
+        //vérifie que l'utilisateur existe bien
+        Optional<User> user = userRepository.findById(userId);
+        if (!user.isPresent()) {
+            log.error(LogConstants.LIST_BANK_ACCOUNT_ERROR
+                    + PMBExceptionConstants.DOES_NOT_EXISTS_USER + userId);
+            throw new PMBException(PMBExceptionConstants.DOES_NOT_EXISTS_USER + userId);
+        }
+
+        return true;
     }
 }
