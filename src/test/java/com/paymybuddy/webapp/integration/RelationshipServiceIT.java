@@ -168,7 +168,7 @@ public class RelationshipServiceIT {
         assertThat(relationshipDTOList).isNotEmpty();
         assertEquals(existingRelationship.getRelationshipId(), relationshipDTOList.get(0).getRelationshipId());
 
-        //nettoyage de la DB en fin de test en supprimant le compte bancaire créé par le test
+        //nettoyage de la DB en fin de test en supprimant la relation user/friend créée par le test
         relationshipRepository.deleteById(existingRelationship.getRelationshipId());
     }
 }

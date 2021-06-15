@@ -114,7 +114,8 @@ public class BankTransferServiceIT {
             assertEquals(UserTestConstants.EXISTING_USER_WITH_HIGH_BALANCE.add(bankTransferDTOToCreate.getAmount())
                     , userUpdated.get().getBalance());
 
-            //nettoyage de la DB en fin de test en supprimant le compte bancaire créé par le test
+            //nettoyage de la DB en fin de test en supprimant le compte bancaire créé à l'initialisation
+            // et le transfert créé par le test
             bankTransferRepository.deleteById(bankTransferCreated.get().getBankTransferId());
             bankAccountRepository.deleteById(existingBankAccount.getBankAccountId());
         }
@@ -136,7 +137,7 @@ public class BankTransferServiceIT {
                     .findByDateAndBankAccount_BankAccountId(bankTransferDTOToCreate.getDate(), bankTransferDTOToCreate.getBankAccountId());
             assertThat(bankTransferCreated).isNotPresent();
 
-            //nettoyage de la DB en fin de test en supprimant le compte bancaire créé par le test
+            //nettoyage de la DB en fin de test en supprimant le compte bancaire créé à l'initialisation
             bankAccountRepository.deleteById(existingBankAccount.getBankAccountId());
         }
     }
@@ -169,7 +170,8 @@ public class BankTransferServiceIT {
             assertEquals(UserTestConstants.EXISTING_USER_WITH_HIGH_BALANCE.subtract(bankTransferDTOToCreate.getAmount())
                     , userUpdated.get().getBalance());
 
-            //nettoyage de la DB en fin de test en supprimant le compte bancaire créé par le test
+            //nettoyage de la DB en fin de test en supprimant le compte bancaire créé à l'initialisation
+            // et le transfert créé par le test
             bankTransferRepository.deleteById(bankTransferCreated.get().getBankTransferId());
             bankAccountRepository.deleteById(existingBankAccount.getBankAccountId());
         }
@@ -197,7 +199,7 @@ public class BankTransferServiceIT {
             assertThat(userNotUpdated).isPresent();
             assertEquals(existingUser.getBalance(), userNotUpdated.get().getBalance());
 
-            //nettoyage de la DB en fin de test en supprimant le compte bancaire créé par le test
+            //nettoyage de la DB en fin de test en supprimant le compte bancaire créé à l'initialisation
             bankAccountRepository.deleteById(existingBankAccount.getBankAccountId());
         }
     }
@@ -222,7 +224,8 @@ public class BankTransferServiceIT {
         assertThat(bankTransferDTOList).isNotEmpty();
         assertEquals(existingBankTransfer.getBankTransferId(), bankTransferDTOList.get(0).getBankTransferId());
 
-        //nettoyage de la DB en fin de test en supprimant le compte bancaire créé par le test
+        //nettoyage de la DB en fin de test en supprimant le compte bancaire
+        // et le transfert créés à l'initialisation
         bankTransferRepository.deleteById(existingBankTransfer.getBankTransferId());
         bankAccountRepository.deleteById(existingBankAccount.getBankAccountId());
     }

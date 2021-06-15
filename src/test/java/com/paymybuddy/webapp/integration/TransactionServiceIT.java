@@ -59,7 +59,7 @@ public class TransactionServiceIT {
 
     @BeforeEach
     private void setUpPerTest() {
-        //initialisation avec un user et un user ami associé en base
+        //initialisation avec un user en base
         existingUser = new User();
         existingUser.setEmail(UserTestConstants.EXISTING_USER_EMAIL);
         existingUser.setFirstname(UserTestConstants.EXISTING_USER_FIRSTNAME);
@@ -68,7 +68,7 @@ public class TransactionServiceIT {
         existingUser.setBalance(UserTestConstants.EXISTING_USER_WITH_HIGH_BALANCE);
         existingUser = userRepository.save(existingUser);
 
-
+        //initialisation avec un user ami en base
         existingFriend = new User();
         existingFriend.setEmail(UserTestConstants.EXISTING_USER_AS_FRIEND_EMAIL);
         existingFriend.setFirstname(UserTestConstants.EXISTING_USER_AS_FRIEND_FIRSTNAME);
@@ -77,7 +77,7 @@ public class TransactionServiceIT {
         existingFriend.setBalance(UserTestConstants.EXISTING_USER_AS_FRIEND_BALANCE);
         existingFriend = userRepository.save(existingFriend);
 
-
+        //initialisation de la relation user/ami en base
         existingRelationship = new Relationship();
         existingRelationship.setUser(existingUser);
         existingRelationship.setFriend(existingFriend);
@@ -136,7 +136,7 @@ public class TransactionServiceIT {
                             .add(transactionDTOCreated.get().getAmountFeeExcluded()),
                     friendUpdated.get().getBalance());
 
-            //nettoyage de la DB en fin de test en supprimant le compte bancaire créé par le test
+            //nettoyage de la DB en fin de test en supprimant la transaction créée par le test
             transactionRepository.deleteById(transactionCreated.get().getTransactionId());
         }
 
@@ -147,7 +147,7 @@ public class TransactionServiceIT {
                 "THEN an PMBException is thrown AND the transaction is not added in DB " +
                 "AND no user balance is updated")
         public void transferToFriendIT_WithInsufficientBalance() {
-            //initialisation du test avec un solde très faible
+            //initialisation du test avec un solde très faible pour l'utilisateur
             existingUser.setBalance(UserTestConstants.EXISTING_USER_WITH_LOW_BALANCE);
             existingUser = userRepository.save(existingUser);
 
@@ -194,7 +194,7 @@ public class TransactionServiceIT {
         assertThat(transactionDTOList).isNotEmpty();
         assertEquals(existingTransaction.getTransactionId(), transactionDTOList.get(0).getTransactionId());
 
-        //nettoyage de la DB en fin de test en supprimant le compte bancaire créé par le test
+        //nettoyage de la DB en fin de test en supprimant la transaction créée par le test
         transactionRepository.deleteById(existingTransaction.getTransactionId());
     }
 }
