@@ -14,6 +14,7 @@ public class PMBExceptionConstants {
     public static final String MISSING_INFORMATION_LIST_RELATIONSHIP = "A user id must be specified to get his list of bank transfers";
 
     public static final String MISSING_INFORMATION_NEW_TRANSACTION = "All information must be specified for a new transaction";
+    public static final String MISSING_INFORMATION_LIST_TRANSACTION = "A user id must be specified to get his list of transactions";
 
     //Invalid data
     public static final String INVALID_EMAIL = "Invalid email for user: ";
@@ -31,5 +32,4 @@ public class PMBExceptionConstants {
 
     //Insufficient balance
     public static final String INSUFFICIENT_BALANCE = "Insufficient balance for: ";
-
 }

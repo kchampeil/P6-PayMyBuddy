@@ -23,6 +23,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,6 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -167,7 +170,7 @@ class TransactionServiceTest {
         @DisplayName("GIVEN a new transaction to a friend to add with a non-existing relationship " +
                 "WHEN saving this new transaction " +
                 "THEN an PMB Exception is thrown")
-        void transferToFriend_WithNoExistingBankAccountInRepository() {
+        void transferToFriend_WithNoExistingRelationshipInRepository() {
             //GIVEN
             when(relationshipRepositoryMock.findById(transactionDTOToCreate.getRelationshipId()))
                     .thenReturn(Optional.empty());
@@ -203,6 +206,137 @@ class TransactionServiceTest {
                     .save(any(User.class));
             verify(transactionRepositoryMock, Mockito.times(0))
                     .save(any(Transaction.class));
+        }
+    }
+
+
+    @Nested
+    @DisplayName("getAllTransactionsForUser tests")
+    class GetAllTransactionsForUserTest {
+
+        private Transaction transactionInDb;
+        private User userInDb;
+
+        @BeforeEach
+        private void setUpPerTest() {
+            transactionInDb = new Transaction();
+            transactionInDb.setDate(dateUtil.getCurrentLocalDateTime());
+            transactionInDb.setDescription(TransactionTestConstants.EXISTING_TRANSACTION_DESCRIPTION);
+            transactionInDb.setAmountFeeExcluded(TransactionTestConstants.EXISTING_TRANSACTION_AMOUNT_FEE_EXCLUDED);
+            transactionInDb.setFeeAmount(TransactionTestConstants.EXISTING_TRANSACTION_FEE_AMOUNT);
+            transactionInDb.setFeeBilled(false);
+
+            userInDb = new User();
+            userInDb.setUserId(UserTestConstants.EXISTING_USER_ID);
+            userInDb.setEmail(UserTestConstants.EXISTING_USER_EMAIL);
+            userInDb.setFirstname(UserTestConstants.EXISTING_USER_FIRSTNAME);
+            userInDb.setLastname(UserTestConstants.EXISTING_USER_LASTNAME);
+            userInDb.setPassword(UserTestConstants.EXISTING_USER_PASSWORD);
+            userInDb.setBalance(UserTestConstants.EXISTING_USER_WITH_HIGH_BALANCE);
+
+            User friendInDb = new User();
+            friendInDb.setUserId(UserTestConstants.EXISTING_USER_AS_FRIEND_ID);
+            friendInDb.setEmail(UserTestConstants.EXISTING_USER_AS_FRIEND_EMAIL);
+            friendInDb.setFirstname(UserTestConstants.EXISTING_USER_AS_FRIEND_FIRSTNAME);
+            friendInDb.setLastname(UserTestConstants.EXISTING_USER_AS_FRIEND_LASTNAME);
+            friendInDb.setPassword(UserTestConstants.EXISTING_USER_AS_FRIEND_PASSWORD);
+            friendInDb.setBalance(UserTestConstants.EXISTING_USER_AS_FRIEND_BALANCE);
+
+            Relationship relationshipInDb = new Relationship();
+            relationshipInDb.setRelationshipId(RelationshipTestConstants.EXISTING_RELATIONSHIP_ID);
+            relationshipInDb.setUser(userInDb);
+            relationshipInDb.setFriend(friendInDb);
+
+            transactionInDb.setRelationship(relationshipInDb);
+        }
+
+
+        @Test
+        @DisplayName("GIVEN transactions in DB for an existing user " +
+                "WHEN getting all the transactions for this user " +
+                "THEN the returned value is the list of transactions")
+        void getAllTransactionsForUser_WithDataInDB() throws PMBException {
+            //GIVEN
+            List<Transaction> transactionList = new ArrayList<>();
+            transactionList.add(transactionInDb);
+
+            when(userRepositoryMock.findById(userInDb.getUserId()))
+                    .thenReturn(Optional.ofNullable(userInDb));
+            when(transactionRepositoryMock.findAllByRelationship_User_UserId(userInDb.getUserId()))
+                    .thenReturn(transactionList);
+
+            //THEN
+            List<TransactionDTO> transactionDTOList = transactionService.getAllTransactionsForUser(userInDb.getUserId());
+            assertEquals(1, transactionDTOList.size());
+            assertEquals(transactionInDb.getTransactionId(), transactionDTOList.get(0).getTransactionId());
+
+            verify(userRepositoryMock, Mockito.times(1)).findById(userInDb.getUserId());
+            verify(transactionRepositoryMock, Mockito.times(1))
+                    .findAllByRelationship_User_UserId(userInDb.getUserId());
+        }
+
+
+        @Test
+        @DisplayName("GIVEN no transactions in DB for an existing user " +
+                "WHEN getting all the transactions for this user " +
+                "THEN the returned value is an empty list of transactions")
+        void getAllTransactionsForUser_WithNoDataInDB() throws PMBException {
+            //GIVEN
+            List<Transaction> transactionList = new ArrayList<>();
+
+            when(userRepositoryMock.findById(userInDb.getUserId()))
+                    .thenReturn(Optional.ofNullable(userInDb));
+            when(transactionRepositoryMock.findAllByRelationship_User_UserId(userInDb.getUserId()))
+                    .thenReturn(transactionList);
+
+            //THEN
+            List<TransactionDTO> transactionDTOList = transactionService.getAllTransactionsForUser(userInDb.getUserId());
+            assertThat(transactionDTOList).isEmpty();
+
+            verify(userRepositoryMock, Mockito.times(1)).findById(userInDb.getUserId());
+            verify(transactionRepositoryMock, Mockito.times(1))
+                    .findAllByRelationship_User_UserId(userInDb.getUserId());
+        }
+
+
+        @Test
+        @DisplayName("GIVEN an unknown user " +
+                "WHEN getting all the transactions for this user " +
+                "THEN an PMB Exception is thrown")
+        void getAllTransactionsForUser_WithUnknownUser() {
+            //GIVEN
+            when(userRepositoryMock.findById(UserTestConstants.UNKNOWN_USER_ID))
+                    .thenReturn(Optional.empty());
+
+            //THEN
+            Exception exception =
+                    assertThrows(PMBException.class,
+                            () -> transactionService.getAllTransactionsForUser(UserTestConstants.UNKNOWN_USER_ID));
+            assertThat(exception.getMessage()).contains(PMBExceptionConstants.DOES_NOT_EXISTS_USER);
+
+            verify(userRepositoryMock, Mockito.times(1))
+                    .findById(UserTestConstants.UNKNOWN_USER_ID);
+            verify(transactionRepositoryMock, Mockito.times(0))
+                    .findAllByRelationship_User_UserId(UserTestConstants.UNKNOWN_USER_ID);
+        }
+
+
+        @Test
+        @DisplayName("GIVEN an null userId " +
+                "WHEN getting all the transactions for this user " +
+                "THEN an PMB Exception is thrown")
+        void getAllTransactionsForUser_WithNullUserId() {
+            //THEN
+            Exception exception =
+                    assertThrows(PMBException.class,
+                            () -> transactionService.getAllTransactionsForUser(null));
+            assertThat(exception.getMessage())
+                    .contains(PMBExceptionConstants.MISSING_INFORMATION_LIST_TRANSACTION);
+
+            verify(userRepositoryMock, Mockito.times(0))
+                    .findById(anyLong());
+            verify(transactionRepositoryMock, Mockito.times(0))
+                    .findAllByRelationship_User_UserId(anyLong());
         }
     }
 }

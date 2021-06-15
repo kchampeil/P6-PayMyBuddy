@@ -22,6 +22,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.math.RoundingMode;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -79,7 +81,7 @@ public class TransactionServiceIT {
         existingRelationship.setFriend(existingFriend);
         existingRelationship = relationshipRepository.save(existingRelationship);
 
-        //initialisation de l objet bankTransferDTOToCreate
+        //initialisation de l objet transactionDTOToCreate
         transactionDTOToCreate = new TransactionDTO();
         transactionDTOToCreate.setDate(dateUtil.getCurrentLocalDateTime());
         transactionDTOToCreate.setDescription(TransactionTestConstants.NEW_TRANSACTION_DESCRIPTION);
@@ -163,7 +165,34 @@ public class TransactionServiceIT {
 
             Optional<User> friendNotUpdated = userRepository.findById(existingFriend.getUserId());
             assertThat(friendNotUpdated).isPresent();
-            assertEquals(existingFriend.getBalance().setScale(2), friendNotUpdated.get().getBalance());
+            assertEquals(existingFriend.getBalance().setScale(2, RoundingMode.HALF_UP)
+                    , friendNotUpdated.get().getBalance());
         }
+    }
+
+
+    @Test
+    @DisplayName("WHEN getting the list of transactions for an existing user " +
+            "THEN the list of transactions in DB is returned")
+    public void getAllTransactionsForUser_WithData() throws PMBException {
+
+        //initialisation du test avec un transfert bancaire en base
+        Transaction existingTransaction = new Transaction();
+        existingTransaction.setDate(dateUtil.getCurrentLocalDateTime());
+        existingTransaction.setDescription(TransactionTestConstants.EXISTING_TRANSACTION_DESCRIPTION);
+        existingTransaction.setAmountFeeExcluded(TransactionTestConstants.EXISTING_TRANSACTION_AMOUNT_FEE_EXCLUDED);
+        existingTransaction.setFeeAmount(TransactionTestConstants.EXISTING_TRANSACTION_FEE_AMOUNT);
+        existingTransaction.setFeeBilled(false);
+        existingTransaction.setRelationship(existingRelationship);
+        existingTransaction = transactionRepository.save(existingTransaction);
+
+        //test
+        List<TransactionDTO> transactionDTOList = transactionService.getAllTransactionsForUser(existingUser.getUserId());
+
+        assertThat(transactionDTOList).isNotEmpty();
+        assertEquals(existingTransaction.getTransactionId(), transactionDTOList.get(0).getTransactionId());
+
+        //nettoyage de la DB en fin de test en supprimant le compte bancaire créé par le test
+        transactionRepository.deleteById(existingTransaction.getTransactionId());
     }
 }

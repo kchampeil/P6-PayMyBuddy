@@ -19,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -141,5 +143,44 @@ public class TransactionService implements ITransactionService {
         }
 
         return createdTransactionDTO;
+    }
+
+
+    /**
+     * récupération de la liste de toutes les transactions d'un utilisateur donné
+     * TODO : pour l'instant la liste ne récupère que les transactions où l'utilisateur est le payeur.
+     * TODO (suite) Les transactions dont il est bénéficiaire doivent être ajoutées
+     *
+     * @param userId id de l utilisateur dont on souhaite à récupérer la liste des transactions
+     * @return la liste des transactions (DTO)
+     */
+    @Override
+    public List<TransactionDTO> getAllTransactionsForUser(Long userId) throws PMBException {
+        List<TransactionDTO> transactionDTOList = new ArrayList<>();
+
+        if (userId != null) {
+            Optional<User> user = userRepository.findById(userId);
+
+            //vérifie que l'utilisateur existe
+            if (user.isPresent()) {
+                List<Transaction> transactionList = transactionRepository.findAllByRelationship_User_UserId(userId);
+                ModelMapper modelMapper = new ModelMapper();
+                transactionList.forEach(transaction ->
+                        transactionDTOList
+                                .add(modelMapper.map(transaction, TransactionDTO.class)));
+
+            } else {
+                log.error(LogConstants.LIST_TRANSACTION_ERROR
+                        + PMBExceptionConstants.DOES_NOT_EXISTS_USER + userId);
+                throw new PMBException(PMBExceptionConstants.DOES_NOT_EXISTS_USER + userId);
+            }
+
+        } else {
+            log.error(LogConstants.LIST_TRANSACTION_ERROR
+                    + PMBExceptionConstants.MISSING_INFORMATION_LIST_TRANSACTION);
+            throw new PMBException(PMBExceptionConstants.MISSING_INFORMATION_LIST_TRANSACTION);
+        }
+
+        return transactionDTOList;
     }
 }
