@@ -1,6 +1,9 @@
 package com.paymybuddy.webapp.model;
 
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -10,13 +13,19 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import java.math.BigDecimal;
 
-@Data
+/**
+ * la classe User contient les informations du compte de l'utilisateur dans PayMyBuddy
+ */
+@Getter
+@Setter
+@EqualsAndHashCode
+@RequiredArgsConstructor
 @Entity
 @Table(name = "user")
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name="user_id", nullable = false)
     private Long userId;
 

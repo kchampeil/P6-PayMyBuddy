@@ -25,7 +25,7 @@ import javax.persistence.Table;
 @Table(name = "relationship")
 public class Relationship {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name="relationship_id", nullable = false)
     private Long relationshipId;
 

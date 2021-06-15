@@ -3,6 +3,7 @@ package com.paymybuddy.webapp.model.DTO;
 import com.paymybuddy.webapp.constants.BankAccountConstants;
 import com.paymybuddy.webapp.constants.IbanPrefixes;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.lang3.EnumUtils;
 
@@ -12,6 +13,7 @@ import javax.validation.constraints.Size;
 
 @Getter
 @Setter
+@RequiredArgsConstructor
 public class BankAccountDTO {
     private Long bankAccountId;
 

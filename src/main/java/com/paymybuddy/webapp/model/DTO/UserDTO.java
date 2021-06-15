@@ -1,6 +1,7 @@
 package com.paymybuddy.webapp.model.DTO;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import javax.validation.constraints.Email;
@@ -11,6 +12,7 @@ import java.math.BigDecimal;
 
 @Getter
 @Setter
+@RequiredArgsConstructor
 public class UserDTO {
     private Long userId;
 
