@@ -12,6 +12,7 @@ import com.paymybuddy.webapp.repository.BankAccountRepository;
 import com.paymybuddy.webapp.repository.BankTransferRepository;
 import com.paymybuddy.webapp.repository.UserRepository;
 import com.paymybuddy.webapp.service.contract.IBankTransferService;
+import com.paymybuddy.webapp.util.DateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +41,8 @@ public class BankTransferService implements IBankTransferService {
         this.bankAccountRepository = bankAccountRepository;
         this.userRepository = userRepository;
     }
+
+    private static final DateUtil dateUtil = new DateUtil();
 
     /**
      * opère un transfert entre le compte utilisateur et le compte bancaire indiqués
@@ -80,6 +83,7 @@ public class BankTransferService implements IBankTransferService {
             ModelMapper modelMapper = new ModelMapper();
             BankTransfer bankTransferToCreate = modelMapper.map(bankTransferDTOToCreate, BankTransfer.class);
             bankTransferToCreate.setBankAccount(bankAccount.get());
+            bankTransferToCreate.setDate(dateUtil.getCurrentLocalDateTime());
 
             // puis le compte client et le nouveau transfert bancaire sont sauvegardés en base
             BankTransfer createdBankTransfer;
@@ -96,7 +100,7 @@ public class BankTransferService implements IBankTransferService {
 
             // avant mappage inverse du DAO dans le DTO
             createdBankTransferDTO =
-                    Optional.ofNullable(modelMapper.map((createdBankTransfer), BankTransferDTO.class));
+                    Optional.ofNullable(modelMapper.map(createdBankTransfer, BankTransferDTO.class));
             log.info(LogConstants.CREATE_BANK_TRANSFER_OK + bankTransferDTOToCreate.getBankTransferId());
         }
 
@@ -146,7 +150,6 @@ public class BankTransferService implements IBankTransferService {
             log.error(LogConstants.CREATE_BANK_TRANSFER_ERROR
                     + PMBExceptionConstants.MISSING_INFORMATION_NEW_BANK_TRANSFER
                     + "for: " + bankTransferDTOToCreate.getBankAccountId()
-                    + " // " + bankTransferDTOToCreate.getDate()
                     + " // " + bankTransferDTOToCreate.getDescription());
             throw new PMBException(PMBExceptionConstants.MISSING_INFORMATION_NEW_BANK_TRANSFER);
 

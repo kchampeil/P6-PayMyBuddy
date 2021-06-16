@@ -42,12 +42,12 @@ public class BankTransferDTO {
 
     /**
      * vérifie si les informations contenues dans le bankTransferDTO sont complètes
+     * NB : la date de transfert est positionnée dans BankTransferService donc non attendue
      *
      * @return true si bankTransferDTO est correct, sinon false
      */
     public boolean isValid() {
-        return this.date != null
-                && this.description != null && !this.description.isEmpty()
+        return this.description != null && !this.description.isEmpty()
                 && this.amount != null
                 && this.type != null
                 && this.bankAccountId != null;

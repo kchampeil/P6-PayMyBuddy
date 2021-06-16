@@ -64,7 +64,6 @@ class BankTransferServiceTest {
     @BeforeEach
     private void setUpPerTest() {
         bankTransferDTOToCreate = new BankTransferDTO();
-        bankTransferDTOToCreate.setDate(dateUtil.getCurrentLocalDateTime());
         bankTransferDTOToCreate.setDescription(BankTransferTestConstants.NEW_BANK_TRANSFER_DESCRIPTION);
         bankTransferDTOToCreate.setAmount(BankTransferTestConstants.NEW_BANK_TRANSFER_AMOUNT);
         bankTransferDTOToCreate.setType(BankTransferTypes.CREDIT);
@@ -86,8 +85,7 @@ class BankTransferServiceTest {
 
         bankTransferInDb = new BankTransfer();
         bankTransferInDb.setBankTransferId(BankTransferTestConstants.NEW_BANK_TRANSFER_ID);
-        bankTransferInDb.setDate(bankTransferDTOToCreate.getDate());
-        //TOASK à voir si date n est pas plutôt la date d enregistrement plutôt que celle transmise dans DTO
+        bankTransferInDb.setDate(dateUtil.getCurrentLocalDateTime());
         bankTransferInDb.setDescription(bankTransferDTOToCreate.getDescription());
         bankTransferInDb.setAmount(bankTransferDTOToCreate.getAmount());
         bankTransferInDb.setBankAccount(bankAccountInDb);
@@ -115,7 +113,7 @@ class BankTransferServiceTest {
             assertTrue(createdBankTransferDTO.isPresent());
             assertNotNull(createdBankTransferDTO.get().getBankTransferId());
             assertEquals(bankTransferDTOToCreate.getBankAccountId(), createdBankTransferDTO.get().getBankAccountId());
-            assertEquals(bankTransferDTOToCreate.getDate(), createdBankTransferDTO.get().getDate());
+            assertNotNull(createdBankTransferDTO.get().getDate());
             assertEquals(bankTransferDTOToCreate.getDescription(), createdBankTransferDTO.get().getDescription());
             assertEquals(bankTransferDTOToCreate.getAmount(), createdBankTransferDTO.get().getAmount());
 
@@ -146,7 +144,7 @@ class BankTransferServiceTest {
             assertTrue(createdBankTransferDTO.isPresent());
             assertNotNull(createdBankTransferDTO.get().getBankTransferId());
             assertEquals(bankTransferDTOToCreate.getBankAccountId(), createdBankTransferDTO.get().getBankAccountId());
-            assertEquals(bankTransferDTOToCreate.getDate(), createdBankTransferDTO.get().getDate());
+            assertNotNull(createdBankTransferDTO.get().getDate());
             assertEquals(bankTransferDTOToCreate.getDescription(), createdBankTransferDTO.get().getDescription());
             assertEquals(bankTransferDTOToCreate.getAmount(), createdBankTransferDTO.get().getAmount());
 
