@@ -85,7 +85,6 @@ public class TransactionServiceIT {
 
         //initialisation de l objet transactionDTOToCreate
         transactionDTOToCreate = new TransactionDTO();
-        transactionDTOToCreate.setDate(dateUtil.getCurrentLocalDateTime());
         transactionDTOToCreate.setDescription(TransactionTestConstants.NEW_TRANSACTION_DESCRIPTION);
         transactionDTOToCreate.setAmountFeeExcluded(TransactionTestConstants.NEW_TRANSACTION_AMOUNT_FEE_EXCLUDED);
         transactionDTOToCreate.setRelationshipId(existingRelationship.getRelationshipId());
@@ -122,6 +121,7 @@ public class TransactionServiceIT {
             assertThat(transactionCreated).isPresent();
             assertEquals(transactionDTOToCreate.getDescription(), transactionCreated.get().getDescription());
             assertNotEquals(BigDecimal.ZERO, transactionDTOCreated.get().getFeeAmount());
+            assertNotNull(transactionDTOCreated.get().getDate());
 
             Optional<User> userUpdated = userRepository.findById(existingUser.getUserId());
             assertThat(userUpdated).isPresent();

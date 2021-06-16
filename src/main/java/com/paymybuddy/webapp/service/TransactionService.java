@@ -12,6 +12,7 @@ import com.paymybuddy.webapp.repository.RelationshipRepository;
 import com.paymybuddy.webapp.repository.TransactionRepository;
 import com.paymybuddy.webapp.repository.UserRepository;
 import com.paymybuddy.webapp.service.contract.ITransactionService;
+import com.paymybuddy.webapp.util.DateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,7 @@ public class TransactionService implements ITransactionService {
         this.userRepository = userRepository;
     }
 
+    private static final DateUtil dateUtil = new DateUtil();
 
     /**
      * opère un transfert entre le compte utilisateur et le compte d'un utilisateur déclaré comme "ami" dans PMB
@@ -82,6 +84,7 @@ public class TransactionService implements ITransactionService {
 
             //mappe le DTO dans le DAO et indique le type de transfert
             Transaction transactionToCreate = modelMapper.map(transactionDTOToCreate, Transaction.class);
+            transactionToCreate.setDate(dateUtil.getCurrentLocalDateTime());
             transactionToCreate.setRelationship(relationship.get());
             transactionToCreate.setFeeBilled(false);
 
@@ -102,7 +105,7 @@ public class TransactionService implements ITransactionService {
 
             // avant mappage inverse du DAO dans le DTO
             createdTransactionDTO =
-                    Optional.ofNullable(modelMapper.map((createdTransaction), TransactionDTO.class));
+                    Optional.ofNullable(modelMapper.map(createdTransaction, TransactionDTO.class));
 
             log.info(LogConstants.CREATE_TRANSACTION_OK + transactionDTOToCreate.getTransactionId());
         }
@@ -152,7 +155,6 @@ public class TransactionService implements ITransactionService {
             log.error(LogConstants.CREATE_TRANSACTION_ERROR
                     + PMBExceptionConstants.MISSING_INFORMATION_NEW_TRANSACTION
                     + "for: " + transactionDTOToCreate.getRelationshipId()
-                    + " // " + transactionDTOToCreate.getDate()
                     + " // " + transactionDTOToCreate.getDescription());
             throw new PMBException(PMBExceptionConstants.MISSING_INFORMATION_NEW_TRANSACTION);
         }

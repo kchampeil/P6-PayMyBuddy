@@ -41,12 +41,12 @@ public class TransactionDTO {
     /**
      * vérifie si les informations contenues dans le transactionDTO sont complètes
      * NB : le feeAmount est calculé dans TransactionService ensuite donc non attendu
+     * NB : la date de transaction est positionnée dans TransactionService donc non attendue
      *
      * @return true si transactionDTO est correct, sinon false
      */
     public boolean isValid() {
-        return this.date != null
-                && this.description != null && !this.description.isEmpty()
+        return this.description != null && !this.description.isEmpty()
                 && this.amountFeeExcluded != null
                 && this.relationshipId != null;
     }

@@ -65,7 +65,6 @@ class TransactionServiceTest {
     @BeforeEach
     private void setUpPerTest() {
         transactionDTOToCreate = new TransactionDTO();
-        transactionDTOToCreate.setDate(dateUtil.getCurrentLocalDateTime());
         transactionDTOToCreate.setDescription(TransactionTestConstants.NEW_TRANSACTION_DESCRIPTION);
         transactionDTOToCreate.setAmountFeeExcluded(TransactionTestConstants.NEW_TRANSACTION_AMOUNT_FEE_EXCLUDED);
         transactionDTOToCreate.setRelationshipId(RelationshipTestConstants.EXISTING_RELATIONSHIP_ID);
@@ -93,8 +92,7 @@ class TransactionServiceTest {
 
         transactionInDb = new Transaction();
         transactionInDb.setTransactionId(TransactionTestConstants.NEW_TRANSACTION_ID);
-        transactionInDb.setDate(transactionDTOToCreate.getDate());
-        //TOASK à voir si date n est pas plutôt la date d enregistrement plutôt que celle transmise dans DTO
+        transactionInDb.setDate(dateUtil.getCurrentLocalDateTime());
         transactionInDb.setDescription(transactionDTOToCreate.getDescription());
         transactionInDb.setAmountFeeExcluded(transactionDTOToCreate.getAmountFeeExcluded());
         transactionInDb.setFeeAmount(transactionDTOToCreate.getFeeAmount());
@@ -126,7 +124,7 @@ class TransactionServiceTest {
             assertTrue(createdTransactionDTO.isPresent());
             assertNotNull(createdTransactionDTO.get().getTransactionId());
             assertEquals(transactionDTOToCreate.getRelationshipId(), createdTransactionDTO.get().getRelationshipId());
-            assertEquals(transactionDTOToCreate.getDate(), createdTransactionDTO.get().getDate());
+            assertNotNull(createdTransactionDTO.get().getDate());
             assertEquals(transactionDTOToCreate.getDescription(), createdTransactionDTO.get().getDescription());
             assertEquals(transactionDTOToCreate.getAmountFeeExcluded(), createdTransactionDTO.get().getAmountFeeExcluded());
 
