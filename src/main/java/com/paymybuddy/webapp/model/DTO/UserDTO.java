@@ -34,7 +34,7 @@ public class UserDTO {
     //TODO à voir car pas à renvoyer ou pas en clair ?
     @NotNull
     @NotEmpty
-    @Size(max = 64)
+    @Size(min = 7, max = 64)
     private String password;
 
     private BigDecimal balance = BigDecimal.ZERO;

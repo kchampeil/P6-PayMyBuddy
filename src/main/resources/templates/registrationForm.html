@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Register</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div class="container my-3">
+    <div class="row">
+        <div class="col-md-6 mx-auto">
+            <h2 class="text-center spacer">User Registration</h2>
+            <form th:action="@{/registerUser}" method="post" th:object="${user}">
+
+                <div class=" form-group">
+                    <label>email</label>
+                    <input type="email" class="form-control" th:field="*{email}"/>
+                    <span class="text-danger" th:errors="*{email}"></span>
+                </div>
+                <div class=" form-group">
+                    <label>Firstname</label>
+                    <input type="text" class="form-control" th:field="*{firstname}"/>
+                    <span class="text-danger" th:errors="*{firstname}"></span>
+                </div>
+                <div class=" form-group">
+                    <label>Lastname</label>
+                    <input type="text" class="form-control" th:field="*{lastname}"/>
+                    <span class="text-danger" th:errors="*{lastname}"></span>
+                </div>
+                <div class=" form-group">
+                    <label>Password</label>
+                    <input type="password" class="form-control" th:field="*{password}" aria-describedby="passwordHelpBlock"/>
+                    <small id="passwordHelpBlock" class="form-text text-muted">
+                        Your password must be 7-64 characters long
+                        <!--, contain letters and numbers, and must not contain spaces, special characters, or emoji.-->
+                    </small>
+                    <span class="text-danger" th:errors="*{password}"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block mt-3">Register</button>
+
+                <a class="nav-link text-center" th:href="@{/logUser}">Already registered? Log in !</a>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html> 

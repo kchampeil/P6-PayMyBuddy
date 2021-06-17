@@ -56,7 +56,7 @@ public class UserService implements IUserService {
             }
 
             createdUserDTO = Optional.ofNullable(modelMapper.map((createdUser), UserDTO.class));
-            log.info(LogConstants.CREATE_USER_OK + userDTOToCreate.getUserId());
+            log.info(LogConstants.CREATE_USER_OK + createdUserDTO.orElse(null).getUserId());
         }
 
         return createdUserDTO;

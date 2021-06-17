@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Register</title>
+  <link rel="stylesheet" type="text/css" th:href="@{/css/bootstrap.min.css}"/>
+</head>
+<body>
+<div class="container my-3">
+  <div class="row">
+    <div class="col-md-6 mx-auto">
+      <h2>User Profile</h2>
+      <form th:object="${user}">
+
+        <div class=" form-group">
+          <label>id (temporairement affiché pour les tests)</label> <!--TTR-->
+          <input type="text" readonly class="form-control" th:field="*{userId}"/>
+        </div>
+        <div class=" form-group">
+          <label>email</label>
+          <input type="email" readonly class="form-control" th:field="*{email}"/>
+        </div>
+        <div class=" form-group">
+          <label>Firstname</label>
+          <input type="text" readonly class="form-control" th:field="*{firstname}"/>
+        </div>
+        <div class=" form-group">
+          <label>Lastname</label>
+          <input type="text" readonly class="form-control" th:field="*{lastname}"/>
+        </div>
+
+        <a class="btn btn-primary btn-block mt-3" th:href="@{/}">Home</a>
+
+      </form>
+    </div>
+  </div>
+</div>
+</body>
+</html>
