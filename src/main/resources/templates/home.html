@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Home</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}"/>
+</head>
+
+<body>
+<div class="container my-1 spacer">
+    <div class="row">
+        <div class="col-md-3 mx-auto">
+            <div class="text-center spacer"><img class="rounded" src="./img/PMB_logo.png" width="200" height="60"/></div>
+            <p>&nbsp;</p>
+            <div >
+                <a class="btn btn-primary btn-block mt-3" th:href="@{/logUser}">Login</a>
+            </div>
+            <div>
+                <a class="btn btn-primary btn-block mt-3" th:href="@{/registerUser}">Register </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+</body>
+</html>
