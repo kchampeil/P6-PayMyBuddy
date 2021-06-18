@@ -13,4 +13,9 @@ public class HomeController {
         //TODO revoir car si user connecté on revient à sa page d'accueil
     }
 
+    @GetMapping("/underConstruction")
+    public String underConstruction() {
+        return ViewNameConstants.UNDER_CONSTRUCTION;
+    }
+
 }

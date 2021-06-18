@@ -98,4 +98,39 @@ public class UserController {
 
     }
 
+
+    /**
+     * connecter nouvel utilisateur
+     */
+    //TODO changer le type de request en POST une fois implémenté
+    @GetMapping(value = "/logUser")
+    public String loginUser() {
+
+        return ViewNameConstants.UNDER_CONSTRUCTION;
+
+    }
+
+
+    /**
+     * déconnecter l'utilisateur
+     */
+    //TODO à revoir
+    @GetMapping(value = "/logoffUser")
+    public String logoffUser() {
+
+        return ViewNameConstants.UNDER_CONSTRUCTION;
+
+    }
+
+
+    /**
+     * afficher la page d'accueil utilisateur
+     */
+    //TODO à fusionner à la fin
+    @GetMapping(value = "/homeUser")
+    public String showHomeUser() {
+
+        return ViewNameConstants.USER_HOME;
+
+    }
 }

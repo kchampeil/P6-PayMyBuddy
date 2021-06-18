@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Home User</title> <!--TODO à fusionner avec home à la fin -->
+  <link rel="stylesheet" type="text/css" th:href="@{/css/bootstrap.min.css}"/>
+  <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}"/>
+</head>
+
+<body>
+<th:block th:include="/navigationBar"></th:block>
+
+<div class="container my-1 spacer">
+  <div class="row">
+    <div class="col-md-3 mx-auto">
+      <h2 class="text-center spacer">Home User</h2>
+      <p>&nbsp;</p>
+      <div >
+        <a class="btn btn-primary btn-block mt-3" th:href="@{/transaction}">Transfer</a>
+      </div>
+      <div>
+        <a class="btn btn-primary btn-block mt-3" th:href="@{/bankAccount}">Profile</a>
+      </div>
+      <div>
+        <a class="btn btn-primary btn-block mt-3" th:href="@{/relationship}">Contact</a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

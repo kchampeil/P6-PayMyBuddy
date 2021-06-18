@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Transfer</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}"/>
+</head>
+
+<body>
+<th:block th:include="/navigationBar"></th:block>
+
+<div>Send Money</div>
+<div>
+    <a class="btn btn-primary btn-block mt-3" th:href="@{/addRelationship}">Add Connection</a>
+</div>
+<div></div>
+<div>
+    <a class="btn btn-primary btn-block mt-3" th:href="@{/payFriend}">Pay</a>
+</div>
+<div>My Transactions</div>
+<div>
+    liste des transactions multi pages<!-- TODO -->
+</div>
+
+</body>
+</html>
