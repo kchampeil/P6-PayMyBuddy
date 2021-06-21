@@ -1,14 +1,15 @@
-<nav class="navbar navbar-expand-lg navbar-light">
+<nav class="navbar navbar-expand-md navbar-light">
     <a class="navbar-brand" href="/">
         <img src="./img/PMB_logo.png" width="144" height="41" alt="PMB logo">
     </a>
-    <div class="navbar-nav mr-auto"> <!--TODO voir pourquoi ne s'aligne pas à droite : https://mdbootstrap.com/docs/standard/navigation/navbar/-->
+    <div class="navbar-nav mr-auto"> <!--TODO voir pourquoi ne s'aligne pas à droite : https://mdbootstrap.com/docs/standard/navigation/navbar/ ou justify-content-end ou float-right?-->
         <a class="nav-item nav-link" th:href="@{/homeUser}">Home</a>
-        <a class="nav-item nav-link" th:href="@{/transaction}">Transfer</a>
+        <a class="nav-item nav-link" th:href="@{/transfer}">Transfer</a>
         <a class="nav-item nav-link" th:href="@{/bankAccount}">Profile</a>
         <a class="nav-item nav-link" th:href="@{/relationship}">Contact</a>
         <a class="nav-item nav-link" th:href="@{/logoffUser}">Log off</a>
     </div>
-    <!-- TODO voir ici pour le breacrumb home/transfer https://mdbootstrap.com/docs/standard/navigation/navbar/ -->
+    <!-- TODO voir ici pour le breacrumb home/transfer https://mdbootstrap.com/docs/standard/navigation/navbar/
+    https://getbootstrap.com/docs/4.0/components/breadcrumb/ -->
 </nav>
 

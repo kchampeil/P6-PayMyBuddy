@@ -1,3 +1,8 @@
 .spacer {
     margin-top: 100px;
 }
+
+.input-symbol {
+    position: relative;
+    content: "€";
+}

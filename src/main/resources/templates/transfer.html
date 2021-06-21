@@ -10,18 +10,97 @@
 <body>
 <th:block th:include="/navigationBar"></th:block>
 
-<div>Send Money</div>
-<div>
-    <a class="btn btn-primary btn-block mt-3" th:href="@{/addRelationship}">Add Connection</a>
-</div>
-<div></div>
-<div>
-    <a class="btn btn-primary btn-block mt-3" th:href="@{/payFriend}">Pay</a>
-</div>
-<div>My Transactions</div>
-<div>
-    liste des transactions multi pages<!-- TODO -->
-</div>
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a th:href="@{/homeUser}">Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Transfer</li>
+    </ol>
+</nav>
 
+<div class="container my-2">
+
+    <!-- Send Money and Add Connection -->
+    <div class="row mx-auto align-items-center justify-content-md-center" id="sendMoneyGroup">
+        <div class="col col-md-6">Send Money</div>
+        <div class="col col-md-2">
+            <!-- TODO à revoir fmt bouton <a class="btn btn-primary btn-block mt-3" th:href="@{/addRelationship}">Add Connection</a>-->
+            <a class="btn btn-primary px-4" th:href="@{/addRelationship}">Add Connection</a>
+        </div>
+
+        <div class="form-row jumbotron jumbotron-fluid col-md-8 pt-md-5 pb-md-4" id="sendMoneyForm">
+            <div class="form-group col-md-4 offset-md-1">
+
+                <label for="selectConnection" class="sr-only">Select A Connection</label>
+                <select id="selectConnection" class="form-control" th:field="${transactionDTO.relationshipId}">
+                    <option value="0">Select A Connection</option>
+                    <!--<option selected></option>-->
+                    <!--<option th:each="relationshipDTO : ${relationshipDTOList}"
+                            th:value="${relationshipDTO.friendId}"
+                            th:text="${relationshipDTO.friendName}"></option> -->
+                    <!--<option th:each="relationshipDTO : ${relationshipDTOList}"
+                            th:value="${relationshipDTO.friendId}"></option> -->
+                    <!--TODO options à remplir avec list des relationship, nécessite de rapatrier le nom de l'ami dans le getRelationship -->
+                </select>
+            </div>
+            <div class="form-group col-md-3">
+                <!--TODO voir pour ajouter le symbole € dans le champ : https://stackoverflow.com/questions/2913236/html-text-input-field-with-currency-symbol-->
+                <label for="amount" class="sr-only">Amount</label>
+                <input id="amount" type="number" class="form-control"
+                       value="0.00" step="0.01" min="0"
+                       th:field="${transactionDTO.amountFeeExcluded}">
+            </div>
+            <div class="form-group col-md-4">
+                <a class="btn btn-primary bg-success border-success col-md-8" th:href="@{/payFriend}">Pay</a>
+                <!--TODO à revoir couleur bouton vert plus clair
+                <a class="btn btn-primary btn-block mt-3" th:href="@{/payFriend}">Pay</a> -->
+            </div>
+        </div>
+    </div>
+
+    <p></p>
+
+    <!-- Transaction list -->
+    <div class="row mx-auto align-items-center justify-content-md-center" id="myTransactions">
+        <div class="col col-md-8">My Transactions</div>
+        <div class="col col-md-8">
+            <table class="table table-striped border border-dark border-5 border-top-5">
+                <thead>
+                <tr class="bg-success"> <!--TODO couleur bandeau titre à revoir -->
+                    <th scope="col">Connections</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Amount</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr> <!--TODO liste à alimenter -->
+                    <th scope="row">Hayley</th>
+                    <td>Restaurant bill share</td>
+                    <td>10€</td>
+                </tr>
+                <tr>
+                    <th scope="row">Clara</th>
+                    <td>Trip money</td>
+                    <td>25€</td>
+                </tr>
+                <tr>
+                    <th scope="row">Smith</th>
+                    <td>Movie tickets</td>
+                    <td>8€</td>
+                </tr>
+                </tbody>
+            </table>
+            <ul class="pagination justify-content-center flex-wrap">
+                <!-- TODO à compléter avec les liens <li th:each="page, status:${pages}">
+                    <a th:text="${page}"</a> -->
+                <li><a class="page-link"><<</a> </li>
+                <li><a class="page-link">1</a> </li>
+                <li><a class="page-link">2</a> </li>
+                <li><a class="page-link">3</a> </li>
+                <li><a class="page-link">>></a> </li>
+            </ul>
+        </div>
+    </div>
+
+</div>
 </body>
 </html>
