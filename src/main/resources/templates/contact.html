@@ -2,12 +2,80 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8"/>
-    <title>Contact</title>
+    <title>Transfer</title>
     <link rel="stylesheet" type="text/css" th:href="@{/css/bootstrap.min.css}"/>
     <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}"/>
 </head>
+
 <body>
 <th:block th:include="/navigationBar"></th:block>
 
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a th:href="@{/homeUser}">Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Contact</li>
+    </ol>
+</nav>
+
+<div class="container my-2">
+
+    <!-- Add Connection -->
+    <div class="row mx-auto align-items-center justify-content-md-center" id="addConnectionGroup">
+        <div class="col col-md-8">Add Connection</div>
+
+        <div class="form-row jumbotron jumbotron-fluid col-md-8 pt-md-5 pb-md-4" id="addConnectionForm">
+            <div class="form-group col-md-7 offset-md-1">
+                <label for="email" class="sr-only">Email</label>
+                <input id="email" type="email" class="form-control" placeholder="Email of your friend">
+                <!--TODO ajouter l'email de l'ami dans le relationshipDTO th:field="${relationshipDTO.friendEmail}" -->
+            </div>
+            <div class="form-group col-md-4">
+                <a class="btn btn-primary bg-success border-success col-md-8" th:href="@{/addFriend}">Add Connection</a>
+                <!--TODO à revoir couleur bouton vert plus clair
+                <a class="btn btn-primary btn-block mt-3" th:href="@{/addFriend}">Add Connection</a> -->
+            </div>
+        </div>
+    </div>
+
+    <p></p>
+
+    <!-- Connection list -->
+    <div class="row mx-auto align-items-center justify-content-md-center" id="myConnections">
+        <div class="col col-md-8">My Connections</div>
+        <div class="col col-md-8">
+            <table class="table table-striped border border-dark border-5 border-top-5">
+                <thead>
+                <tr class="bg-success"> <!--TODO couleur bandeau titre à revoir -->
+                    <th scope="col">Email</th>
+                    <th scope="col">Firstname</th>
+                    <th scope="col">Lastname</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr> <!--TODO liste à alimenter -->
+                    <th scope="row">Fifi.Picsou@pmb.com</th>
+                    <td>Fifi</td>
+                    <td>PICSOU</td>
+                </tr>
+                <tr>
+                    <th scope="row">Archibald.Gripsou@pmb.com</th>
+                    <td>Archibald</td>
+                    <td>GRIPSOU</td>
+                </tr>
+                </tbody>
+            </table>
+            <ul class="pagination justify-content-center flex-wrap">
+                <!-- TODO à compléter avec les liens <li th:each="page, status:${pages}">
+                    <a th:text="${page}"</a> -->
+                <li><a class="page-link"><<</a></li>
+                <li><a class="page-link">1</a></li>
+                <li><a class="page-link">2</a></li>
+                <li><a class="page-link">3</a></li>
+                <li><a class="page-link">>></a></li>
+            </ul>
+        </div>
+    </div>
+
+</div>
 </body>
 </html>

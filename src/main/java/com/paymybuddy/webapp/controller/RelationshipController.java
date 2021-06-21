@@ -13,10 +13,10 @@ public class RelationshipController {
      * afficher la page d'accueil relation/connexion ami
      */
     //TODO à revoir
-    @GetMapping(value = "/relationship")
+    @GetMapping(value = "/contact")
     public String showHomeRelationship() {
 
-        return ViewNameConstants.UNDER_CONSTRUCTION;
+        return ViewNameConstants.RELATIONSHIP_HOME;
 
     }
 
