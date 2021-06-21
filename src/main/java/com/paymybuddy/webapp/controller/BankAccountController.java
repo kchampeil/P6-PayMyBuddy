@@ -13,8 +13,19 @@ public class BankAccountController {
      * afficher la page d'accueil compte bancaire
      */
     //TODO à revoir
-    @GetMapping(value = "/bankAccount")
+    @GetMapping(value = "/profile")
     public String showHomeBankAccount() {
+
+        return ViewNameConstants.BANK_ACCOUNT_HOME;
+
+    }
+
+    /**
+     * ajouter un compte bancaire
+     */
+    //TODO à revoir
+    @GetMapping(value = "/addBankAccount")
+    public String addBankAccount() {
 
         return ViewNameConstants.UNDER_CONSTRUCTION;
 

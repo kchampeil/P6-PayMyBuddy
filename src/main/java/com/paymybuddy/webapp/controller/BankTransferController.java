@@ -19,4 +19,15 @@ public class BankTransferController {
         return ViewNameConstants.UNDER_CONSTRUCTION;
 
     }
+
+    /**
+     * ajouter un transfert bancaire
+     */
+    //TODO à revoir
+    @GetMapping(value = "/addBankTransfer")
+    public String addBankTransfer() {
+
+        return ViewNameConstants.UNDER_CONSTRUCTION;
+
+    }
 }
