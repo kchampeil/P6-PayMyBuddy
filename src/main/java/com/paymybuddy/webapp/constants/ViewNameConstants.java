@@ -11,7 +11,7 @@ public class ViewNameConstants {
     public static final String USER_HOME = "homeUser" ;
 
     public static final String BANK_ACCOUNT_HOME = "profile" ;
-    public static final String BANK_ACCOUNT_ADD = "addBankAccount" ;
+    public static final String BANK_ACCOUNT_ADD = "bankAccount" ;
 
     public static final String BANK_TRANSFER_HOME = "homeBankAccount" ;
     public static final String BANK_TRANSFER_ADD = "addBankAccount" ;

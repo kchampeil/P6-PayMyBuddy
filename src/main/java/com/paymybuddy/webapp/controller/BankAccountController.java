@@ -27,7 +27,7 @@ public class BankAccountController {
     @GetMapping(value = "/addBankAccount")
     public String addBankAccount() {
 
-        return ViewNameConstants.UNDER_CONSTRUCTION;
+        return ViewNameConstants.BANK_ACCOUNT_ADD;
 
     }
 }
