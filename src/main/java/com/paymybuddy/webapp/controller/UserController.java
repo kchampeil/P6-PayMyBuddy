@@ -106,7 +106,7 @@ public class UserController {
     @GetMapping(value = "/logUser")
     public String loginUser() {
 
-        return ViewNameConstants.UNDER_CONSTRUCTION;
+        return ViewNameConstants.USER_LOGIN;
 
     }
 
@@ -131,6 +131,18 @@ public class UserController {
     public String showHomeUser() {
 
         return ViewNameConstants.USER_HOME;
+
+    }
+
+
+    /**
+     * réinitialiser le mot de passe utilisateur
+     * TODO V2 : cette fonctionnalité sera implémentée dans une prochaine version de PMB
+     */
+    @GetMapping(value = "/resetPassword")
+    public String resetPassword() {
+
+        return ViewNameConstants.UNDER_CONSTRUCTION;
 
     }
 }
