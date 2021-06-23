@@ -16,23 +16,20 @@ import java.math.BigDecimal;
 public class UserDTO {
     private Long userId;
 
-    @NotNull
     @NotEmpty
+    @Size(max = 256)
     @Email
     private String email;
 
-    @NotNull
     @NotEmpty
     @Size(max = 64)
     private String firstname;
 
-    @NotNull
     @NotEmpty
     @Size(max = 64)
     private String lastname;
 
     //TODO à voir car pas à renvoyer ou pas en clair ?
-    @NotNull
     @NotEmpty
     @Size(min = 7, max = 64)
     private String password;

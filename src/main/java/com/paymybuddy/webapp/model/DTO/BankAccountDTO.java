@@ -17,17 +17,14 @@ import javax.validation.constraints.Size;
 public class BankAccountDTO {
     private Long bankAccountId;
 
-    @NotNull
     @NotEmpty
     @Size(max = 34)
     private String iban;
 
-    @NotNull
     @NotEmpty
     @Size(max = 64)
     private String name;
 
-    @NotNull
     @NotEmpty
     private Long userId;
 

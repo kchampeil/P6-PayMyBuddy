@@ -13,11 +13,9 @@ import javax.validation.constraints.NotNull;
 public class RelationshipDTO {
     private Long relationshipId;
 
-    @NotNull
     @NotEmpty
     private Long userId;
 
-    @NotNull
     @NotEmpty
     private Long friendId;
 

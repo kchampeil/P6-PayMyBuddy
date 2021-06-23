@@ -19,12 +19,10 @@ import java.time.LocalDateTime;
 public class BankTransferDTO {
     private Long bankTransferId;
 
-    @NotNull
     @NotEmpty
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime date;
 
-    @NotNull
     @NotEmpty
     @Size(max = 128)
     private String description;
@@ -32,11 +30,9 @@ public class BankTransferDTO {
     @NotNull
     private BigDecimal amount = BigDecimal.ZERO;
 
-    @NotNull
     @NotEmpty
     private BankTransferTypes type;
 
-    @NotNull
     @NotEmpty
     private Long bankAccountId;
 

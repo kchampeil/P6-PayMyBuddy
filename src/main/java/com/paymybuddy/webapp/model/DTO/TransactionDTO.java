@@ -18,12 +18,10 @@ public class TransactionDTO {
 
     private Long transactionId;
 
-    @NotNull
     @NotEmpty
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime date;
 
-    @NotNull
     @NotEmpty
     @Size(max = 128)
     private String description;
@@ -34,7 +32,6 @@ public class TransactionDTO {
     @NotNull
     private BigDecimal feeAmount = BigDecimal.ZERO;
 
-    @NotNull
     @NotEmpty
     private Long relationshipId;
 
