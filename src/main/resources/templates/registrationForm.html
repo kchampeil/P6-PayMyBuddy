@@ -3,40 +3,53 @@
 <head>
     <meta charset="UTF-8"/>
     <title>Register</title>
-    <link rel="stylesheet" type="text/css" th:href="@{/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}"/>
 </head>
 <body>
 <div class="container my-3">
     <div class="row">
-        <div class="col-md-6 mx-auto">
-            <h2 class="text-center spacer">User Registration</h2>
+        <div class="col-5 spacer mx-auto py-4 text-center">
+            <div class="mb-5"><img class="rounded" src="./img/PMB_logo.png" width="200" height="60"
+                                   alt="PMB Logo"/>
+            </div>
+
             <form th:action="@{/registerUser}" method="post" th:object="${user}">
 
-                <div class=" form-group">
-                    <input type="email" class="form-control" placeholder="Email" th:field="*{email}"/>
+                <div class="form-group">
+                    <label for="email" class="sr-only">Email</label>
+                    <input id="email" type="email" class="form-control" placeholder="Email"
+                           th:field="*{email}" required/>
                     <span class="text-danger" th:errors="*{email}"></span>
                 </div>
-                <div class=" form-group">
-                    <input type="text" class="form-control" placeholder="Firstname" th:field="*{firstname}"/>
+                <div class="form-group">
+                    <label for="firstname" class="sr-only">Firstname</label>
+                    <input id="firstname" type="text" class="form-control" placeholder="Firstname"
+                           th:field="*{firstname}" required/>
                     <span class="text-danger" th:errors="*{firstname}"></span>
                 </div>
-                <div class=" form-group">
-                    <input type="text" class="form-control" placeholder="Lastname" th:field="*{lastname}"/>
+                <div class="form-group">
+                    <label for="lastname" class="sr-only">Lastname</label>
+                    <input id="lastname" type="text" class="form-control" placeholder="Lastname"
+                           th:field="*{lastname}" required/>
                     <span class="text-danger" th:errors="*{lastname}"></span>
                 </div>
-                <div class=" form-group">
-                    <input type="password" class="form-control" placeholder="Password" th:field="*{password}" aria-describedby="passwordHelpBlock"/>
-                    <small id="passwordHelpBlock" class="form-text text-muted">
+                <div class="form-group">
+                    <label for="password" class="sr-only">Password</label>
+                    <input id="password" type="password" class="form-control" placeholder="Password"
+                           th:field="*{password}" required
+                           aria-describedby="passwordHelpBlock"/>
+                    <small id="passwordHelpBlock" class="form-text text-muted text-left">
                         Your password must be 7-64 characters long
                         <!--, contain letters and numbers, and must not contain spaces, special characters, or emoji.-->
                     </small>
                     <span class="text-danger" th:errors="*{password}"></span>
                 </div>
 
-                <button type="submit" class="btn btn-primary btn-block mt-3">Register</button>
+                <button type="submit" class="btn btn-primary btn-block col-4 offset-4 mt-5">Register</button>
 
-                <a class="nav-link text-center" th:href="@{/logUser}">Already registered? Log in !</a>
+                <a class="nav-link" th:href="@{/logUser}">Already registered? Log in !</a>
             </form>
         </div>
     </div>

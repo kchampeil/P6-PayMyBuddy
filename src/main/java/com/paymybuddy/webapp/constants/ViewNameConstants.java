@@ -6,7 +6,6 @@ public class ViewNameConstants {
     public static final String USER_REGISTRATION = "registrationForm";
     public static final String USER_PROFILE = "userProfile";
     public static final String USER_LOGIN = "login";
-    public static final String USER_LOGOFF = "logoff";
     public static final String UNDER_CONSTRUCTION = "underConstruction";
     public static final String USER_HOME = "homeUser" ;
 

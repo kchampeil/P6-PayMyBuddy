@@ -1,80 +1,80 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <title>Bank Account</title>
-  <link rel="stylesheet" type="text/css" th:href="@{/css/bootstrap.min.css}"/>
-  <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}"/>
+    <meta charset="UTF-8"/>
+    <title>Bank Account</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}"/>
 </head>
 
 <body>
 <th:block th:include="/navigationBar"></th:block>
 
 <nav aria-label="breadcrumb">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a th:href="@{/homeUser}">Home</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Bank Account</li>
-  </ol>
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a th:href="@{/homeUser}">Home</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Bank Account</li>
+    </ol>
 </nav>
 
 <div class="container my-2">
 
-  <!-- Add Bank Account -->
-  <div class="row mx-auto align-items-center justify-content-md-center" id="addBankAccountGroup">
-    <div class="col col-md-8">Add Bank Account</div>
+    <!-- Add Bank Account -->
+    <div class="row mx-auto align-items-center justify-content-center" id="addBankAccountGroup">
+        <div class="col col-8">Add Bank Account</div>
 
-    <div class="form-row jumbotron jumbotron-fluid col-md-8 pt-md-5 pb-md-4" id="addBankAccountForm">
-      <div class="form-group col-md-7 offset-md-1">
-        <label for="iban" class="sr-only">IBAN</label>
-        <input id="iban" type="text" class="form-control" placeholder="IBAN">
-      </div>
-      <div class="form-group col-md-7 offset-md-1">
-        <label for="name" class="sr-only">Bank Account Name</label>
-        <input id="name" type="text" class="form-control" placeholder="Bank Account Name">
-      </div>
-      <div class="form-group col-md-4">
-        <a class="btn btn-primary bg-success border-success col-md-8" th:href="@{/addBankAccount}">Add BankAccount</a>
-        <!--TODO à revoir couleur bouton vert plus clair
-        <a class="btn btn-primary btn-block mt-3" th:href="@{/addBankAccount}">Add BankAccount</a> -->
-      </div>
+        <div class="form-row jumbotron jumbotron-fluid col-8 pt-5 pb-4" id="addBankAccountForm">
+            <div class="form-group col-7 offset-1">
+                <label for="iban" class="sr-only">IBAN</label>
+                <input id="iban" type="text" class="form-control" placeholder="IBAN" required />
+            </div>
+            <div class="form-group col-7 offset-1">
+                <label for="name" class="sr-only">Bank Account Name</label>
+                <input id="name" type="text" class="form-control" placeholder="Bank Account Name" required />
+            </div>
+            <div class="form-group col-4">
+                <a class="btn btn-primary bg-success border-success col-8" th:href="@{/addBankAccount}">Add
+                    BankAccount</a>
+                <!--TODO à revoir couleur bouton vert plus clair
+                <a class="btn btn-primary btn-block mt-3" th:href="@{/addBankAccount}">Add BankAccount</a> -->
+            </div>
+        </div>
     </div>
-  </div>
 
-  <p></p>
-
-  <!-- Bank Account list -->
-  <div class="row mx-auto align-items-center justify-content-md-center" id="myBankAccounts">
-    <div class="col col-md-8">My Bank Accounts</div>
-    <div class="col col-md-8">
-      <table class="table table-striped border border-dark border-5 border-top-5">
-        <thead>
-        <tr class="bg-success"> <!--TODO couleur bandeau titre à revoir -->
-          <th scope="col">IBAN</th>
-          <th scope="col">Name</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr> <!--TODO liste à alimenter -->
-          <th scope="row">FR7611112222333344445555652</th>
-          <td>Compte principal Picsou</td>
-        </tr>
-        <tr>
-          <th scope="row">FR0011112222333344445555666</th>
-          <td>Compte complémentaire Picsou</td>
-        </tr>
-        </tbody>
-      </table>
-      <ul class="pagination justify-content-center flex-wrap">
-        <!-- TODO à compléter avec les liens <li th:each="page, status:${pages}">
-            <a th:text="${page}"</a> -->
-        <li><a class="page-link"><<</a></li>
-        <li><a class="page-link">1</a></li>
-        <li><a class="page-link">2</a></li>
-        <li><a class="page-link">3</a></li>
-        <li><a class="page-link">>></a></li>
-      </ul>
+    <!-- Bank Account list -->
+    <div class="row mx-auto align-items-center justify-content-center mt-3" id="myBankAccounts">
+        <div class="col col-8">My Bank Accounts</div>
+        <div class="col col-8">
+            <table class="table table-striped text-center border border-dark border-5">
+                <thead>
+                <tr class="text-white bg-success">
+                    <td class="border-top-5 border-dark">IBAN</td>
+                    <td class="border-top-5 border-dark">Name</td>
+                </tr>
+                </thead>
+                <tbody>
+                <tr> <!--TODO liste à alimenter -->
+                    <td scope="row">FR7611112222333344445555652</td>
+                    <td>Compte principal Picsou</td>
+                </tr>
+                <tr>
+                    <td scope="row">FR0011112222333344445555666</td>
+                    <td>Compte complémentaire Picsou</td>
+                </tr>
+                </tbody>
+            </table>
+            <ul class="pagination justify-content-center flex-wrap">
+                <!-- TODO à compléter avec les liens <li th:each="page, status:${pages}">
+                    <a th:text="${page}"</a> -->
+                <li><a class="page-link"><<</a></li>
+                <li><a class="page-link">1</a></li>
+                <li><a class="page-link">2</a></li>
+                <li><a class="page-link">3</a></li>
+                <li><a class="page-link">>></a></li>
+            </ul>
+        </div>
     </div>
-  </div>
 
 </div>
 </body>

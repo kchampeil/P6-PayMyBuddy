@@ -1,23 +1,25 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8"/>
     <title>Home</title>
-    <link rel="stylesheet" type="text/css" th:href="@{/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}"/>
 </head>
 
 <body>
 <div class="container my-1 spacer">
     <div class="row">
-        <div class="col-md-3 mx-auto">
-            <div class="text-center spacer"><img class="rounded" src="./img/PMB_logo.png" width="200" height="60"/></div>
-            <p>&nbsp;</p>
-            <div >
-                <a class="btn btn-primary btn-block mt-3" th:href="@{/logUser}">Login</a>
+        <div class="col-3 spacer mx-auto py-4 text-center border border-secondary border-2 rounded">
+            <div class="mb-5"><img class="rounded" src="./img/PMB_logo.png" width="200" height="60"
+                                                 alt="PMB Logo"/>
             </div>
             <div>
-                <a class="btn btn-primary btn-block mt-3" th:href="@{/registerUser}">Register </a>
+                <a class="btn btn-primary btn-block mb-4" th:href="@{/logUser}">Login</a>
+            </div>
+            <div>
+                <a class="btn btn-primary btn-block mb-4" th:href="@{/registerUser}">Register </a>
             </div>
 
         </div>

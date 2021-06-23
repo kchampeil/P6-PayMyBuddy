@@ -112,13 +112,13 @@ public class UserController {
 
 
     /**
-     * déconnecter l'utilisateur
+     * déconnecter l'utilisateur et le renvoie sur la page d'accueil
      */
     //TODO à revoir
     @GetMapping(value = "/logoffUser")
     public String logoffUser() {
 
-        return ViewNameConstants.UNDER_CONSTRUCTION;
+        return ViewNameConstants.HOME;
 
     }
 
