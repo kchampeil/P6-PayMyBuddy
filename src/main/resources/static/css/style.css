@@ -1,3 +1,8 @@
 .spacer {
     margin-top: 100px;
 }
+
+.table {
+    outline-style: solid;
+    outline-width: 1px;
+}
