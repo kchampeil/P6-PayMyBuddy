@@ -34,7 +34,7 @@ public class UserController {
     /**
      * afficher le formulaire d'inscription
      */
-    @GetMapping(value = "/registerUser")
+    @GetMapping(value = "/newUser")
     public String showRegistrationForm(Model model) {
         model.addAttribute("user", new UserDTO());
         return ViewNameConstants.USER_REGISTRATION;
@@ -47,8 +47,8 @@ public class UserController {
      * @param userDTOToRegister informations sur le nouvel utilisateur à créer
      */
     @PostMapping(value = "/registerUser")
-    public String registerUser(@ModelAttribute("user") @Valid UserDTO userDTOToRegister,
-                               BindingResult bindingResult, Model model) {
+    public String saveUser(@ModelAttribute("user") @Valid UserDTO userDTOToRegister,
+                           BindingResult bindingResult, Model model) {
 
         log.info(LogConstants.USER_REGISTRATION_REQUEST_RECEIVED + userDTOToRegister.getEmail());
 

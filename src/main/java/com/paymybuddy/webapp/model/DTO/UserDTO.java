@@ -6,7 +6,6 @@ import lombok.Setter;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 
@@ -16,22 +15,22 @@ import java.math.BigDecimal;
 public class UserDTO {
     private Long userId;
 
-    @NotEmpty
+    @NotEmpty(message = "Email should not be empty")
     @Size(max = 256)
     @Email
     private String email;
 
-    @NotEmpty
+    @NotEmpty(message = "Firstname should not be empty")
     @Size(max = 64)
     private String firstname;
 
-    @NotEmpty
+    @NotEmpty(message = "Lastname should not be empty")
     @Size(max = 64)
     private String lastname;
 
     //TODO à voir car pas à renvoyer ou pas en clair ?
-    @NotEmpty
-    @Size(min = 7, max = 64)
+    @NotEmpty(message = "Password should not be empty")
+    @Size(min = 7, max = 64, message = "Password length must be between 7 and 64 characters")
     private String password;
 
     private BigDecimal balance = BigDecimal.ZERO;
@@ -57,6 +56,8 @@ public class UserDTO {
      * @return true si l'email est correct, sinon false
      */
     public boolean hasValidEmail() {
-        return this.email.contains("@");
+        return this.email.contains("@")
+                && this.email.length() >= 7
+                && this.email.length() <= 64;
     }
 }

@@ -10,8 +10,8 @@
 <body>
 <div class="container my-3">
     <div class="row">
-        <div class="col-5 spacer mx-auto py-4 text-center">
-            <div class="mb-5"><img class="rounded" src="./img/PMB_logo.png" width="200" height="60"
+        <div class="col-5 spacer mx-auto py-4 ">
+            <div class="mb-5 text-center"><img class="rounded" src="./img/PMB_logo.png" width="200" height="60"
                                    alt="PMB Logo"/>
             </div>
 
@@ -20,36 +20,36 @@
                 <div class="form-group">
                     <label for="email" class="sr-only">Email</label>
                     <input id="email" type="email" class="form-control" placeholder="Email"
-                           th:field="*{email}" required/>
-                    <span class="text-danger" th:errors="*{email}"></span>
+                           th:field="*{email}"/>
+                    <span class="text-danger ml-1" th:errors="*{email}"></span>
                 </div>
                 <div class="form-group">
                     <label for="firstname" class="sr-only">Firstname</label>
                     <input id="firstname" type="text" class="form-control" placeholder="Firstname"
-                           th:field="*{firstname}" required/>
-                    <span class="text-danger" th:errors="*{firstname}"></span>
+                           th:field="*{firstname}"/>
+                    <span class="text-danger ml-1" th:errors="*{firstname}"></span>
                 </div>
                 <div class="form-group">
                     <label for="lastname" class="sr-only">Lastname</label>
                     <input id="lastname" type="text" class="form-control" placeholder="Lastname"
-                           th:field="*{lastname}" required/>
-                    <span class="text-danger" th:errors="*{lastname}"></span>
+                           th:field="*{lastname}"/>
+                    <span class="text-danger ml-1" th:errors="*{lastname}"></span>
                 </div>
                 <div class="form-group">
                     <label for="password" class="sr-only">Password</label>
                     <input id="password" type="password" class="form-control" placeholder="Password"
-                           th:field="*{password}" required
+                           th:field="*{password}"
                            aria-describedby="passwordHelpBlock"/>
                     <small id="passwordHelpBlock" class="form-text text-muted text-left">
                         Your password must be 7-64 characters long
                         <!--, contain letters and numbers, and must not contain spaces, special characters, or emoji.-->
                     </small>
-                    <span class="text-danger" th:errors="*{password}"></span>
+                    <span class="text-danger ml-1" th:errors="*{password}"></span>
                 </div>
 
                 <button type="submit" class="btn btn-primary btn-block col-4 offset-4 mt-5">Register</button>
 
-                <a class="nav-link" th:href="@{/logUser}">Already registered? Log in !</a>
+                <a class="nav-link text-center" th:href="@{/logUser}">Already registered? Log in !</a>
             </form>
         </div>
     </div>
