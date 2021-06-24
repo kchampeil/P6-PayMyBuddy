@@ -8,13 +8,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class HomeController {
 
     @GetMapping("/")
-    public String home() {
+    public String showHomePage() {
         return ViewNameConstants.HOME;
         //TODO revoir car si user connecté on revient à sa page d'accueil
     }
 
     @GetMapping("/underConstruction")
-    public String underConstruction() {
+    public String showUnderConstructionPage() {
         return ViewNameConstants.UNDER_CONSTRUCTION;
     }
 
