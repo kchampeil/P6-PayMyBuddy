@@ -31,7 +31,8 @@
         <div class="form-row jumbotron jumbotron-fluid col-8 pt-5 pb-4" id="sendMoneyForm">
             <div class="form-group col-6 offset-1">
                 <label for="selectBankAccount" class="sr-only">Select A Bank Account</label>
-                <select id="selectBankAccount" class="form-control" required><!--th:field="${bankTransferDTO.bankAccountId}"-->
+                <select id="selectBankAccount" class="form-control" required>
+                    <!--th:field="${bankTransferDTO.bankAccountId}"-->
                     <option value="0">Select A Bank Account</option>
                     <!--<option selected></option>-->
                     <!--<option th:each="relationshipDTO : ${relationshipDTOList}"
@@ -45,9 +46,11 @@
             <div class="form-group col-3">
                 <!--TODO voir pour ajouter le symbole € dans le champ : https://stackoverflow.com/questions/2913236/html-text-input-field-with-currency-symbol-->
                 <label for="amount" class="sr-only">Amount</label>
-                <input id="amount" type="number" class="form-control"
-                       value="0.00" step="0.01" min="0" required/>
-                <!--th:field="${transactionDTO.amountFeeExcluded}"-->
+                <span class="input-symbol-euro">
+                    <input id="amount" type="number" class="form-control"
+                           value="0.00" step="0.01" min="0" required/>
+                    <!--th:field="${transactionDTO.amountFeeExcluded}"-->
+                </span>
             </div>
             <div class="form-group col-6 offset-1">
                 <label for="selectType" class="sr-only">Select A Type Of Transfer</label>

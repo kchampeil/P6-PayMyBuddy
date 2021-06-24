@@ -6,3 +6,21 @@
     outline-style: solid;
     outline-width: 1px;
 }
+
+.input-symbol-euro {
+    position: relative;
+    display: inline-block;
+}
+
+.input-symbol-euro input {
+    padding-right: 5px;
+}
+
+.input-symbol-euro:after {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    margin: auto;
+    content: "€";
+    right: 30px;
+}

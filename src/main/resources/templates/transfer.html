@@ -47,9 +47,11 @@
             <div class="form-group col-3">
                 <!--TODO voir pour ajouter le symbole € dans le champ : https://stackoverflow.com/questions/2913236/html-text-input-field-with-currency-symbol-->
                 <label for="amount" class="sr-only">Amount</label>
-                <input id="amount" type="number" class="form-control"
-                       value="0.00" step="0.01" min="0"
-                       th:field="${transactionDTO.amountFeeExcluded}" required/>
+                <span class="input-symbol-euro">
+                    <input id="amount" type="number" class="form-control"
+                           value="0.00" step="0.01" min="0"
+                           th:field="${transactionDTO.amountFeeExcluded}" required/>
+                </span>
                 <!-- TODO <div class="input-group-text bg-transparent border-0"><i class="bi-currency-euro"></i></div> -->
             </div>
             <div class="form-group col-4">
