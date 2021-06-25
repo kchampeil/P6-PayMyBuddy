@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
@@ -18,6 +17,11 @@ public class RelationshipDTO {
 
     @NotEmpty
     private Long friendId;
+
+    private String friendFirstname;
+
+    private String friendLastname;
+
 
     /**
      * vérifie si les informations contenues dans le relationshipDTO sont complètes

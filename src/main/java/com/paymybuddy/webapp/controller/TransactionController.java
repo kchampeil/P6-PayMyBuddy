@@ -38,14 +38,13 @@ public class TransactionController {
         model.addAttribute("transactionDTO", new TransactionDTO());
 
         List<RelationshipDTO> relationshipDTOList = relationshipService.getAllRelationshipsForUser(20L);
-        //TODO passer le user ID ensuite
-        //TODO rappatrier aussi le nom de l'ami dans le DTO
+        //TODO-debouchonnage passer le user ID ensuite
 
         model.addAttribute("relationshipDTOList", relationshipDTOList);
 
         List<TransactionDTO> transactionDTOList = transactionService.getAllTransactionsForUser(20L);
         //Page<TransactionDTO> transactionDTOList=transactionService.getAllTransactionsForUser(20L, PageRequest.of(0,3));
-        //TODO passer le user ID ensuite
+        //TODO-debouchonnage passer le user ID ensuite
         model.addAttribute("transactionDTOList", transactionDTOList);
         //model.addAttribute("transactionDTOList", transactionDTOList.getContent());
         //model.addAttribute("pages", new int[transactionDTOList.getTotalPages()]);

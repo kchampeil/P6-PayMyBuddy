@@ -35,17 +35,12 @@
                 <label for="selectConnection" class="sr-only">Select A Connection</label>
                 <select id="selectConnection" class="form-control" th:field="${transactionDTO.relationshipId}" required>
                     <option value="0">Select A Connection</option>
-                    <!--<option selected></option>-->
-                    <!--<option th:each="relationshipDTO : ${relationshipDTOList}"
+                    <option th:each="relationshipDTO : ${relationshipDTOList}"
                             th:value="${relationshipDTO.friendId}"
-                            th:text="${relationshipDTO.friendName}"></option> -->
-                    <!--<option th:each="relationshipDTO : ${relationshipDTOList}"
-                            th:value="${relationshipDTO.friendId}"></option> -->
-                    <!--TODO options à remplir avec list des relationship, nécessite de rapatrier le nom de l'ami dans le getRelationship -->
+                            th:text="${relationshipDTO.friendFirstname + ' ' + relationshipDTO.friendLastname}"></option>
                 </select>
             </div>
             <div class="form-group col-3">
-                <!--TODO voir pour ajouter le symbole € dans le champ : https://stackoverflow.com/questions/2913236/html-text-input-field-with-currency-symbol-->
                 <label for="amount" class="sr-only">Amount</label>
                 <span class="input-symbol-euro">
                     <input id="amount" type="number" class="form-control"
@@ -56,7 +51,7 @@
             </div>
             <div class="form-group col-4">
                 <a class="btn btn-primary bg-success border-success col-8" th:href="@{/payFriend}">Pay</a>
-                <!--TODO à revoir couleur bouton vert plus clair + taille
+                <!--TODO à revoir taille
                 <a class="btn btn-primary btn-block mt-3" th:href="@{/payFriend}">Pay</a> -->
             </div>
         </div>

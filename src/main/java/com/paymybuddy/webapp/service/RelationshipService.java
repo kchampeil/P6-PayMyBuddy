@@ -29,7 +29,7 @@ public class RelationshipService implements IRelationshipService {
     private final UserRepository userRepository;
 
     @Autowired
-    RelationshipService(RelationshipRepository relationshipRepository, UserRepository userRepository) {
+    public RelationshipService(RelationshipRepository relationshipRepository, UserRepository userRepository) {
         this.relationshipRepository = relationshipRepository;
         this.userRepository = userRepository;
     }
@@ -72,7 +72,7 @@ public class RelationshipService implements IRelationshipService {
             ModelMapper modelMapper = new ModelMapper();
             createdRelationshipDTO =
                     Optional.ofNullable(modelMapper.map(createdRelationship, RelationshipDTO.class));
-            log.info(LogConstants.CREATE_RELATIONSHIP_OK + relationshipDTOToCreate.getRelationshipId());
+            log.info(LogConstants.CREATE_RELATIONSHIP_OK + createdRelationshipDTO.orElse(null).getRelationshipId());
         }
 
         return createdRelationshipDTO;
@@ -90,6 +90,7 @@ public class RelationshipService implements IRelationshipService {
      */
     @Override
     public List<RelationshipDTO> getAllRelationshipsForUser(Long userId) throws PMBException {
+
         List<RelationshipDTO> relationshipDTOList = new ArrayList<>();
 
         if (checksBeforeGettingRelationships(userId)) {
@@ -98,7 +99,6 @@ public class RelationshipService implements IRelationshipService {
             relationshipList.forEach(relationship ->
                     relationshipDTOList
                             .add(modelMapper.map(relationship, RelationshipDTO.class)));
-            log.info(LogConstants.LIST_RELATIONSHIP_OK + relationshipDTOList.size());
         }
 
         return relationshipDTOList;
@@ -110,8 +110,8 @@ public class RelationshipService implements IRelationshipService {
      * en amont de la création de la relation entre deux utilisateurs
      *
      * @param relationshipDTOToCreate contient les informations sur la relation à créer
-     * @param user utilisateur
-     * @param friend utilisateur 'ami'
+     * @param user                    utilisateur
+     * @param friend                  utilisateur 'ami'
      * @return true si tout est correct
      * @throws PMBException si des données sont manquantes
      *                      ou que l utilisateur n existe pas
@@ -120,6 +120,7 @@ public class RelationshipService implements IRelationshipService {
      */
     private boolean checksBeforeCreatingRelationship(RelationshipDTO relationshipDTOToCreate,
                                                      Optional<User> user, Optional<User> friend) throws PMBException {
+
         //vérifie qu il ne manque pas d informations
         if (!relationshipDTOToCreate.isValid()) {
             log.error(LogConstants.CREATE_RELATIONSHIP_ERROR
@@ -165,6 +166,7 @@ public class RelationshipService implements IRelationshipService {
      *                      ou que l'utilisateur n'existe pas
      */
     private boolean checksBeforeGettingRelationships(Long userId) throws PMBException {
+
         //vérifie qu il ne manque pas d informations
         if (userId == null) {
             log.error(LogConstants.LIST_RELATIONSHIP_ERROR
