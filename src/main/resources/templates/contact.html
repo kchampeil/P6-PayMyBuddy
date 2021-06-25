@@ -24,19 +24,18 @@
     <div class="row mx-auto align-items-center justify-content-center" id="addConnectionGroup">
         <div class="col col-8">Add Connection</div>
 
-        <div class="form-row jumbotron jumbotron-fluid col-8 pt-5 pb-4" id="addConnectionForm">
+        <form method="post" th:action="@{/addContact}" th:object="${relationshipDTO}"
+              class="form-row jumbotron jumbotron-fluid col-8 pt-5 pb-4" id="addConnectionForm">
             <div class="form-group col-7 offset-1">
                 <label for="email" class="sr-only">Email</label>
-                <input id="email" type="email" class="form-control" placeholder="Email of your friend" required/>
-                <!--TODO ajouter l'email de l'ami dans le relationshipDTO th:field="${relationshipDTO.friendEmail}" -->
+                <input id="email" type="email" class="form-control" placeholder="Email of your friend"
+                       th:field="*{friendEmail}"/>
+                <span class="text-danger ml-1" th:errors="*{friendEmail}"></span>
             </div>
             <div class="form-group col-4">
-                <a class="btn btn-primary bg-success border-success col-8" th:href="@{/addRelationship}">Add
-                    Connection</a>
-                <!--TODO à revoir couleur bouton vert plus clair
-                <a class="btn btn-primary btn-block mt-3" th:href="@{/addFriend}">Add Connection</a> -->
+                <button type="submit" class="btn btn-primary bg-success border-success col-8">Add Connection</button>
             </div>
-        </div>
+        </form>
     </div>
 
     <!-- Connection list -->
@@ -53,8 +52,8 @@
                 </thead>
 
                 <tbody>
-                <tr th:if="${relationshipDTOList.empty}">
-                    <td colspan="3"> No transactions available</td>
+                <tr th:if="${relationshipDTOList.isEmpty()}">
+                    <td colspan="3"> No connections available</td>
                 </tr>
                 <tr th:each="relationship : ${relationshipDTOList}">
                     <td><span th:text="${relationship.friendEmail}"> Connection </span></td>
@@ -65,13 +64,22 @@
             </table>
 
             <ul class="pagination justify-content-center flex-wrap">
-                <!-- TODO à compléter avec les liens <li th:each="page, status:${pages}">
-                    <a th:text="${page}"</a> -->
-                <li><a class="page-link"><<</a></li>
-                <li><a class="page-link">1</a></li>
-                <li><a class="page-link">2</a></li>
-                <li><a class="page-link">3</a></li>
-                <li><a class="page-link">>></a></li>
+                <!-- TODO à compléter avec les liens <li th:each="page, status:${pages}"><a th:text="${page}"</a> -->
+                <li class="page-item">
+                    <a class="page-link" href="#" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                </li>
+                <li class="page-item"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item">
+                    <a class="page-link" href="#" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </li>
             </ul>
         </div>
     </div>

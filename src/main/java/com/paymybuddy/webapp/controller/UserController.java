@@ -1,6 +1,5 @@
 package com.paymybuddy.webapp.controller;
 
-import com.paymybuddy.webapp.constants.ErrorCodeConstants;
 import com.paymybuddy.webapp.constants.LogConstants;
 import com.paymybuddy.webapp.constants.PMBExceptionConstants;
 import com.paymybuddy.webapp.constants.ViewNameConstants;
@@ -76,7 +75,7 @@ public class UserController {
             log.error(LogConstants.USER_REGISTRATION_REQUEST_KO + ": " + pmbException.getMessage() + " \n");
 
             if (pmbException.getMessage().contains(PMBExceptionConstants.ALREADY_EXIST_USER)) {
-                bindingResult.rejectValue("email", ErrorCodeConstants.EMAIL_ALREADY_EXISTS, pmbException.getMessage());
+                bindingResult.rejectValue("email", "registrationForm.userDTO.email.alreadyExists", pmbException.getMessage());
             }
             return ViewNameConstants.USER_REGISTRATION;
         }

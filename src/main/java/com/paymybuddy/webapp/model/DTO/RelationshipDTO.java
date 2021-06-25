@@ -4,24 +4,27 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 
 @Getter
 @Setter
 @RequiredArgsConstructor
 public class RelationshipDTO {
+
     private Long relationshipId;
 
-    @NotEmpty
+    // TODO @NotNull
     private Long userId;
 
-    @NotEmpty
     private Long friendId;
 
     private String friendFirstname;
 
     private String friendLastname;
 
+    @NotBlank(message = "Friend email must be specified")
+    @Email(message = "Friend email should have an email format (xxx@yyy.zz)")
     private String friendEmail;
 
 
@@ -32,6 +35,6 @@ public class RelationshipDTO {
      */
     public boolean isValid() {
         return this.userId != null
-                && this.friendId != null;
+                && this.friendEmail != null && !this.friendEmail.isEmpty();
     }
 }

@@ -36,6 +36,7 @@ class UserServiceTest {
     @Autowired
     private IUserService userService;
 
+
     @Nested
     @DisplayName("createUser tests")
     class CreateUserTest {
@@ -136,6 +137,81 @@ class UserServiceTest {
             verify(userRepositoryMock, Mockito.times(0))
                     .findByEmailIgnoreCase(userDTOToCreate.getEmail());
             verify(userRepositoryMock, Mockito.times(0)).save(any(User.class));
+        }
+    }
+
+
+    @Nested
+    @DisplayName("getUserDTOByEmail tests")
+    class GetUserDTOByEmailTest {
+
+        @Test
+        @DisplayName("GIVEN a user in DB for an email address " +
+                "WHEN get this user information " +
+                "THEN the returned value is the user information")
+        void getUserDTOByEmail_WithSuccess() throws PMBException {
+            //GIVEN
+            User userInDb;
+            userInDb = new User();
+            userInDb.setUserId(UserTestConstants.EXISTING_USER_ID);
+            userInDb.setEmail(UserTestConstants.EXISTING_USER_EMAIL);
+            userInDb.setFirstname(UserTestConstants.EXISTING_USER_FIRSTNAME);
+            userInDb.setLastname(UserTestConstants.EXISTING_USER_LASTNAME);
+            userInDb.setPassword(UserTestConstants.EXISTING_USER_PASSWORD);
+            userInDb.setBalance(UserTestConstants.EXISTING_USER_WITH_HIGH_BALANCE);
+
+            when(userRepositoryMock.findByEmailIgnoreCase(UserTestConstants.EXISTING_USER_EMAIL))
+                    .thenReturn(Optional.of(userInDb));
+
+            //WHEN
+            Optional<UserDTO> userDTO = userService.getUserDTOByEmail(UserTestConstants.EXISTING_USER_EMAIL);
+
+            //THEN
+            assertTrue(userDTO.isPresent());
+            assertNotNull(userDTO.get().getUserId());
+            assertEquals(userInDb.getEmail(), userDTO.get().getEmail());
+            assertEquals(userInDb.getFirstname(), userDTO.get().getFirstname());
+            assertEquals(userInDb.getLastname(), userDTO.get().getLastname());
+
+            verify(userRepositoryMock, Mockito.times(1))
+                    .findByEmailIgnoreCase(UserTestConstants.EXISTING_USER_EMAIL);
+        }
+
+/* TODO à revoir
+        @Test
+        @DisplayName("GIVEN no user in DB for an email address " +
+                "WHEN get this user information " +
+                "THEN the returned value is an empty user")
+        void getUserDTOByEmail_WithUnknownUser() throws PMBException {
+            //GIVEN
+            when(userRepositoryMock.findByEmailIgnoreCase(UserTestConstants.UNKNOWN_USER_EMAIL))
+                    .thenReturn(Optional.ofNullable(null));
+
+            //WHEN
+            Optional<UserDTO> userDTO = userService.getUserByEmail(UserTestConstants.UNKNOWN_USER_EMAIL);
+
+            //THEN
+            assertFalse(userDTO.isPresent());
+
+            verify(userRepositoryMock, Mockito.times(1))
+                    .findByEmailIgnoreCase(UserTestConstants.UNKNOWN_USER_EMAIL);
+        }
+
+ */
+
+
+        @Test
+        @DisplayName("GIVEN a null email " +
+                "WHEN get this user information " +
+                "THEN an PMB Exception is thrown")
+        void getUserDTOByEmail_WithMissingInformations() {
+            //THEN
+            Exception exception = assertThrows(PMBException.class,
+                    () -> userService.getUserDTOByEmail(null));
+            assertThat(exception.getMessage()).contains(PMBExceptionConstants.MISSING_INFORMATION_GETTING_USER);
+
+            verify(userRepositoryMock, Mockito.times(0))
+                    .findByEmailIgnoreCase(UserTestConstants.EXISTING_USER_EMAIL);
         }
     }
 }

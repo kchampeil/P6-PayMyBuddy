@@ -1,6 +1,5 @@
 package com.paymybuddy.webapp.controller;
 
-import com.paymybuddy.webapp.constants.ErrorCodeConstants;
 import com.paymybuddy.webapp.constants.PMBExceptionConstants;
 import com.paymybuddy.webapp.constants.ViewNameConstants;
 import com.paymybuddy.webapp.exception.PMBException;
@@ -41,7 +40,7 @@ class UserControllerTest {
     @DisplayName("WHEN asking for the registration page" +
             " THEN return status is ok and the expected view is the registration page")
     void showRegistrationFormTest() throws Exception {
-        mockMvc.perform(get("/registerUser"))
+        mockMvc.perform(get("/newUser"))
                 .andExpect(status().isOk())
                 .andExpect(model().attributeExists("user"))
                 .andExpect(view().name(ViewNameConstants.USER_REGISTRATION));
@@ -128,7 +127,8 @@ class UserControllerTest {
                     .param("password", UserTestConstants.NEW_USER_PASSWORD))
                     .andExpect(status().isOk())
                     .andExpect(model().attributeExists("user"))
-                    .andExpect(model().attributeHasFieldErrorCode("user","email", ErrorCodeConstants.EMAIL_ALREADY_EXISTS))
+                    .andExpect(model().attributeHasFieldErrorCode("user", "email",
+                            "registrationForm.userDTO.email.alreadyExists"))
                     .andExpect(view().name(ViewNameConstants.USER_REGISTRATION));
         }
     }

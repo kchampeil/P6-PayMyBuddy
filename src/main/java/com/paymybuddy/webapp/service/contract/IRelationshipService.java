@@ -7,7 +7,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IRelationshipService {
-    Optional<RelationshipDTO> createRelationship(RelationshipDTO relationshipDTOToCreate) throws PMBException;
+
+    Optional<RelationshipDTO> createRelationship(RelationshipDTO relationshipDTO) throws PMBException;
 
     List<RelationshipDTO> getAllRelationshipsForUser(Long userId) throws PMBException;
 }

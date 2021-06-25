@@ -38,10 +38,12 @@ public class RelationshipService implements IRelationshipService {
     /**
      * création d une relation entre un utilisateur et un autre utilisateur ami
      *
-     * @param relationshipDTOToCreate relation à créer
+     * @param relationshipDTOToCreate DTO contenant notamment l'id de l'utilisateur pour lequel on souhaite créer la relation
+     *                                et l'email de l'ami avec lequel on souhaite créer la relation
      * @return objet RelationshipDTO contenant la relation créée
      * @throws PMBException si la relation existe déjà,
-     *                      que un des utilisateurs n existe pas
+     *                      ou qu'un des utilisateurs n existe pas
+     *                      ou que l'email transmis est celui de l'utilisateur lui même
      *                      ou que des données sont manquantes
      */
     @Override
@@ -49,10 +51,20 @@ public class RelationshipService implements IRelationshipService {
 
         Optional<RelationshipDTO> createdRelationshipDTO = Optional.empty();
 
-        Optional<User> user = userRepository.findById(relationshipDTOToCreate.getUserId());
-        Optional<User> friend = userRepository.findById(relationshipDTOToCreate.getFriendId());
+        //vérifie qu il ne manque pas d informations
+        if (!relationshipDTOToCreate.isValid()) {
+            log.error(LogConstants.CREATE_RELATIONSHIP_ERROR
+                    + PMBExceptionConstants.MISSING_INFORMATION_NEW_RELATIONSHIP
+                    + "for: " + relationshipDTOToCreate.getUserId() + " // " + relationshipDTOToCreate.getFriendEmail());
+            throw new PMBException(PMBExceptionConstants.MISSING_INFORMATION_NEW_RELATIONSHIP);
+        }
 
-        if (checksBeforeCreatingRelationship(relationshipDTOToCreate, user, friend)) {
+        //récupère les informations user et friend en base
+        //TODO à voir ensuite pour utiliser directement info user ou userDTO plutôt que rechercher de nouveau le user courant ?
+        Optional<User> user = userRepository.findById(relationshipDTOToCreate.getUserId());
+        Optional<User> friend = userRepository.findByEmailIgnoreCase(relationshipDTOToCreate.getFriendEmail());
+
+        if (checksBeforeCreatingRelationship(user, friend)) {
             //mappe le DTO dans le DAO,
             // puis la nouvelle relation est sauvegardée en base avant mappage inverse du DAO dans le DTO
             Relationship relationshipToCreate = new Relationship();
@@ -65,14 +77,15 @@ public class RelationshipService implements IRelationshipService {
 
             } catch (Exception exception) {
                 log.error(LogConstants.CREATE_RELATIONSHIP_ERROR + relationshipDTOToCreate.getUserId()
-                        + " // " + relationshipDTOToCreate.getFriendId());
+                        + " // " + relationshipDTOToCreate.getFriendEmail());
                 throw exception;
             }
 
             ModelMapper modelMapper = new ModelMapper();
             createdRelationshipDTO =
                     Optional.ofNullable(modelMapper.map(createdRelationship, RelationshipDTO.class));
-            log.info(LogConstants.CREATE_RELATIONSHIP_OK + createdRelationshipDTO.orElse(null).getRelationshipId());
+            log.info(LogConstants.CREATE_RELATIONSHIP_OK
+                    + createdRelationshipDTO.orElse(null).getRelationshipId());
         }
 
         return createdRelationshipDTO;
@@ -109,48 +122,44 @@ public class RelationshipService implements IRelationshipService {
      * vérifie que les informations transmises sont correctes
      * en amont de la création de la relation entre deux utilisateurs
      *
-     * @param relationshipDTOToCreate contient les informations sur la relation à créer
-     * @param user                    utilisateur
-     * @param friend                  utilisateur 'ami'
+     * @param user   utilisateur
+     * @param friend utilisateur 'ami'
      * @return true si tout est correct
-     * @throws PMBException si des données sont manquantes
-     *                      ou que l utilisateur n existe pas
+     * @throws PMBException si l utilisateur n existe pas
      *                      ou que l'utilisateur 'ami' n'existe pas
+     *                      ou que l'email fourni pour l'utilisateur 'ami' est identique à l'email de l'utilisateur
      *                      ou que la relation existe déjà
      */
-    private boolean checksBeforeCreatingRelationship(RelationshipDTO relationshipDTOToCreate,
-                                                     Optional<User> user, Optional<User> friend) throws PMBException {
-
-        //vérifie qu il ne manque pas d informations
-        if (!relationshipDTOToCreate.isValid()) {
-            log.error(LogConstants.CREATE_RELATIONSHIP_ERROR
-                    + PMBExceptionConstants.MISSING_INFORMATION_NEW_RELATIONSHIP
-                    + "for: " + relationshipDTOToCreate.getUserId()
-                    + " // " + relationshipDTOToCreate.getFriendId());
-            throw new PMBException(PMBExceptionConstants.MISSING_INFORMATION_NEW_RELATIONSHIP);
-        }
+    private boolean checksBeforeCreatingRelationship(Optional<User> user, Optional<User> friend)
+            throws PMBException {
 
         //vérifie que les deux utilisateurs existent bien
         if (!user.isPresent()) {
             log.error(LogConstants.CREATE_RELATIONSHIP_ERROR
-                    + PMBExceptionConstants.DOES_NOT_EXISTS_USER + relationshipDTOToCreate.getUserId());
-            throw new PMBException(PMBExceptionConstants.DOES_NOT_EXISTS_USER + relationshipDTOToCreate.getUserId());
+                    + PMBExceptionConstants.DOES_NOT_EXISTS_USER + " for user");
+            throw new PMBException(PMBExceptionConstants.DOES_NOT_EXISTS_USER);
         }
 
         if (!friend.isPresent()) {
             log.error(LogConstants.CREATE_RELATIONSHIP_ERROR
-                    + PMBExceptionConstants.DOES_NOT_EXISTS_USER + relationshipDTOToCreate.getFriendId());
-            throw new PMBException(PMBExceptionConstants.DOES_NOT_EXISTS_USER + relationshipDTOToCreate.getFriendId());
+                    + PMBExceptionConstants.DOES_NOT_EXISTS_USER + " for friend email");
+            throw new PMBException(PMBExceptionConstants.DOES_NOT_EXISTS_USER);
         }
 
-        //vérifie que la relation n existe pas déjà pour l'utilisateur
+        //vérifie que l'email de l'ami n'est pas celui du user courant
+        if (user.get().getEmail().equals(friend.get().getEmail())) {
+            log.error(LogConstants.CREATE_RELATIONSHIP_ERROR
+                    + PMBExceptionConstants.INVALID_FRIEND_EMAIL + " for: " + friend.get().getEmail());
+            throw new PMBException(PMBExceptionConstants.INVALID_FRIEND_EMAIL);
+        }
+
+        //vérifie que la relation n'existe pas déjà pour l'utilisateur
         if (relationshipRepository
                 .findByUserAndFriend(user.get(), friend.get()).isPresent()) {
             log.error(LogConstants.CREATE_RELATIONSHIP_ERROR
                     + PMBExceptionConstants.ALREADY_EXIST_RELATIONSHIP
-                    + relationshipDTOToCreate.getUserId() + " // " + relationshipDTOToCreate.getFriendId());
-            throw new PMBException(PMBExceptionConstants.ALREADY_EXIST_RELATIONSHIP
-                    + relationshipDTOToCreate.getUserId() + " // " + relationshipDTOToCreate.getFriendId());
+                    + " for users: " + user.get().getUserId() + " // " + friend.get().getUserId());
+            throw new PMBException(PMBExceptionConstants.ALREADY_EXIST_RELATIONSHIP);
         }
 
         return true;
@@ -178,8 +187,8 @@ public class RelationshipService implements IRelationshipService {
         Optional<User> user = userRepository.findById(userId);
         if (!user.isPresent()) {
             log.error(LogConstants.LIST_RELATIONSHIP_ERROR
-                    + PMBExceptionConstants.DOES_NOT_EXISTS_USER + userId);
-            throw new PMBException(PMBExceptionConstants.DOES_NOT_EXISTS_USER + userId);
+                    + PMBExceptionConstants.DOES_NOT_EXISTS_USER + " for: " + userId);
+            throw new PMBException(PMBExceptionConstants.DOES_NOT_EXISTS_USER);
         }
 
         return true;

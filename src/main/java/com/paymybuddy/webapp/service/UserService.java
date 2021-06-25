@@ -23,9 +23,10 @@ public class UserService implements IUserService {
     private final UserRepository userRepository;
 
     @Autowired
-    UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
+
 
     /**
      * création d un utilisateur en base
@@ -55,11 +56,60 @@ public class UserService implements IUserService {
                 throw exception;
             }
 
-            createdUserDTO = Optional.ofNullable(modelMapper.map((createdUser), UserDTO.class));
+            createdUserDTO = Optional.ofNullable(modelMapper.map(createdUser, UserDTO.class));
             log.info(LogConstants.CREATE_USER_OK + createdUserDTO.orElse(null).getUserId());
         }
 
         return createdUserDTO;
+    }
+
+
+    /**
+     * récupère les informations relatives à un utilisateur à partir de son email
+     *
+     * @param email de l'utilisateur dont on cherche à récupérer les informations
+     * @return objet User contenant les informations de l'utilisateur concerné
+     * @throws PMBException si l'email n'est pas renseigné
+     */
+    @Override
+    public Optional<User> getUserByEmail(String email) throws PMBException {
+
+        if (email == null || email.isEmpty()) {
+            log.error(LogConstants.GET_USER_INFO_ERROR
+                    + PMBExceptionConstants.MISSING_INFORMATION_GETTING_USER);
+            throw new PMBException(PMBExceptionConstants.MISSING_INFORMATION_GETTING_USER);
+        }
+
+        return userRepository.findByEmailIgnoreCase(email);
+    }
+
+
+    /**
+     * récupère les informations relatives à un utilisateur à partir de son email
+     *
+     * @param email de l'utilisateur dont on cherche à récupérer les informations
+     * @return objet UserDTO contenant les informations de l'utilisateur concerné
+     * @throws PMBException si l'email n'est pas renseigné
+     *                      ou que l'utilisateur n'existe pas (non trouvé)
+     */
+    //TODO à revoir si utile
+    @Override
+    public Optional<UserDTO> getUserDTOByEmail(String email) throws PMBException {
+
+        Optional<User> userFound = getUserByEmail(email);
+
+        if (!userFound.isPresent()) {
+            log.error(LogConstants.GET_USER_INFO_ERROR
+                    + PMBExceptionConstants.DOES_NOT_EXISTS_USER + " for: " + email);
+            throw new PMBException(PMBExceptionConstants.DOES_NOT_EXISTS_USER);
+        }
+
+        ModelMapper modelMapper = new ModelMapper();
+        Optional<UserDTO> userDTO = Optional.ofNullable(modelMapper.map(userFound.get(), UserDTO.class));
+
+        log.info(LogConstants.GET_USER_INFO_OK + email);
+
+        return userDTO;
     }
 
 
@@ -83,15 +133,15 @@ public class UserService implements IUserService {
         // vérifie que l email est valide
         if (!userDTOToCreate.hasValidEmail()) {
             log.error(LogConstants.CREATE_USER_ERROR
-                    + PMBExceptionConstants.INVALID_EMAIL + userDTOToCreate.getEmail());
-            throw new PMBException(PMBExceptionConstants.INVALID_EMAIL + userDTOToCreate.getEmail());
+                    + PMBExceptionConstants.INVALID_USER_EMAIL + userDTOToCreate.getEmail());
+            throw new PMBException(PMBExceptionConstants.INVALID_USER_EMAIL);
         }
 
         // vérifie que l utilisateur n existe pas déjà (email identique)
         if (userRepository.findByEmailIgnoreCase(userDTOToCreate.getEmail()).isPresent()) {
             log.error(LogConstants.CREATE_USER_ERROR
                     + PMBExceptionConstants.ALREADY_EXIST_USER + userDTOToCreate.getEmail());
-            throw new PMBException(PMBExceptionConstants.ALREADY_EXIST_USER + userDTOToCreate.getEmail());
+            throw new PMBException(PMBExceptionConstants.ALREADY_EXIST_USER);
         }
 
         return true;

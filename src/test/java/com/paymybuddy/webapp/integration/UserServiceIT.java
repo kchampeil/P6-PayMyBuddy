@@ -39,7 +39,7 @@ public class UserServiceIT {
         private UserDTO userDTOToCreate;
 
         @BeforeEach
-        private void setUpPerTest(){
+        private void setUpPerTest() {
             userDTOToCreate = new UserDTO();
             userDTOToCreate.setEmail(UserTestConstants.NEW_USER_EMAIL);
             userDTOToCreate.setFirstname(UserTestConstants.NEW_USER_FIRSTNAME);
@@ -95,5 +95,30 @@ public class UserServiceIT {
             //nettoyage la DB en fin de test en supprimant l utilisateur créé
             userRepository.deleteById(existingUser.getUserId());
         }
+    }
+
+
+    @Test
+    @DisplayName("WHEN getting the user information for an existing user " +
+            "THEN the user information in DB is returned")
+    public void getUserByEmailIT_WithData() throws PMBException {
+
+        //initialisation du test avec un utilisateur en base
+        User existingUser = new User();
+        existingUser.setEmail(UserTestConstants.EXISTING_USER_EMAIL);
+        existingUser.setFirstname(UserTestConstants.EXISTING_USER_FIRSTNAME);
+        existingUser.setLastname(UserTestConstants.EXISTING_USER_LASTNAME);
+        existingUser.setBalance(UserTestConstants.EXISTING_USER_WITH_HIGH_BALANCE);
+        existingUser.setPassword(UserTestConstants.EXISTING_USER_PASSWORD);
+        existingUser = userRepository.save(existingUser);
+
+        //test
+        Optional<UserDTO> userDTO = userService.getUserDTOByEmail(existingUser.getEmail());
+
+        assertThat(userDTO).isNotEmpty();
+        assertEquals(existingUser.getUserId(), userDTO.get().getUserId());
+
+        //nettoyage de la DB en fin de test en supprimant l'utilisateur' créé par le test
+        userRepository.deleteById(existingUser.getUserId());
     }
 }

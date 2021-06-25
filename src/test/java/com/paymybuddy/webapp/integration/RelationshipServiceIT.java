@@ -40,6 +40,7 @@ public class RelationshipServiceIT {
 
     private User existingUser;
     private User existingFriend;
+    private RelationshipDTO relationshipDTOToCreate;
 
     @BeforeEach
     private void setUpPerTest() {
@@ -54,12 +55,17 @@ public class RelationshipServiceIT {
 
         //initialisation avec un user ami en base
         existingFriend = new User();
-        existingFriend.setEmail(UserTestConstants.EXISTING_USER_EMAIL);
-        existingFriend.setFirstname(UserTestConstants.EXISTING_USER_FIRSTNAME);
-        existingFriend.setLastname(UserTestConstants.EXISTING_USER_LASTNAME);
-        existingFriend.setPassword(UserTestConstants.EXISTING_USER_PASSWORD);
-        existingFriend.setBalance(UserTestConstants.EXISTING_USER_WITH_HIGH_BALANCE);
+        existingFriend.setEmail(UserTestConstants.EXISTING_USER_AS_FRIEND_EMAIL);
+        existingFriend.setFirstname(UserTestConstants.EXISTING_USER_AS_FRIEND_FIRSTNAME);
+        existingFriend.setLastname(UserTestConstants.EXISTING_USER_AS_FRIEND_LASTNAME);
+        existingFriend.setPassword(UserTestConstants.EXISTING_USER_AS_FRIEND_PASSWORD);
+        existingFriend.setBalance(UserTestConstants.EXISTING_USER_AS_FRIEND_BALANCE);
         existingFriend = userRepository.save(existingFriend);
+
+        //initialisation de la relation à créer
+        relationshipDTOToCreate = new RelationshipDTO();
+        relationshipDTOToCreate.setUserId(existingUser.getUserId());
+        relationshipDTOToCreate.setFriendEmail(existingFriend.getEmail());
     }
 
     @AfterEach
@@ -74,17 +80,6 @@ public class RelationshipServiceIT {
     @DisplayName("createRelationship IT")
     class CreateRelationshipIT {
 
-        private RelationshipDTO relationshipDTOToCreate;
-
-        @BeforeEach
-        private void setUpPerTest() {
-            //initialisation de l objet bankAccountDTOToCreate
-            relationshipDTOToCreate = new RelationshipDTO();
-            relationshipDTOToCreate.setUserId(existingUser.getUserId());
-            relationshipDTOToCreate.setFriendId(existingFriend.getUserId());
-        }
-
-
         @Test
         @DisplayName("WHEN creating a new relationship with correct informations " +
                 "for an existing user & an existing friend without any existing relationship user -> friend" +
@@ -92,15 +87,16 @@ public class RelationshipServiceIT {
                 "AND the relationship is added in DB")
         public void createRelationshipIT_WithSuccess() throws Exception {
 
-            Optional<RelationshipDTO> relationshipDTOCreated = relationshipService.createRelationship(relationshipDTOToCreate);
-            Optional<Relationship> relationshipCreated = relationshipRepository
-                    .findByUserAndFriend(existingUser, existingFriend);
+            Optional<RelationshipDTO> relationshipDTOCreated =
+                    relationshipService.createRelationship(relationshipDTOToCreate);
+            Optional<Relationship> relationshipCreated =
+                    relationshipRepository.findByUserAndFriend(existingUser, existingFriend);
 
             assertThat(relationshipDTOCreated).isPresent();
             assertNotNull(relationshipDTOCreated.get().getRelationshipId());
 
             assertThat(relationshipCreated).isPresent();
-            assertEquals(relationshipDTOToCreate.getFriendId(), relationshipCreated.get().getFriend().getUserId());
+            assertEquals(existingFriend.getUserId(), relationshipCreated.get().getFriend().getUserId());
 
             //nettoyage de la DB en fin de test en supprimant la relation user/friend créée par le test
             relationshipRepository.deleteById(relationshipCreated.get().getRelationshipId());
@@ -111,11 +107,11 @@ public class RelationshipServiceIT {
         @DisplayName("WHEN creating a new relationship with an unknown friend " +
                 "THEN an PMBException is thrown AND the relationship is not added in DB")
         public void createRelationshipIT_WithUnknownFriend() {
+            relationshipDTOToCreate.setFriendEmail(UserTestConstants.UNKNOWN_USER_EMAIL);
 
-            relationshipDTOToCreate.setFriendId(UserTestConstants.UNKNOWN_USER_ID);
-
-            Exception exception = assertThrows(PMBException.class, () -> relationshipService.createRelationship(relationshipDTOToCreate));
-            assertThat(exception.getMessage()).contains(PMBExceptionConstants.DOES_NOT_EXISTS_USER);
+            Exception exception = assertThrows(PMBException.class,
+                    () -> relationshipService.createRelationship(relationshipDTOToCreate));
+            assertEquals(PMBExceptionConstants.DOES_NOT_EXISTS_USER, exception.getMessage());
 
             Optional<Relationship> relationshipNotCreated = relationshipRepository
                     .findByUserAndFriend(existingUser, null);
@@ -134,16 +130,18 @@ public class RelationshipServiceIT {
             existingRelationship = relationshipRepository.save(existingRelationship);
 
             //test
-            relationshipDTOToCreate.setFriendId(existingFriend.getUserId());
-
-            Exception exception = assertThrows(PMBException.class, () -> relationshipService.createRelationship(relationshipDTOToCreate));
-            assertThat(exception.getMessage()).contains(PMBExceptionConstants.ALREADY_EXIST_RELATIONSHIP);
+            relationshipDTOToCreate.setFriendEmail(existingFriend.getEmail());
+            Exception exception = assertThrows(PMBException.class,
+                    () -> relationshipService.createRelationship(relationshipDTOToCreate));
+            assertEquals(PMBExceptionConstants.ALREADY_EXIST_RELATIONSHIP, exception.getMessage());
 
             Optional<Relationship> relationshipAlreadyExisting = relationshipRepository
                     .findById(existingRelationship.getRelationshipId());
             assertThat(relationshipAlreadyExisting).isNotEmpty();
-            assertEquals(existingRelationship.getUser().getUserId(),relationshipAlreadyExisting.get().getUser().getUserId());
-            assertEquals(existingRelationship.getFriend().getUserId(), relationshipAlreadyExisting.get().getFriend().getUserId());
+            assertEquals(existingRelationship.getUser().getUserId(),
+                    relationshipAlreadyExisting.get().getUser().getUserId());
+            assertEquals(existingRelationship.getFriend().getUserId(),
+                    relationshipAlreadyExisting.get().getFriend().getUserId());
 
             //nettoyage de la DB en fin de test en supprimant la relation user/friend créée à l initialisation du test
             relationshipRepository.deleteById(existingRelationship.getRelationshipId());

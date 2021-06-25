@@ -19,20 +19,20 @@ public class PMBExceptionConstants {
 
     //Invalid data
     public static final String INVALID_EMAIL = "Invalid email for user: ";
+    public static final String INVALID_FRIEND_EMAIL = "Email of friend equals to current user email";
     public static final String INVALID_IBAN = "Invalid IBAN: ";
     public static final String INVALID_BANK_TRANSFER_TYPE = "Invalid bank transfer type: ";
 
     //Already exists
     public static final String ALREADY_EXIST_USER = "One user already exists with email: ";
     public static final String ALREADY_EXIST_BANK_ACCOUNT = "This bank account (IBAN) already exists for user (ID): ";
-    public static final String ALREADY_EXIST_RELATIONSHIP = "This relationship already exists for users (IDs): ";
+    public static final String ALREADY_EXIST_RELATIONSHIP = "This relationship already exists";
 
     //Does not exists
-    public static final String DOES_NOT_EXISTS_USER = "No user not exists for: ";
+    public static final String DOES_NOT_EXISTS_USER = "User does not exist";
     public static final String DOES_NOT_EXISTS_BANK_ACCOUNT = "No bank account exists for: ";
     public static final String DOES_NOT_EXISTS_RELATIONSHIP = "No relationship exists for: ";
 
     //Insufficient balance
     public static final String INSUFFICIENT_BALANCE = "Insufficient balance for user (ID): ";
-
 }
