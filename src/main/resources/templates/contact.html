@@ -51,19 +51,19 @@
                     <td>Lastname</td>
                 </tr>
                 </thead>
+
                 <tbody>
-                <tr> <!--TODO liste à alimenter -->
-                    <td>Fifi.Picsou@pmb.com</td>
-                    <td>Fifi</td>
-                    <td>PICSOU</td>
+                <tr th:if="${relationshipDTOList.empty}">
+                    <td colspan="3"> No transactions available</td>
                 </tr>
-                <tr>
-                    <td>Archibald.Gripsou@pmb.com</td>
-                    <td>Archibald</td>
-                    <td>GRIPSOU</td>
+                <tr th:each="relationship : ${relationshipDTOList}">
+                    <td><span th:text="${relationship.friendEmail}"> Connection </span></td>
+                    <td><span th:text="${relationship.friendFirstname}"> Description </span></td>
+                    <td><span th:text="${relationship.friendLastname}"> Amount </span></td>
                 </tr>
                 </tbody>
             </table>
+
             <ul class="pagination justify-content-center flex-wrap">
                 <!-- TODO à compléter avec les liens <li th:each="page, status:${pages}">
                     <a th:text="${page}"</a> -->

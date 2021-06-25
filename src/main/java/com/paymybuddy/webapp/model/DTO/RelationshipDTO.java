@@ -22,6 +22,8 @@ public class RelationshipDTO {
 
     private String friendLastname;
 
+    private String friendEmail;
+
 
     /**
      * vérifie si les informations contenues dans le relationshipDTO sont complètes
