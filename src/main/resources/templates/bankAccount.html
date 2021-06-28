@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      lang="en">
 <head>
     <meta charset="UTF-8"/>
     <title>Bank Account</title>
@@ -24,22 +25,25 @@
     <div class="row mx-auto align-items-center justify-content-center" id="addBankAccountGroup">
         <div class="col col-8">Add Bank Account</div>
 
-        <div class="form-row jumbotron jumbotron-fluid col-8 pt-5 pb-4" id="addBankAccountForm">
+        <form method="post" th:action="@{/addBankAccount}" th:object="${bankAccountDTO}"
+              class="form-row jumbotron jumbotron-fluid col-8 pt-5 pb-4" id="addBankAccountForm">
             <div class="form-group col-7 offset-1">
                 <label for="iban" class="sr-only">IBAN</label>
-                <input id="iban" type="text" class="form-control" placeholder="IBAN" required />
+                <input id="iban" type="text" class="form-control" placeholder="IBAN"
+                       th:field="*{iban}" required/>
+                <span class="text-danger ml-1" th:errors="*{iban}"></span>
             </div>
             <div class="form-group col-7 offset-1">
                 <label for="name" class="sr-only">Bank Account Name</label>
-                <input id="name" type="text" class="form-control" placeholder="Bank Account Name" required />
+                <input id="name" type="text" class="form-control" placeholder="Bank Account Name"
+                       th:field="*{name}" required/>
+                <span class="text-danger ml-1" th:errors="*{name}"></span>
             </div>
             <div class="form-group col-4">
-                <a class="btn btn-primary bg-success border-success col-8" th:href="@{/addBankAccount}">Add
-                    BankAccount</a>
-                <!--TODO à revoir couleur bouton vert plus clair
-                <a class="btn btn-primary btn-block mt-3" th:href="@{/addBankAccount}">Add BankAccount</a> -->
+                <button type="submit" class="btn btn-primary bg-success border-success col-8">Add BankAccount</button>
             </div>
-        </div>
+        </form>
+
     </div>
 
     <!-- Bank Account list -->
@@ -53,25 +57,34 @@
                     <td>Name</td>
                 </tr>
                 </thead>
+
                 <tbody>
-                <tr> <!--TODO liste à alimenter -->
-                    <td scope="row">FR7611112222333344445555652</td>
-                    <td>Compte principal Picsou</td>
+                <tr th:if="${bankAccountDTOList.isEmpty()}">
+                    <td colspan="3"> No bank accounts available</td>
                 </tr>
-                <tr>
-                    <td scope="row">FR0011112222333344445555666</td>
-                    <td>Compte complémentaire Picsou</td>
+                <tr th:each="bankAccount : ${bankAccountDTOList}">
+                    <td><span th:text="${bankAccount.iban}"> IBAN </span></td>
+                    <td><span th:text="${bankAccount.name}"> Name </span></td>
                 </tr>
                 </tbody>
             </table>
             <ul class="pagination justify-content-center flex-wrap">
-                <!-- TODO à compléter avec les liens <li th:each="page, status:${pages}">
-                    <a th:text="${page}"</a> -->
-                <li><a class="page-link"><<</a></li>
-                <li><a class="page-link">1</a></li>
-                <li><a class="page-link">2</a></li>
-                <li><a class="page-link">3</a></li>
-                <li><a class="page-link">>></a></li>
+                <!-- TODO à compléter avec les liens <li th:each="page, status:${pages}"><a th:text="${page}"</a> -->
+                <li class="page-item">
+                    <a class="page-link" href="#" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                        <span class="sr-only">Previous</span>
+                    </a>
+                </li>
+                <li class="page-item"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item">
+                    <a class="page-link" href="#" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                        <span class="sr-only">Next</span>
+                    </a>
+                </li>
             </ul>
         </div>
     </div>

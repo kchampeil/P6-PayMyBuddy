@@ -48,4 +48,10 @@ public class LogConstants {
     public static final String ADD_RELATIONSHIP_REQUEST_OK = "New relationship has been saved with id: ";
     public static final String ADD_RELATIONSHIP_REQUEST_KO = "New relationship has not been added";
     public static final String ADD_RELATIONSHIP_REQUEST_NOT_VALID = "Relationship information not valid";
+
+    public static final String ADD_BANK_ACCOUNT_REQUEST_RECEIVED =
+            "POST request on endpoint /addBankAccount received for (iban/name): ";
+    public static final String ADD_BANK_ACCOUNT_REQUEST_OK = "New bank account has been saved with id: ";
+    public static final String ADD_BANK_ACCOUNT_REQUEST_KO = "New bank account has not been added";
+    public static final String ADD_BANK_ACCOUNT_REQUEST_NOT_VALID = "Bank account information not valid";
 }

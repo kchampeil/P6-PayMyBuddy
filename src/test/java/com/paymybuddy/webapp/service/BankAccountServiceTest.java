@@ -122,7 +122,7 @@ class BankAccountServiceTest {
 
             //THEN
             Exception exception = assertThrows(PMBException.class, () -> bankAccountService.createBankAccount(bankAccountDTOToCreate));
-            assertThat(exception.getMessage()).contains(PMBExceptionConstants.ALREADY_EXIST_BANK_ACCOUNT);
+            assertEquals(PMBExceptionConstants.ALREADY_EXIST_BANK_ACCOUNT, exception.getMessage());
 
             verify(userRepositoryMock, Mockito.times(1))
                     .findById(bankAccountDTOToCreate.getUserId());
@@ -143,7 +143,7 @@ class BankAccountServiceTest {
 
             //THEN
             Exception exception = assertThrows(PMBException.class, () -> bankAccountService.createBankAccount(bankAccountDTOToCreate));
-            assertThat(exception.getMessage()).contains(PMBExceptionConstants.MISSING_INFORMATION_NEW_BANK_ACCOUNT);
+            assertEquals(PMBExceptionConstants.MISSING_INFORMATION_NEW_BANK_ACCOUNT, exception.getMessage());
 
             verify(userRepositoryMock, Mockito.times(0))
                     .findById(bankAccountDTOToCreate.getUserId());
@@ -164,7 +164,7 @@ class BankAccountServiceTest {
 
             //THEN
             Exception exception = assertThrows(PMBException.class, () -> bankAccountService.createBankAccount(bankAccountDTOToCreate));
-            assertThat(exception.getMessage()).contains(PMBExceptionConstants.INVALID_IBAN);
+            assertEquals(PMBExceptionConstants.INVALID_IBAN, exception.getMessage());
 
             verify(userRepositoryMock, Mockito.times(0))
                     .findById(bankAccountDTOToCreate.getUserId());
@@ -262,7 +262,7 @@ class BankAccountServiceTest {
             //THEN
             Exception exception = assertThrows(PMBException.class,
                     () -> bankAccountService.getAllBankAccountsForUser(UserTestConstants.UNKNOWN_USER_ID));
-            assertThat(exception.getMessage()).contains(PMBExceptionConstants.DOES_NOT_EXISTS_USER);
+            assertEquals(PMBExceptionConstants.DOES_NOT_EXISTS_USER, exception.getMessage());
 
             verify(userRepositoryMock, Mockito.times(1))
                     .findById(UserTestConstants.UNKNOWN_USER_ID);
@@ -279,7 +279,7 @@ class BankAccountServiceTest {
             //THEN
             Exception exception = assertThrows(PMBException.class,
                     () -> bankAccountService.getAllBankAccountsForUser(null));
-            assertThat(exception.getMessage()).contains(PMBExceptionConstants.MISSING_INFORMATION_LIST_BANK_ACCOUNT);
+            assertEquals(PMBExceptionConstants.MISSING_INFORMATION_LIST_BANK_ACCOUNT, exception.getMessage());
 
             verify(userRepositoryMock, Mockito.times(0)).findById(anyLong());
             verify(bankAccountRepositoryMock, Mockito.times(0)).findAllByUser_UserId(anyLong());

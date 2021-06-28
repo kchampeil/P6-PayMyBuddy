@@ -25,7 +25,7 @@ public class BankAccountDTO {
     @Size(max = 64)
     private String name;
 
-    @NotEmpty
+    //TODO @NotNull
     private Long userId;
 
     /**

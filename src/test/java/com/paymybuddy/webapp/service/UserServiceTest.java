@@ -133,7 +133,7 @@ class UserServiceTest {
 
             //THEN
             Exception exception = assertThrows(PMBException.class, () -> userService.createUser(userDTOToCreate));
-            assertThat(exception.getMessage()).contains(PMBExceptionConstants.INVALID_EMAIL);
+            assertThat(exception.getMessage()).contains(PMBExceptionConstants.INVALID_USER_EMAIL);
             verify(userRepositoryMock, Mockito.times(0))
                     .findByEmailIgnoreCase(userDTOToCreate.getEmail());
             verify(userRepositoryMock, Mockito.times(0)).save(any(User.class));

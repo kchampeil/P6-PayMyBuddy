@@ -104,7 +104,7 @@ public class BankAccountServiceIT {
             bankAccountDTOToCreate.setIban(BankAccountTestConstants.NEW_BANK_ACCOUNT_INVALID_IBAN);
 
             Exception exception = assertThrows(PMBException.class, () -> bankAccountService.createBankAccount(bankAccountDTOToCreate));
-            assertThat(exception.getMessage()).contains(PMBExceptionConstants.INVALID_IBAN);
+            assertEquals(PMBExceptionConstants.INVALID_IBAN, exception.getMessage());
 
             Optional<BankAccount> bankAccountWithIbanAndUser = bankAccountRepository
                     .findByIbanAndUser_UserId(bankAccountDTOToCreate.getIban(), existingUser.getUserId());
@@ -127,7 +127,7 @@ public class BankAccountServiceIT {
             bankAccountDTOToCreate.setIban(existingBankAccount.getIban());
 
             Exception exception = assertThrows(PMBException.class, () -> bankAccountService.createBankAccount(bankAccountDTOToCreate));
-            assertThat(exception.getMessage()).contains(PMBExceptionConstants.ALREADY_EXIST_BANK_ACCOUNT);
+            assertEquals(PMBExceptionConstants.ALREADY_EXIST_BANK_ACCOUNT, exception.getMessage());
 
             Optional<BankAccount> bankAccountAlreadyExisting = bankAccountRepository
                     .findById(existingBankAccount.getBankAccountId());
@@ -145,7 +145,7 @@ public class BankAccountServiceIT {
     @Test
     @DisplayName("WHEN getting the list of bank accounts for an existing user " +
             "THEN the list of bank accounts in DB is returned")
-    public void getAllBankAccountsForUser_WithData() throws PMBException {
+    public void getAllBankAccountsForUserIT_WithData() throws PMBException {
 
         //initialisation du test avec un compte bancaire en base
         BankAccount existingBankAccount = new BankAccount();
