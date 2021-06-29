@@ -54,4 +54,10 @@ public class LogConstants {
     public static final String ADD_BANK_ACCOUNT_REQUEST_OK = "New bank account has been saved with id: ";
     public static final String ADD_BANK_ACCOUNT_REQUEST_KO = "New bank account has not been added";
     public static final String ADD_BANK_ACCOUNT_REQUEST_NOT_VALID = "Bank account information not valid";
+
+    public static final String ADD_BANK_TRANSFER_REQUEST_RECEIVED =
+            "POST request on endpoint /profile received for (bankAccountId/description/type/amount): ";
+    public static final String ADD_BANK_TRANSFER_REQUEST_OK = "New bank transfer has been saved with id: ";
+    public static final String ADD_BANK_TRANSFER_REQUEST_KO = "New bank transfer has not been added";
+    public static final String ADD_BANK_TRANSFER_REQUEST_NOT_VALID = "Bank transfer information not valid";
 }

@@ -6,6 +6,16 @@ package com.paymybuddy.webapp.constants;
  * CREDIT : du compte bancaire vers le compte utilisateur
  */
 public enum BankTransferTypes {
-    DEBIT,
-    CREDIT
+    DEBIT("From PMB to Bank"),
+    CREDIT("From Bank to PMB");
+
+    private final String displayValue;
+
+    BankTransferTypes(String displayValue) {
+        this.displayValue = displayValue;
+    }
+
+    public String getDisplayValue() {
+        return displayValue;
+    }
 }

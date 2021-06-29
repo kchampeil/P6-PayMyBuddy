@@ -133,7 +133,7 @@ public class BankTransferServiceIT {
 
             Exception exception = assertThrows(PMBException.class,
                     () -> bankTransferService.transferWithBankAccount(bankTransferDTOToCreate));
-            assertThat(exception.getMessage()).contains(PMBExceptionConstants.DOES_NOT_EXISTS_BANK_ACCOUNT);
+            assertEquals(PMBExceptionConstants.DOES_NOT_EXISTS_BANK_ACCOUNT, exception.getMessage());
 
             Optional<BankTransfer> bankTransferCreated = bankTransferRepository
                     .findByDateAndBankAccount_BankAccountId(bankTransferDTOToCreate.getDate(),

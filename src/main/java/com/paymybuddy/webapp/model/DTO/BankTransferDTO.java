@@ -7,7 +7,8 @@ import lombok.Setter;
 import org.apache.commons.lang3.EnumUtils;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
@@ -19,22 +20,22 @@ import java.time.LocalDateTime;
 public class BankTransferDTO {
     private Long bankTransferId;
 
-    @NotEmpty
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    private LocalDateTime date;
+    @NotNull
+    private Long bankAccountId;
 
-    @NotEmpty
+    @DecimalMin(value = "0.00", inclusive = false)
+    private BigDecimal amount = BigDecimal.ZERO;
+
+    //TODO à voir @NotEmpty
+    private BankTransferTypes type;
+
+    @NotBlank
     @Size(max = 128)
     private String description;
 
-    @NotNull
-    private BigDecimal amount = BigDecimal.ZERO;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    private LocalDateTime date;
 
-    @NotEmpty
-    private BankTransferTypes type;
-
-    @NotEmpty
-    private Long bankAccountId;
 
     /**
      * vérifie si les informations contenues dans le bankTransferDTO sont complètes

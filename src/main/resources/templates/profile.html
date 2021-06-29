@@ -22,95 +22,112 @@
 
     <!-- Send Money From/To Bank Account and Add Bank Account -->
     <div class="row mx-auto align-items-center justify-content-center" id="sendMoneyGroup">
-        <div class="col col-6">Send From/To Bank Account</div>
-        <div class="col col-2">
-            <!-- TODO à revoir fmt bouton <a class="btn btn-primary btn-block mt-3" th:href="@{/addRelationship}">Add Connection</a>-->
+        <div class="col col-9">Send From/To Bank Account</div>
+        <div class="col col-2 mr-4">
             <a class="btn btn-primary px-4" th:href="@{/addBankAccount}">Add Bank Account</a>
         </div>
 
-        <div class="form-row jumbotron jumbotron-fluid col-8 pt-5 pb-4" id="sendMoneyForm">
-            <div class="form-group col-6 offset-1">
+        <form method="post" th:action="@{/profile}" th:object="${bankTransferDTO}"
+              class="form-row jumbotron jumbotron-fluid col-11 pt-5 pb-4" id="sendMoneyForm">
+
+            <div class="form-group col-5 offset-1">
                 <label for="selectBankAccount" class="sr-only">Select A Bank Account</label>
-                <select id="selectBankAccount" class="form-control" required>
-                    <!--th:field="${bankTransferDTO.bankAccountId}"-->
+                <select id="selectBankAccount" class="form-control" th:field="*{bankAccountId}" required>
                     <option value="0">Select A Bank Account</option>
-                    <!--<option selected></option>-->
-                    <!--<option th:each="relationshipDTO : ${relationshipDTOList}"
-                            th:value="${relationshipDTO.friendId}"
-                            th:text="${relationshipDTO.friendName}"></option> -->
-                    <!--<option th:each="relationshipDTO : ${relationshipDTOList}"
-                            th:value="${relationshipDTO.friendId}"></option> -->
-                    <!--TODO options à remplir avec list des bank accounts, nécessite de rapatrier les infos dans dans le getBankAccountList -->
+                    <option th:each="bankAccountDTO : ${bankAccountDTOList}"
+                            th:value="${bankAccountDTO.bankAccountId}"
+                            th:text="${bankAccountDTO.name}"></option>
                 </select>
+                <span class=" text-danger ml-1" th:errors="*{bankAccountId}"></span>
             </div>
+
             <div class="form-group col-3">
-                <!--TODO voir pour ajouter le symbole € dans le champ : https://stackoverflow.com/questions/2913236/html-text-input-field-with-currency-symbol-->
                 <label for="amount" class="sr-only">Amount</label>
                 <span class="input-symbol-euro">
                     <input id="amount" type="number" class="form-control"
-                           value="0.00" step="0.01" min="0" required/>
-                    <!--th:field="${transactionDTO.amountFeeExcluded}"-->
+                           value="0.00" step="0.01" min="0" th:field="*{amount}" required/>
                 </span>
+                <span class=" text-danger ml-1" th:errors="*{amount}"></span>
             </div>
-            <div class="form-group col-6 offset-1">
+
+            <div class="form-group col-5 offset-1">
+                <label for="description" class="sr-only">Description</label>
+                <input id="description" type="text" class="form-control" placeholder="Description"
+                       th:field="*{description}" required/>
+                <span class=" text-danger ml-1" th:errors="*{description}"></span>
+            </div>
+
+            <div class="form-group col-3">
                 <label for="selectType" class="sr-only">Select A Type Of Transfer</label>
-                <select id="selectType" class="form-control" required><!--th:field="${bankTransferDTO.type}"-->
-                    <option value="0">Select A Type</option>
-                    <option>From PMB To Bank Account</option>
-                    <option>From Bank Account To PMB</option>
-                    <!--TODO alimenter le type en fonction de la valeur sélectionnée -->
+                <select id="selectType" class="form-control p-1" th:field="*{type}" required>
+                    <option th:each="typeOfTransfer : ${typeOfTransferList}"
+                            th:value="${typeOfTransfer}"
+                            th:text="${typeOfTransfer.displayValue}"
+                            th:default="${T(com.paymybuddy.webapp.constants.BankTransferTypes).DEBIT}">
+                    </option>
                 </select>
+                <span class=" text-danger ml-1" th:errors="*{type}"></span>
             </div>
-            <div class="form-group col-4">
-                <a class="btn btn-primary bg-success border-success col-8" th:href="@{/addBankTransfer}">Transfer
-                    Money</a>
-                <!--TODO à revoir couleur bouton vert plus clair-->
+
+            <div class="form-group col-3">
+                <button type="submit" class="btn btn-primary bg-success border-success col-8">Transfer Money</button>
             </div>
-        </div>
+        </form>
     </div>
-
-    <!-- Bank Transfer list -->
-    <div class="row mx-auto align-items-center justify-content-center mt-3" id="myBankTransfers">
-        <div class="col col-8">My Bank Transfers</div>
-        <div class="col col-8">
-            <table class="table table-striped text-center">
-                <thead>
-                <tr class="text-white bg-success">
-                    <td>Date</td>
-                    <td>Description</td>
-                    <td>Amount</td>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td scope="row">01/03/21</td>
-                    <td>Transfer to Bank Account following friend transfer</td>
-                    <td>8€</td>
-                </tr>
-                <tr>
-                    <td scope="row">01/02/21</td>
-                    <td>First transfer to Bank Account</td>
-                    <td>25€</td>
-                </tr>
-                <tr> <!--TODO liste à alimenter -->
-                    <td scope="row">01/01/21</td>
-                    <td>First transfer to PMB</td>
-                    <td>10€</td>
-                </tr>
-                </tbody>
-            </table>
-            <ul class="pagination justify-content-center flex-wrap">
-                <!-- TODO à compléter avec les liens <li th:each="page, status:${pages}">
-                    <a th:text="${page}"</a> -->
-                <li><a class="page-link"><<</a></li>
-                <li><a class="page-link">1</a></li>
-                <li><a class="page-link">2</a></li>
-                <li><a class="page-link">3</a></li>
-                <li><a class="page-link">>></a></li>
-            </ul>
-        </div>
-    </div>
-
 </div>
+
+<!-- Bank Transfer list -->
+<div class="row mx-auto align-items-center justify-content-center mt-3" id="myBankTransfers">
+    <div class="col col-8">My Bank Transfers</div>
+    <div class="col col-8">
+        <table class="table table-striped text-center">
+            <thead>
+            <tr class="text-white bg-success">
+                <td>Date</td>
+                <td>Type</td>
+                <td>Description</td>
+                <td>Amount</td>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr th:if="${bankTransferDTOList.isEmpty()}">
+                <td colspan="4"> No bank transfers available</td>
+            </tr>
+            <tr th:each="bankTransfer : ${bankTransferDTOList}">
+                <td><span th:text="${#temporals.format(bankTransfer.date,'dd-MM-yyyy')}"> Date </span></td>
+                <td><span th:text="${bankTransfer.type.displayValue}"> Description </span></td>
+                <td><span th:text="${bankTransfer.description}"> Description </span></td>
+                <td th:switch="${bankTransfer.type}">
+                    <span th:case="${T(com.paymybuddy.webapp.constants.BankTransferTypes).DEBIT}"
+                          th:text="'-'+${bankTransfer.amount} + '€'"> Amount </span>
+                    <span th:case="${T(com.paymybuddy.webapp.constants.BankTransferTypes).CREDIT}"
+                          th:text="'+'+${bankTransfer.amount} + '€'"> Amount </span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <ul class="pagination justify-content-center flex-wrap">
+            <!-- TODO à compléter avec les liens <li th:each="page, status:${pages}"><a th:text="${page}"</a> -->
+            <li class="page-item">
+                <a class="page-link" href="#" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                    <span class="sr-only">Previous</span>
+                </a>
+            </li>
+            <li class="page-item"><a class="page-link" href="#">1</a></li>
+            <li class="page-item"><a class="page-link" href="#">2</a></li>
+            <li class="page-item"><a class="page-link" href="#">3</a></li>
+            <li class="page-item">
+                <a class="page-link" href="#" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                    <span class="sr-only">Next</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+
 </body>
 </html>

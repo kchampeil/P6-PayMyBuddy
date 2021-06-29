@@ -169,7 +169,7 @@ class BankTransferServiceTest {
             //THEN
             Exception exception = assertThrows(PMBException.class,
                     () -> bankTransferService.transferWithBankAccount(bankTransferDTOToCreate));
-            assertThat(exception.getMessage()).contains(PMBExceptionConstants.DOES_NOT_EXISTS_BANK_ACCOUNT);
+            assertEquals(PMBExceptionConstants.DOES_NOT_EXISTS_BANK_ACCOUNT,exception.getMessage());
 
             verify(bankAccountRepositoryMock, Mockito.times(1))
                     .findById(bankTransferDTOToCreate.getBankAccountId());
@@ -191,7 +191,7 @@ class BankTransferServiceTest {
             //THEN
             Exception exception = assertThrows(PMBException.class,
                     () -> bankTransferService.transferWithBankAccount(bankTransferDTOToCreate));
-            assertThat(exception.getMessage()).contains(PMBExceptionConstants.MISSING_INFORMATION_NEW_BANK_TRANSFER);
+            assertEquals(PMBExceptionConstants.MISSING_INFORMATION_NEW_BANK_TRANSFER,exception.getMessage());
 
             verify(bankAccountRepositoryMock, Mockito.times(1))
                     .findById(bankTransferDTOToCreate.getBankAccountId());
@@ -218,7 +218,7 @@ class BankTransferServiceTest {
             //THEN
             Exception exception = assertThrows(PMBException.class,
                     () -> bankTransferService.transferWithBankAccount(bankTransferDTOToCreate));
-            assertThat(exception.getMessage()).contains(PMBExceptionConstants.INSUFFICIENT_BALANCE);
+            assertEquals(PMBExceptionConstants.INSUFFICIENT_BALANCE,exception.getMessage());
 
             verify(bankAccountRepositoryMock, Mockito.times(1))
                     .findById(bankTransferDTOToCreate.getBankAccountId());
@@ -323,7 +323,7 @@ class BankTransferServiceTest {
             Exception exception =
                     assertThrows(PMBException.class,
                             () -> bankTransferService.getAllBankTransfersForUser(UserTestConstants.UNKNOWN_USER_ID));
-            assertThat(exception.getMessage()).contains(PMBExceptionConstants.DOES_NOT_EXISTS_USER);
+            assertEquals(PMBExceptionConstants.DOES_NOT_EXISTS_USER, exception.getMessage());
 
             verify(userRepositoryMock, Mockito.times(1))
                     .findById(UserTestConstants.UNKNOWN_USER_ID);
@@ -341,8 +341,7 @@ class BankTransferServiceTest {
             Exception exception =
                     assertThrows(PMBException.class,
                             () -> bankTransferService.getAllBankTransfersForUser(null));
-            assertThat(exception.getMessage())
-                    .contains(PMBExceptionConstants.MISSING_INFORMATION_LIST_BANK_TRANSFER);
+            assertEquals(PMBExceptionConstants.MISSING_INFORMATION_LIST_BANK_TRANSFER, exception.getMessage());
 
             verify(userRepositoryMock, Mockito.times(0))
                     .findById(anyLong());

@@ -35,8 +35,8 @@ public class BankTransferService implements IBankTransferService {
     private final UserRepository userRepository;
 
     @Autowired
-    BankTransferService(BankTransferRepository bankTransferRepository,
-                        BankAccountRepository bankAccountRepository, UserRepository userRepository) {
+    public BankTransferService(BankTransferRepository bankTransferRepository,
+                               BankAccountRepository bankAccountRepository, UserRepository userRepository) {
         this.bankTransferRepository = bankTransferRepository;
         this.bankAccountRepository = bankAccountRepository;
         this.userRepository = userRepository;
@@ -101,7 +101,7 @@ public class BankTransferService implements IBankTransferService {
             // avant mappage inverse du DAO dans le DTO
             createdBankTransferDTO =
                     Optional.ofNullable(modelMapper.map(createdBankTransfer, BankTransferDTO.class));
-            log.info(LogConstants.CREATE_BANK_TRANSFER_OK + bankTransferDTOToCreate.getBankTransferId());
+            log.info(LogConstants.CREATE_BANK_TRANSFER_OK + createdBankTransferDTO.orElse(null).getBankTransferId());
         }
 
         return createdBankTransferDTO;
@@ -149,7 +149,7 @@ public class BankTransferService implements IBankTransferService {
         if (!bankTransferDTOToCreate.isValid()) {
             log.error(LogConstants.CREATE_BANK_TRANSFER_ERROR
                     + PMBExceptionConstants.MISSING_INFORMATION_NEW_BANK_TRANSFER
-                    + "for: " + bankTransferDTOToCreate.getBankAccountId()
+                    + " for: " + bankTransferDTOToCreate.getBankAccountId()
                     + " // " + bankTransferDTOToCreate.getDescription());
             throw new PMBException(PMBExceptionConstants.MISSING_INFORMATION_NEW_BANK_TRANSFER);
 
@@ -158,16 +158,15 @@ public class BankTransferService implements IBankTransferService {
         //vérifie que le type de transfert est valide
         if (!bankTransferDTOToCreate.typeIsValid()) {
             log.error(LogConstants.CREATE_BANK_TRANSFER_ERROR
-                    + PMBExceptionConstants.INVALID_BANK_TRANSFER_TYPE + bankTransferDTOToCreate.getBankAccountId());
-            throw new PMBException(PMBExceptionConstants.INVALID_BANK_TRANSFER_TYPE + bankTransferDTOToCreate.getType());
+                    + PMBExceptionConstants.INVALID_BANK_TRANSFER_TYPE + " for: " + bankTransferDTOToCreate.getBankAccountId());
+            throw new PMBException(PMBExceptionConstants.INVALID_BANK_TRANSFER_TYPE);
         }
 
         //vérifie que le compte bancaire associé existe bien
         if (!bankAccount.isPresent()) {
             log.error(LogConstants.CREATE_BANK_TRANSFER_ERROR
-                    + PMBExceptionConstants.DOES_NOT_EXISTS_BANK_ACCOUNT + bankTransferDTOToCreate.getBankAccountId());
-            throw new PMBException(PMBExceptionConstants.DOES_NOT_EXISTS_BANK_ACCOUNT
-                    + bankTransferDTOToCreate.getBankAccountId());
+                    + PMBExceptionConstants.DOES_NOT_EXISTS_BANK_ACCOUNT + " for: " + bankTransferDTOToCreate.getBankAccountId());
+            throw new PMBException(PMBExceptionConstants.DOES_NOT_EXISTS_BANK_ACCOUNT);
 
         }
 
@@ -175,8 +174,8 @@ public class BankTransferService implements IBankTransferService {
         if (bankTransferDTOToCreate.getType() == BankTransferTypes.DEBIT
                 && bankAccount.get().getUser().getBalance().compareTo(bankTransferDTOToCreate.getAmount()) < 0) {
             log.error(LogConstants.CREATE_BANK_TRANSFER_ERROR
-                    + PMBExceptionConstants.INSUFFICIENT_BALANCE + bankAccount.get().getUser().getUserId());
-            throw new PMBException(PMBExceptionConstants.INSUFFICIENT_BALANCE + bankAccount.get().getUser().getUserId());
+                    + PMBExceptionConstants.INSUFFICIENT_BALANCE + "for : " + bankAccount.get().getUser().getUserId());
+            throw new PMBException(PMBExceptionConstants.INSUFFICIENT_BALANCE);
         }
 
         return true;
@@ -203,8 +202,8 @@ public class BankTransferService implements IBankTransferService {
         //vérifie que l'utilisateur existe
         if (!user.isPresent()) {
             log.error(LogConstants.LIST_BANK_TRANSFER_ERROR
-                    + PMBExceptionConstants.DOES_NOT_EXISTS_USER + userId);
-            throw new PMBException(PMBExceptionConstants.DOES_NOT_EXISTS_USER + userId);
+                    + PMBExceptionConstants.DOES_NOT_EXISTS_USER + " for: " + userId);
+            throw new PMBException(PMBExceptionConstants.DOES_NOT_EXISTS_USER);
         }
         return true;
     }
