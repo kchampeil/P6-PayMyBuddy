@@ -7,7 +7,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
@@ -23,16 +22,16 @@ public class TransactionDTO {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime date;
 
-    @NotBlank
+    @NotBlank(message = "Transaction description must be specified")
     @Size(max = 128)
     private String description;
 
-    @DecimalMin(value = "0.00", inclusive = false)
+    @DecimalMin(value = "0.00", inclusive = false, message = "An amount must be specified")
     private BigDecimal amountFeeExcluded = BigDecimal.ZERO;
 
     private BigDecimal feeAmount = BigDecimal.ZERO;
 
-    @NotNull
+    @NotNull(message = "A contact must be specified")
     private Long relationshipId;
 
     private String friendFirstname;

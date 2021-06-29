@@ -7,8 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.lang3.EnumUtils;
 
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
 @Getter
@@ -17,11 +16,11 @@ import javax.validation.constraints.Size;
 public class BankAccountDTO {
     private Long bankAccountId;
 
-    @NotEmpty
+    @NotBlank(message = "The IBAN must be specified")
     @Size(max = 34)
     private String iban;
 
-    @NotEmpty
+    @NotBlank(message = "The account name must be specified")
     @Size(max = 64)
     private String name;
 

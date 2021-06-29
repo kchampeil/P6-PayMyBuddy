@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import javax.validation.constraints.Email;
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 
@@ -15,21 +15,21 @@ import java.math.BigDecimal;
 public class UserDTO {
     private Long userId;
 
-    @NotEmpty(message = "Email should not be empty")
+    @NotBlank(message = "Email should not be empty")
     @Size(max = 256)
     @Email
     private String email;
 
-    @NotEmpty(message = "Firstname should not be empty")
+    @NotBlank(message = "Firstname should not be empty")
     @Size(max = 64)
     private String firstname;
 
-    @NotEmpty(message = "Lastname should not be empty")
+    @NotBlank(message = "Lastname should not be empty")
     @Size(max = 64)
     private String lastname;
 
     //TODO à voir car pas à renvoyer ou pas en clair ?
-    @NotEmpty(message = "Password should not be empty")
+    @NotBlank(message = "Password should not be empty")
     @Size(min = 7, max = 64, message = "Password length must be between 7 and 64 characters")
     private String password;
 

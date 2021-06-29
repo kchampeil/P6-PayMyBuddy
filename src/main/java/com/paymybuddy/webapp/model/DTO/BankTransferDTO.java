@@ -20,16 +20,16 @@ import java.time.LocalDateTime;
 public class BankTransferDTO {
     private Long bankTransferId;
 
-    @NotNull
+    @NotNull(message = "A bank account must be specified")
     private Long bankAccountId;
 
-    @DecimalMin(value = "0.00", inclusive = false)
+    @DecimalMin(value = "0.00", inclusive = false, message = "An amount must be specified")
     private BigDecimal amount = BigDecimal.ZERO;
 
     //TODO à voir @NotEmpty
     private BankTransferTypes type;
 
-    @NotBlank
+    @NotBlank(message = "Bank transfer description must be specified")
     @Size(max = 128)
     private String description;
 
