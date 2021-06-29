@@ -86,7 +86,7 @@ public class UserServiceIT {
             userDTOToCreate.setEmail(existingUser.getEmail());
 
             Exception exception = assertThrows(PMBException.class, () -> userService.createUser(userDTOToCreate));
-            assertThat(exception.getMessage()).contains(PMBExceptionConstants.ALREADY_EXIST_USER);
+            assertEquals(PMBExceptionConstants.ALREADY_EXIST_USER, exception.getMessage());
 
             Optional<User> userWithDefinedEmail = userRepository.findByEmailIgnoreCase(userDTOToCreate.getEmail());
             assertThat(userWithDefinedEmail).isPresent();

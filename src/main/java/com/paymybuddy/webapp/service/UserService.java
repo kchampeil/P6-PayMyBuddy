@@ -133,14 +133,14 @@ public class UserService implements IUserService {
         // vérifie que l email est valide
         if (!userDTOToCreate.hasValidEmail()) {
             log.error(LogConstants.CREATE_USER_ERROR
-                    + PMBExceptionConstants.INVALID_USER_EMAIL + userDTOToCreate.getEmail());
+                    + PMBExceptionConstants.INVALID_USER_EMAIL + " for: " + userDTOToCreate.getEmail());
             throw new PMBException(PMBExceptionConstants.INVALID_USER_EMAIL);
         }
 
         // vérifie que l utilisateur n existe pas déjà (email identique)
         if (userRepository.findByEmailIgnoreCase(userDTOToCreate.getEmail()).isPresent()) {
             log.error(LogConstants.CREATE_USER_ERROR
-                    + PMBExceptionConstants.ALREADY_EXIST_USER + userDTOToCreate.getEmail());
+                    + PMBExceptionConstants.ALREADY_EXIST_USER + " for: " + userDTOToCreate.getEmail());
             throw new PMBException(PMBExceptionConstants.ALREADY_EXIST_USER);
         }
 

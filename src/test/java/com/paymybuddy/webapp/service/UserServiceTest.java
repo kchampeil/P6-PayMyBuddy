@@ -81,6 +81,7 @@ class UserServiceTest {
             assertEquals(userDTOToCreate.getEmail(), createdUserDTO.get().getEmail());
             assertEquals(userDTOToCreate.getFirstname(), createdUserDTO.get().getFirstname());
             assertEquals(userDTOToCreate.getLastname(), createdUserDTO.get().getLastname());
+
             verify(userRepositoryMock, Mockito.times(1))
                     .findByEmailIgnoreCase(userDTOToCreate.getEmail());
             verify(userRepositoryMock, Mockito.times(1))
@@ -99,7 +100,8 @@ class UserServiceTest {
 
             //THEN
             Exception exception = assertThrows(PMBException.class, () -> userService.createUser(userDTOToCreate));
-            assertThat(exception.getMessage()).contains(PMBExceptionConstants.ALREADY_EXIST_USER);
+            assertEquals(PMBExceptionConstants.ALREADY_EXIST_USER, exception.getMessage());
+
             verify(userRepositoryMock, Mockito.times(1))
                     .findByEmailIgnoreCase(userDTOToCreate.getEmail());
             verify(userRepositoryMock, Mockito.times(0)).save(any(User.class));
@@ -116,7 +118,8 @@ class UserServiceTest {
 
             //THEN
             Exception exception = assertThrows(PMBException.class, () -> userService.createUser(userDTOToCreate));
-            assertThat(exception.getMessage()).contains(PMBExceptionConstants.MISSING_INFORMATION_NEW_USER);
+            assertEquals(PMBExceptionConstants.MISSING_INFORMATION_NEW_USER, exception.getMessage());
+
             verify(userRepositoryMock, Mockito.times(0))
                     .findByEmailIgnoreCase(userDTOToCreate.getEmail());
             verify(userRepositoryMock, Mockito.times(0)).save(any(User.class));
@@ -133,7 +136,8 @@ class UserServiceTest {
 
             //THEN
             Exception exception = assertThrows(PMBException.class, () -> userService.createUser(userDTOToCreate));
-            assertThat(exception.getMessage()).contains(PMBExceptionConstants.INVALID_USER_EMAIL);
+            assertEquals(PMBExceptionConstants.INVALID_USER_EMAIL, exception.getMessage());
+
             verify(userRepositoryMock, Mockito.times(0))
                     .findByEmailIgnoreCase(userDTOToCreate.getEmail());
             verify(userRepositoryMock, Mockito.times(0)).save(any(User.class));
@@ -208,7 +212,7 @@ class UserServiceTest {
             //THEN
             Exception exception = assertThrows(PMBException.class,
                     () -> userService.getUserDTOByEmail(null));
-            assertThat(exception.getMessage()).contains(PMBExceptionConstants.MISSING_INFORMATION_GETTING_USER);
+            assertEquals(PMBExceptionConstants.MISSING_INFORMATION_GETTING_USER, exception.getMessage());
 
             verify(userRepositoryMock, Mockito.times(0))
                     .findByEmailIgnoreCase(UserTestConstants.EXISTING_USER_EMAIL);

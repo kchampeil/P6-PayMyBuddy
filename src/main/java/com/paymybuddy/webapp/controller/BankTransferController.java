@@ -49,8 +49,6 @@ public class BankTransferController {
         loadNeededLists(model, BouchonConstants.USER_BOUCHON);
         //TODO récupérer et afficher la balance du compte ?
 
-        model.addAttribute("typeOfTransferList", BankTransferTypes.values());
-
         return ViewNameConstants.BANK_TRANSFER_HOME;
     }
 
@@ -69,6 +67,7 @@ public class BankTransferController {
         if (bindingResult.hasErrors()) {
             log.error(LogConstants.ADD_BANK_TRANSFER_REQUEST_NOT_VALID + "\n");
 
+            System.out.println("====================" + bindingResult.getAllErrors());//TTR
             loadNeededLists(model, BouchonConstants.USER_BOUCHON);//TODO-débouchonnage
             return ViewNameConstants.BANK_TRANSFER_HOME;
         }
@@ -113,10 +112,12 @@ public class BankTransferController {
 
 
     /**
-     * charge toutes les listes utiles (liste des comptes bancaires, liste des transferts bancaires)
+     * charge toutes les listes utiles (liste des comptes bancaires, liste des transferts bancaires, etc.)
      * pour l'utilisateur en cours et les ajoute au modèle
      */
     private void loadNeededLists(Model model, Long userId) throws PMBException {
+        model.addAttribute("typeOfTransferList", BankTransferTypes.values());
+
         List<BankAccountDTO> bankAccountDTOList = bankAccountService.getAllBankAccountsForUser(userId);
         model.addAttribute("bankAccountDTOList", bankAccountDTOList);
 

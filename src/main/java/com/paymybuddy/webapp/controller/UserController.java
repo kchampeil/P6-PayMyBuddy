@@ -74,8 +74,8 @@ public class UserController {
         } catch (PMBException pmbException) {
             log.error(LogConstants.USER_REGISTRATION_REQUEST_KO + ": " + pmbException.getMessage() + " \n");
 
-            if (pmbException.getMessage().contains(PMBExceptionConstants.ALREADY_EXIST_USER)) {
-                bindingResult.rejectValue("email", "registrationForm.userDTO.email.alreadyExists", pmbException.getMessage());
+            if (pmbException.getMessage().equals(PMBExceptionConstants.ALREADY_EXIST_USER)) {
+                bindingResult.rejectValue("email", "registrationForm.userDTO.email.alreadyExists");
             }
             return ViewNameConstants.USER_REGISTRATION;
         }

@@ -165,7 +165,7 @@ class RelationshipServiceTest {
             //THEN
             Exception exception = assertThrows(PMBException.class,
                     () -> relationshipService.createRelationship(relationshipDTOToCreate));
-            assertThat(exception.getMessage()).contains(PMBExceptionConstants.MISSING_INFORMATION_NEW_RELATIONSHIP);
+            assertEquals(PMBExceptionConstants.MISSING_INFORMATION_NEW_RELATIONSHIP, exception.getMessage());
 
             verify(userRepositoryMock, Mockito.times(0))
                     .findById(null);
@@ -348,7 +348,7 @@ class RelationshipServiceTest {
             //THEN
             Exception exception = assertThrows(PMBException.class,
                     () -> relationshipService.getAllRelationshipsForUser(null));
-            assertThat(exception.getMessage()).contains(PMBExceptionConstants.MISSING_INFORMATION_LIST_RELATIONSHIP);
+            assertEquals(PMBExceptionConstants.MISSING_INFORMATION_LIST_RELATIONSHIP, exception.getMessage());
 
             verify(userRepositoryMock, Mockito.times(0))
                     .findById(anyLong());

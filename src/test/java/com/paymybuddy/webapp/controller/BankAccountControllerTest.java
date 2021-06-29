@@ -80,7 +80,7 @@ class BankAccountControllerTest {
         @DisplayName("GIVEN a new bank account to add with missing name" +
                 "WHEN processing a POST /addBankAccount request for this bank account " +
                 "THEN the returned code is ok " +
-                "AND the expected view is the registration form filled with entered bank account")
+                "AND the expected view is the bank account page filled with entered bank account")
         void addBankAccountTest_WithMissingInformation() throws Exception {
             //GIVEN
             when(bankAccountServiceMock.createBankAccount(any(BankAccountDTO.class)))
@@ -102,7 +102,7 @@ class BankAccountControllerTest {
         @DisplayName("GIVEN a bank account already present in bank account list " +
                 "WHEN processing a POST /addBankAccount request for this bank account " +
                 "THEN the returned code is ok " +
-                "AND the expected view is the registration form filled with bank account " +
+                "AND the expected view is the bank account page filled with bank account " +
                 "AND an 'already exists' error is shown")
         void addBankAccountTest_WithAlreadyExistingBankAccount() throws Exception {
             //GIVEN
@@ -124,7 +124,7 @@ class BankAccountControllerTest {
         @DisplayName("GIVEN a bank account with an invalid iban " +
                 "WHEN processing a POST /addBankAccount request for this bank account " +
                 "THEN the returned code is ok " +
-                "AND the expected view is the registration form filled with bank account " +
+                "AND the expected view is the bank account page filled with bank account " +
                 "AND an 'invalid iban' error is shown")
         void addBankAccountTest_WithInvalidIban() throws Exception {
             //GIVEN

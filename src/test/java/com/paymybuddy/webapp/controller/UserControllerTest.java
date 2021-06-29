@@ -116,8 +116,7 @@ class UserControllerTest {
         void registerUserTest_WithAlreadyExistingEmail() throws Exception {
             //GIVEN
             when(userServiceMock.createUser(any(UserDTO.class)))
-                    .thenThrow(new PMBException(PMBExceptionConstants.ALREADY_EXIST_USER
-                            + UserTestConstants.EXISTING_USER_EMAIL));
+                    .thenThrow(new PMBException(PMBExceptionConstants.ALREADY_EXIST_USER));
 
             //THEN
             mockMvc.perform(post("/registerUser")
