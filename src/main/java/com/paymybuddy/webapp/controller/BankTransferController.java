@@ -67,7 +67,6 @@ public class BankTransferController {
         if (bindingResult.hasErrors()) {
             log.error(LogConstants.ADD_BANK_TRANSFER_REQUEST_NOT_VALID + "\n");
 
-            System.out.println("====================" + bindingResult.getAllErrors());//TTR
             loadNeededLists(model, BouchonConstants.USER_BOUCHON);//TODO-débouchonnage
             return ViewNameConstants.BANK_TRANSFER_HOME;
         }

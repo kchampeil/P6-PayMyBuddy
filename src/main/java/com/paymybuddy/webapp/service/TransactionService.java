@@ -60,7 +60,6 @@ public class TransactionService implements ITransactionService {
         Optional<TransactionDTO> createdTransactionDTO = Optional.empty();
 
         Optional<Relationship> relationship = relationshipRepository.findById(transactionDTOToCreate.getRelationshipId());
-        System.out.println("================RS: "+ transactionDTOToCreate.getRelationshipId());
 
         //calcule le montant des frais de transaction à appliquer
         BigDecimal feeAmountToAdd = transactionDTOToCreate.getAmountFeeExcluded()

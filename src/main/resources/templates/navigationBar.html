@@ -1,16 +1,18 @@
-<nav class="navbar navbar-expand-md navbar-light">
-    <a class="navbar-brand" href="/">
-        <img src="./img/PMB_logo.png" width="144" height="41" alt="PMB logo">
-    </a>
+<nav class="navbar navbar-expand navbar-light justify-content-between">
+    <div>
+        <a class="navbar-brand" href="/">
+            <img src="./img/PMB_logo.png" width="144" height="41" alt="PMB logo">
+        </a>
+    </div>
     <div class="navbar-nav mr-auto">
-        <!--TODO voir pourquoi ne s'aligne pas à droite : https://mdbootstrap.com/docs/standard/navigation/navbar/ ou justify-content-end ou float-right?-->
+        <!--TODO voir pourquoi ne s'aligne pas à droite : https://mdbootstrap.com/docs/standard/navigation/navbar/
+        ou justify-content-end ou float-right
+        ou https://stackoverflow.com/questions/19733447/bootstrap-navbar-with-left-center-or-right-aligned-items ?-->
         <a class="nav-item nav-link" th:href="@{/homeUser}">Home</a>
         <a class="nav-item nav-link" th:href="@{/transfer}">Transfer</a>
         <a class="nav-item nav-link" th:href="@{/profile}">Profile</a>
         <a class="nav-item nav-link" th:href="@{/contact}">Contact</a>
         <a class="nav-item nav-link" th:href="@{/logoffUser}">Log off</a>
     </div>
-    <!-- TODO voir ici pour le breacrumb home/transfer https://mdbootstrap.com/docs/standard/navigation/navbar/
-    https://getbootstrap.com/docs/4.0/components/breadcrumb/ -->
 </nav>
 
