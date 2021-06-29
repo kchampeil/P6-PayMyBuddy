@@ -93,6 +93,7 @@ public class RelationshipController {
                     break;
                 default:
                     bindingResult.rejectValue("friendEmail", "contact.RelationshipDTO.email.other.error");
+                    break;
             }
         }
 

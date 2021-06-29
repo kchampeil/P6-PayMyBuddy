@@ -37,8 +37,8 @@ public class TransactionService implements ITransactionService {
     private final UserRepository userRepository;
 
     @Autowired
-    TransactionService(TransactionRepository transactionRepository,
-                       RelationshipRepository relationshipRepository, UserRepository userRepository) {
+    public TransactionService(TransactionRepository transactionRepository,
+                              RelationshipRepository relationshipRepository, UserRepository userRepository) {
         this.transactionRepository = transactionRepository;
         this.relationshipRepository = relationshipRepository;
         this.userRepository = userRepository;
@@ -60,6 +60,7 @@ public class TransactionService implements ITransactionService {
         Optional<TransactionDTO> createdTransactionDTO = Optional.empty();
 
         Optional<Relationship> relationship = relationshipRepository.findById(transactionDTOToCreate.getRelationshipId());
+        System.out.println("================RS: "+ transactionDTOToCreate.getRelationshipId());
 
         //calcule le montant des frais de transaction à appliquer
         BigDecimal feeAmountToAdd = transactionDTOToCreate.getAmountFeeExcluded()
@@ -107,7 +108,7 @@ public class TransactionService implements ITransactionService {
             createdTransactionDTO =
                     Optional.ofNullable(modelMapper.map(createdTransaction, TransactionDTO.class));
 
-            log.info(LogConstants.CREATE_TRANSACTION_OK + transactionDTOToCreate.getTransactionId());
+            log.info(LogConstants.CREATE_TRANSACTION_OK + createdTransactionDTO.orElse(null).getTransactionId());
         }
         return createdTransactionDTO;
     }
@@ -126,11 +127,11 @@ public class TransactionService implements ITransactionService {
         List<TransactionDTO> transactionDTOList = new ArrayList<>();
 
         if (checksBeforeGettingTransactions(userId)) {
-            List<Transaction> transactionList = transactionRepository.findAllByRelationship_User_UserId(userId);
-            ModelMapper modelMapper = new ModelMapper();
+            List<Transaction> transactionList = transactionRepository.findAllByRelationship_User_UserIdOrderByDateDesc(userId);
             transactionList.forEach(transaction ->
                     transactionDTOList
-                            .add(modelMapper.map(transaction, TransactionDTO.class)));
+                            .add(mapTransactionToTransactionDTO(transaction)));
+
             log.info(LogConstants.LIST_TRANSACTION_OK + transactionDTOList.size());
         }
 
@@ -149,12 +150,13 @@ public class TransactionService implements ITransactionService {
      *                      ou que le compte utilisateur n'est pas suffisamment créditeur
      *                      pour couvrir la transaction et les frais
      */
-    private boolean checksBeforeCreatingTransaction(TransactionDTO transactionDTOToCreate, Optional<Relationship> relationship) throws PMBException {
+    private boolean checksBeforeCreatingTransaction(TransactionDTO transactionDTOToCreate,
+                                                    Optional<Relationship> relationship) throws PMBException {
         //vérifie qu il ne manque pas d informations
         if (!transactionDTOToCreate.isValid()) {
             log.error(LogConstants.CREATE_TRANSACTION_ERROR
                     + PMBExceptionConstants.MISSING_INFORMATION_NEW_TRANSACTION
-                    + "for: " + transactionDTOToCreate.getRelationshipId()
+                    + " for: " + transactionDTOToCreate.getRelationshipId()
                     + " // " + transactionDTOToCreate.getDescription());
             throw new PMBException(PMBExceptionConstants.MISSING_INFORMATION_NEW_TRANSACTION);
         }
@@ -162,10 +164,9 @@ public class TransactionService implements ITransactionService {
         //vérifie que la relation entre utilisateurs existe bien
         if (!relationship.isPresent()) {
             log.error(LogConstants.CREATE_TRANSACTION_ERROR
-                    + PMBExceptionConstants.DOES_NOT_EXISTS_RELATIONSHIP
+                    + PMBExceptionConstants.DOES_NOT_EXISTS_RELATIONSHIP + " for: "
                     + transactionDTOToCreate.getRelationshipId());
-            throw new PMBException(PMBExceptionConstants.DOES_NOT_EXISTS_RELATIONSHIP
-                    + transactionDTOToCreate.getRelationshipId());
+            throw new PMBException(PMBExceptionConstants.DOES_NOT_EXISTS_RELATIONSHIP);
         }
 
         //vérifie que le compte de l'utilisateur est suffisamment créditeur pour couvrir la transaction et les frais
@@ -174,8 +175,9 @@ public class TransactionService implements ITransactionService {
                         .add(transactionDTOToCreate.getFeeAmount())) < 0) {
 
             log.error(LogConstants.CREATE_TRANSACTION_ERROR
-                    + PMBExceptionConstants.INSUFFICIENT_BALANCE + relationship.get().getUser().getUserId());
-            throw new PMBException(PMBExceptionConstants.INSUFFICIENT_BALANCE + relationship.get().getUser().getUserId());
+                    + PMBExceptionConstants.INSUFFICIENT_BALANCE + " for: "
+                    + relationship.get().getUser().getUserId());
+            throw new PMBException(PMBExceptionConstants.INSUFFICIENT_BALANCE);
         }
 
         return true;
@@ -202,10 +204,27 @@ public class TransactionService implements ITransactionService {
         //vérifie que l'utilisateur existe
         if (!user.isPresent()) {
             log.error(LogConstants.LIST_TRANSACTION_ERROR
-                    + PMBExceptionConstants.DOES_NOT_EXISTS_USER + userId);
-            throw new PMBException(PMBExceptionConstants.DOES_NOT_EXISTS_USER + userId);
+                    + PMBExceptionConstants.DOES_NOT_EXISTS_USER + " for: " + userId);
+            throw new PMBException(PMBExceptionConstants.DOES_NOT_EXISTS_USER);
         }
 
         return true;
+    }
+
+
+    /**
+     * mappe les informations Transaction et Relationship vers TransactionDTO
+     *
+     * @param transaction transaction information to be mapped to personInfoDTO
+     * @return a TransactionDTO
+     */
+    private TransactionDTO mapTransactionToTransactionDTO(Transaction transaction) {
+        ModelMapper modelMapper = new ModelMapper();
+        modelMapper.typeMap(Transaction.class, TransactionDTO.class).addMappings(mapper -> {
+            mapper.map(src -> src.getRelationship().getFriend().getFirstname(), TransactionDTO::setFriendFirstname);
+            mapper.map(src -> src.getRelationship().getFriend().getLastname(), TransactionDTO::setFriendLastname);
+        });
+
+        return modelMapper.map(transaction, TransactionDTO.class);
     }
 }

@@ -12,5 +12,5 @@ import java.util.Optional;
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
     Optional<Transaction> findByDateAndRelationship_RelationshipId(LocalDateTime date, Long relationshipId);
 
-    List<Transaction> findAllByRelationship_User_UserId(Long userId);
+    List<Transaction> findAllByRelationship_User_UserIdOrderByDateDesc(Long userId);
 }

@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -18,22 +20,24 @@ public class TransactionDTO {
 
     private Long transactionId;
 
-    @NotEmpty
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime date;
 
-    @NotEmpty
+    @NotBlank
     @Size(max = 128)
     private String description;
 
-    @NotNull
+    @DecimalMin(value = "0.00", inclusive = false)
     private BigDecimal amountFeeExcluded = BigDecimal.ZERO;
 
-    @NotNull
     private BigDecimal feeAmount = BigDecimal.ZERO;
 
-    @NotEmpty
+    @NotNull
     private Long relationshipId;
+
+    private String friendFirstname;
+
+    private String friendLastname;
 
     /**
      * vérifie si les informations contenues dans le transactionDTO sont complètes

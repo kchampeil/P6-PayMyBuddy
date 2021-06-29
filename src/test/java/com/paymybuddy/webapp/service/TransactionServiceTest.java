@@ -154,7 +154,7 @@ class TransactionServiceTest {
 
             //THEN
             Exception exception = assertThrows(PMBException.class, () -> transactionService.transferToFriend(transactionDTOToCreate));
-            assertThat(exception.getMessage()).contains(PMBExceptionConstants.INSUFFICIENT_BALANCE);
+            assertEquals(PMBExceptionConstants.INSUFFICIENT_BALANCE, exception.getMessage());
 
             verify(relationshipRepositoryMock, Mockito.times(1))
                     .findById(transactionDTOToCreate.getRelationshipId());
@@ -176,7 +176,7 @@ class TransactionServiceTest {
 
             //THEN
             Exception exception = assertThrows(PMBException.class, () -> transactionService.transferToFriend(transactionDTOToCreate));
-            assertThat(exception.getMessage()).contains(PMBExceptionConstants.DOES_NOT_EXISTS_RELATIONSHIP);
+            assertEquals(PMBExceptionConstants.DOES_NOT_EXISTS_RELATIONSHIP, exception.getMessage());
 
             verify(relationshipRepositoryMock, Mockito.times(1))
                     .findById(transactionDTOToCreate.getRelationshipId());
@@ -197,7 +197,7 @@ class TransactionServiceTest {
 
             //THEN
             Exception exception = assertThrows(PMBException.class, () -> transactionService.transferToFriend(transactionDTOToCreate));
-            assertThat(exception.getMessage()).contains(PMBExceptionConstants.MISSING_INFORMATION_NEW_TRANSACTION);
+            assertEquals(PMBExceptionConstants.MISSING_INFORMATION_NEW_TRANSACTION, exception.getMessage());
 
             verify(relationshipRepositoryMock, Mockito.times(1))
                     .findById(transactionDTOToCreate.getRelationshipId());
@@ -260,7 +260,7 @@ class TransactionServiceTest {
 
             when(userRepositoryMock.findById(userInDb.getUserId()))
                     .thenReturn(Optional.ofNullable(userInDb));
-            when(transactionRepositoryMock.findAllByRelationship_User_UserId(userInDb.getUserId()))
+            when(transactionRepositoryMock.findAllByRelationship_User_UserIdOrderByDateDesc(userInDb.getUserId()))
                     .thenReturn(transactionList);
 
             //THEN
@@ -270,7 +270,7 @@ class TransactionServiceTest {
 
             verify(userRepositoryMock, Mockito.times(1)).findById(userInDb.getUserId());
             verify(transactionRepositoryMock, Mockito.times(1))
-                    .findAllByRelationship_User_UserId(userInDb.getUserId());
+                    .findAllByRelationship_User_UserIdOrderByDateDesc(userInDb.getUserId());
         }
 
 
@@ -284,7 +284,7 @@ class TransactionServiceTest {
 
             when(userRepositoryMock.findById(userInDb.getUserId()))
                     .thenReturn(Optional.ofNullable(userInDb));
-            when(transactionRepositoryMock.findAllByRelationship_User_UserId(userInDb.getUserId()))
+            when(transactionRepositoryMock.findAllByRelationship_User_UserIdOrderByDateDesc(userInDb.getUserId()))
                     .thenReturn(transactionList);
 
             //THEN
@@ -293,7 +293,7 @@ class TransactionServiceTest {
 
             verify(userRepositoryMock, Mockito.times(1)).findById(userInDb.getUserId());
             verify(transactionRepositoryMock, Mockito.times(1))
-                    .findAllByRelationship_User_UserId(userInDb.getUserId());
+                    .findAllByRelationship_User_UserIdOrderByDateDesc(userInDb.getUserId());
         }
 
 
@@ -310,12 +310,12 @@ class TransactionServiceTest {
             Exception exception =
                     assertThrows(PMBException.class,
                             () -> transactionService.getAllTransactionsForUser(UserTestConstants.UNKNOWN_USER_ID));
-            assertThat(exception.getMessage()).contains(PMBExceptionConstants.DOES_NOT_EXISTS_USER);
+            assertEquals(PMBExceptionConstants.DOES_NOT_EXISTS_USER, exception.getMessage());
 
             verify(userRepositoryMock, Mockito.times(1))
                     .findById(UserTestConstants.UNKNOWN_USER_ID);
             verify(transactionRepositoryMock, Mockito.times(0))
-                    .findAllByRelationship_User_UserId(UserTestConstants.UNKNOWN_USER_ID);
+                    .findAllByRelationship_User_UserIdOrderByDateDesc(UserTestConstants.UNKNOWN_USER_ID);
         }
 
 
@@ -328,13 +328,12 @@ class TransactionServiceTest {
             Exception exception =
                     assertThrows(PMBException.class,
                             () -> transactionService.getAllTransactionsForUser(null));
-            assertThat(exception.getMessage())
-                    .contains(PMBExceptionConstants.MISSING_INFORMATION_LIST_TRANSACTION);
+            assertEquals(PMBExceptionConstants.MISSING_INFORMATION_LIST_TRANSACTION, exception.getMessage());
 
             verify(userRepositoryMock, Mockito.times(0))
                     .findById(anyLong());
             verify(transactionRepositoryMock, Mockito.times(0))
-                    .findAllByRelationship_User_UserId(anyLong());
+                    .findAllByRelationship_User_UserIdOrderByDateDesc(anyLong());
         }
     }
 }

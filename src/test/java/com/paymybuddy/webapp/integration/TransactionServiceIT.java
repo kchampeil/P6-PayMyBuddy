@@ -154,7 +154,7 @@ public class TransactionServiceIT {
             //test
             Exception exception = assertThrows(PMBException.class,
                     () -> transactionService.transferToFriend(transactionDTOToCreate));
-            assertThat(exception.getMessage()).contains(PMBExceptionConstants.INSUFFICIENT_BALANCE);
+            assertEquals(PMBExceptionConstants.INSUFFICIENT_BALANCE,exception.getMessage());
 
             Optional<Transaction> transactionCreated = transactionRepository
                     .findByDateAndRelationship_RelationshipId(

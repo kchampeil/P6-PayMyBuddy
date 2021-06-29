@@ -91,8 +91,10 @@ public class BankAccountController {
                     break;
                 case PMBExceptionConstants.MISSING_INFORMATION_NEW_BANK_ACCOUNT:
                     bindingResult.rejectValue("iban", "addBankAccount.BankAccountDTO.iban.or.name.missing.information");
+                    break;
                 default:
                     bindingResult.rejectValue("iban", "addBankAccount.BankAccountDTO.iban.other.error");
+                    break;
             }
         }
 
