@@ -51,7 +51,7 @@ public class RelationshipController {
     /**
      * ajouter une relation/connexion ami
      */
-    @PostMapping(value = "/addContact")
+    @PostMapping(value = "/contact")
     public String addRelationship(@ModelAttribute("relationshipDTO") @Valid RelationshipDTO relationshipDTOToAdd,
                                   BindingResult bindingResult, Model model) throws PMBException {
 

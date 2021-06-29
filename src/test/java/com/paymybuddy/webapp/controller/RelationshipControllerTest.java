@@ -50,7 +50,7 @@ class RelationshipControllerTest {
     class AddRelationshipTest {
         @Test
         @DisplayName("GIVEN a new relationship to register " +
-                "WHEN processing a POST /addContact request for this relationship " +
+                "WHEN processing a POST /contact request for this relationship " +
                 "THEN return status is ok " +
                 "AND the expected view is the contact page with relationship list updated")
         void addRelationshipTest_WithSuccess() throws Exception {
@@ -63,7 +63,7 @@ class RelationshipControllerTest {
                     .thenReturn(Optional.of(relationshipDTOAdded));
 
             //THEN
-            mockMvc.perform(post("/addContact")
+            mockMvc.perform(post("/contact")
                     .param("friendEmail", relationshipDTOAdded.getFriendEmail()))
                     .andExpect(status().isOk())
                     .andExpect(model().attributeExists("relationshipDTO"))
@@ -74,16 +74,16 @@ class RelationshipControllerTest {
 
         @Test
         @DisplayName("GIVEN a new relationship to register with missing email" +
-                "WHEN processing a POST /addContact request for this relationship " +
+                "WHEN processing a POST /contact request for this relationship " +
                 "THEN the returned code is ok " +
-                "AND the expected view is the registration form filled with entered friend email")
+                "AND the expected view is the contact page filled with entered friend email")
         void addRelationshipTest_WithMissingInformation() throws Exception {
             //GIVEN
             when(relationshipServiceMock.createRelationship(any(RelationshipDTO.class)))
                     .thenThrow(new PMBException(PMBExceptionConstants.MISSING_INFORMATION_NEW_RELATIONSHIP));
 
             //THEN
-            mockMvc.perform(post("/addContact")
+            mockMvc.perform(post("/contact")
                     .param("friendEmail", ""))
                     .andExpect(status().isOk())
                     .andExpect(model().attributeExists("relationshipDTO"))
@@ -95,9 +95,9 @@ class RelationshipControllerTest {
 
         @Test
         @DisplayName("GIVEN a friend email already present in relationship list " +
-                "WHEN processing a POST /addContact request for this friend email " +
+                "WHEN processing a POST /contact request for this friend email " +
                 "THEN the returned code is ok " +
-                "AND the expected view is the registration form filled with friend email " +
+                "AND the expected view is the contact page filled with friend email " +
                 "AND an 'already exists' error is shown")
         void addRelationshipTest_WithAlreadyExistingRelationship() throws Exception {
             //GIVEN
@@ -105,7 +105,7 @@ class RelationshipControllerTest {
                     .thenThrow(new PMBException(PMBExceptionConstants.ALREADY_EXIST_RELATIONSHIP));
 
             //THEN
-            mockMvc.perform(post("/addContact")
+            mockMvc.perform(post("/contact")
                     .param("friendEmail", UserTestConstants.EXISTING_USER_AS_FRIEND_EMAIL))
                     .andExpect(status().isOk())
                     .andExpect(model().attributeExists("relationshipDTO"))
@@ -114,13 +114,11 @@ class RelationshipControllerTest {
         }
 
 
-
-
         @Test
         @DisplayName("GIVEN a friend email not present in PMB " +
-                "WHEN processing a POST /addContact request for this friend email " +
+                "WHEN processing a POST /contact request for this friend email " +
                 "THEN the returned code is ok " +
-                "AND the expected view is the registration form filled with friend email " +
+                "AND the expected view is the contact page filled with friend email " +
                 "AND an 'does not exist' error is shown")
         void addRelationshipTest_WithUnknownFriendEmail() throws Exception {
             //GIVEN
@@ -128,7 +126,7 @@ class RelationshipControllerTest {
                     .thenThrow(new PMBException(PMBExceptionConstants.DOES_NOT_EXISTS_USER));
 
             //THEN
-            mockMvc.perform(post("/addContact")
+            mockMvc.perform(post("/contact")
                     .param("friendEmail", UserTestConstants.UNKNOWN_USER_EMAIL))
                     .andExpect(status().isOk())
                     .andExpect(model().attributeExists("relationshipDTO"))
@@ -139,9 +137,9 @@ class RelationshipControllerTest {
 
         @Test
         @DisplayName("GIVEN a friend email equals to current user email " +
-                "WHEN processing a POST /addContact request for this friend email " +
+                "WHEN processing a POST /contact request for this friend email " +
                 "THEN the returned code is ok " +
-                "AND the expected view is the registration form filled with friend email " +
+                "AND the expected view is the contact page filled with friend email " +
                 "AND an 'invalid email' error is shown")
         void addRelationshipTest_WithInvalidEmail() throws Exception {
             //GIVEN
@@ -149,7 +147,7 @@ class RelationshipControllerTest {
                     .thenThrow(new PMBException(PMBExceptionConstants.INVALID_FRIEND_EMAIL));
 
             //THEN
-            mockMvc.perform(post("/addContact")
+            mockMvc.perform(post("/contact")
                     .param("friendEmail", UserTestConstants.EXISTING_USER_EMAIL))
                     .andExpect(status().isOk())
                     .andExpect(model().attributeExists("relationshipDTO"))
