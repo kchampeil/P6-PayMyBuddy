@@ -4,6 +4,7 @@ import com.paymybuddy.webapp.constants.PMBExceptionConstants;
 import com.paymybuddy.webapp.constants.ViewNameConstants;
 import com.paymybuddy.webapp.exception.PMBException;
 import com.paymybuddy.webapp.model.DTO.BankAccountDTO;
+import com.paymybuddy.webapp.service.PMBUserDetailsService;
 import com.paymybuddy.webapp.service.contract.IBankAccountService;
 import com.paymybuddy.webapp.testconstants.BankAccountTestConstants;
 import com.paymybuddy.webapp.testconstants.UserTestConstants;
@@ -13,15 +14,19 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrlPattern;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
@@ -35,26 +40,51 @@ class BankAccountControllerTest {
     @MockBean
     private IBankAccountService bankAccountServiceMock;
 
-    @Test
-    @DisplayName("WHEN asking for the contact page" +
-            " THEN return status is ok and the expected view is the contact page")
-    void showHomeBankAccount() throws Exception {
-        mockMvc.perform(get("/addBankAccount"))
-                .andExpect(status().isOk())
-                .andExpect(model().attributeExists("bankAccountDTO"))
-                .andExpect(model().attributeExists("bankAccountDTOList"))
-                .andExpect(view().name(ViewNameConstants.BANK_ACCOUNT_HOME));
+    @MockBean
+    private PMBUserDetailsService pmbUserDetailsServiceMock;
+
+    @MockBean
+    private PasswordEncoder passwordEncoderMock;
+
+
+    @Nested
+    @DisplayName("showHomeBankAccount tests")
+    class ShowHomeBankAccountTest {
+
+        @WithMockUser
+        @Test
+        @DisplayName("WHEN asking for the bank account page while logged in " +
+                " THEN return status is ok and the expected view is the bank account page")
+        void showHomeBankAccountTest_LoggedIn() throws Exception {
+            mockMvc.perform(get("/addBankAccount"))
+                    .andExpect(status().isOk())
+                    .andExpect(model().attributeExists("bankAccountDTO"))
+                    .andExpect(model().attributeExists("bankAccountDTOList"))
+                    .andExpect(view().name(ViewNameConstants.BANK_ACCOUNT_HOME));
+        }
+
+
+        @Test
+        @DisplayName("WHEN asking for the bank account page while not logged in " +
+                " THEN return status is 302 and the expected view is the login page")
+        void showHomeBankAccountTest_NotLoggedIn() throws Exception {
+            mockMvc.perform(get("/addBankAccount"))
+                    .andExpect(status().isFound())
+                    .andExpect(redirectedUrlPattern("**/" + ViewNameConstants.USER_LOGIN));
+        }
     }
 
 
     @Nested
     @DisplayName("addBankAccount tests")
     class AddBankAccountTest {
+
+        @WithMockUser
         @Test
         @DisplayName("GIVEN a new bank account to add " +
                 "WHEN processing a POST /addBankAccount request for this bank account " +
                 "THEN return status is ok " +
-                "AND the expected view is the contact page with bank account list updated")
+                "AND the expected view is the bank account page with bank account list updated")
         void addBankAccountTest_WithSuccess() throws Exception {
             //GIVEN
             BankAccountDTO bankAccountDTOAdded = new BankAccountDTO();
@@ -68,7 +98,8 @@ class BankAccountControllerTest {
             //THEN
             mockMvc.perform(post("/addBankAccount")
                     .param("iban", bankAccountDTOAdded.getIban())
-                    .param("name", bankAccountDTOAdded.getName()))
+                    .param("name", bankAccountDTOAdded.getName())
+                    .with(csrf()))
                     .andExpect(status().isOk())
                     .andExpect(model().attributeExists("bankAccountDTO"))
                     .andExpect(model().attributeExists("bankAccountDTOList"))
@@ -76,6 +107,7 @@ class BankAccountControllerTest {
         }
 
 
+        @WithMockUser
         @Test
         @DisplayName("GIVEN a new bank account to add with missing name" +
                 "WHEN processing a POST /addBankAccount request for this bank account " +
@@ -89,7 +121,8 @@ class BankAccountControllerTest {
             //THEN
             mockMvc.perform(post("/addBankAccount")
                     .param("iban", BankAccountTestConstants.NEW_BANK_ACCOUNT_IBAN)
-                    .param("name", ""))
+                    .param("name", "")
+                    .with(csrf()))
                     .andExpect(status().isOk())
                     .andExpect(model().attributeExists("bankAccountDTO"))
                     .andExpect(model().hasErrors())
@@ -98,6 +131,7 @@ class BankAccountControllerTest {
         }
 
 
+        @WithMockUser
         @Test
         @DisplayName("GIVEN a bank account already present in bank account list " +
                 "WHEN processing a POST /addBankAccount request for this bank account " +
@@ -112,14 +146,19 @@ class BankAccountControllerTest {
             //THEN
             mockMvc.perform(post("/addBankAccount")
                     .param("iban", BankAccountTestConstants.EXISTING_BANK_ACCOUNT_IBAN)
-                    .param("name", BankAccountTestConstants.NEW_BANK_ACCOUNT_NAME))
+                    .param("name", BankAccountTestConstants.NEW_BANK_ACCOUNT_NAME)
+                    .with(csrf()))
                     .andExpect(status().isOk())
                     .andExpect(model().attributeExists("bankAccountDTO"))
-                    .andExpect(model().attributeHasFieldErrorCode("bankAccountDTO", "iban", "addBankAccount.BankAccountDTO.iban.alreadyExists"))
+                    .andExpect(model().attributeHasFieldErrorCode(
+                            "bankAccountDTO",
+                            "iban",
+                            "addBankAccount.BankAccountDTO.iban.alreadyExists"))
                     .andExpect(view().name(ViewNameConstants.BANK_ACCOUNT_HOME));
         }
 
 
+        @WithMockUser
         @Test
         @DisplayName("GIVEN a bank account with an invalid iban " +
                 "WHEN processing a POST /addBankAccount request for this bank account " +
@@ -134,10 +173,14 @@ class BankAccountControllerTest {
             //THEN
             mockMvc.perform(post("/addBankAccount")
                     .param("iban", BankAccountTestConstants.NEW_BANK_ACCOUNT_INVALID_IBAN)
-                    .param("name", BankAccountTestConstants.NEW_BANK_ACCOUNT_NAME))
+                    .param("name", BankAccountTestConstants.NEW_BANK_ACCOUNT_NAME)
+                    .with(csrf()))
                     .andExpect(status().isOk())
                     .andExpect(model().attributeExists("bankAccountDTO"))
-                    .andExpect(model().attributeHasFieldErrorCode("bankAccountDTO", "iban", "addBankAccount.BankAccountDTO.iban.invalid"))
+                    .andExpect(model().attributeHasFieldErrorCode(
+                            "bankAccountDTO",
+                            "iban",
+                            "addBankAccount.BankAccountDTO.iban.invalid"))
                     .andExpect(view().name(ViewNameConstants.BANK_ACCOUNT_HOME));
         }
     }

@@ -97,7 +97,7 @@ public class UserServiceIT {
         }
     }
 
-
+/*TODEL ?
     @Test
     @DisplayName("WHEN getting the user information for an existing user " +
             "THEN the user information in DB is returned")
@@ -121,4 +121,6 @@ public class UserServiceIT {
         //nettoyage de la DB en fin de test en supprimant l'utilisateur' créé par le test
         userRepository.deleteById(existingUser.getUserId());
     }
+
+ */
 }

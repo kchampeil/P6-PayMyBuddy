@@ -12,33 +12,36 @@
 <div class="container my-3">
     <div class="row">
         <div class="col-5 spacer mx-auto py-4 text-center border border-secondary border-2 rounded">
-            <!--TODO revoir les paddings-->
             <div class="mb-5"><img class="rounded" src="./img/PMB_logo.png" width="200" height="60"
                                    alt="PMB Logo"/>
             </div>
 
-            <form th:action="@{/logUser}">
-                <!--<form th:action="@{/logUser}" method="post" th:object="${user}">-->
+            <form class="form-signin" method="post" th:action="@{/login}">
+
+                <div th:if="${param.error}">
+                    <div class="alert alert-danger col-10 offset-1 mb-4 p-0">
+                        <span th:text="#{login.error}"></span>
+                        <br>
+                        <span th:text="#{login.error2}"></span>
+                    </div>
+                </div>
 
                 <div class="input-group col-10 offset-1 mb-4 p-0 border border-secondary border-3 rounded">
                     <div class="input-group-text bg-transparent border-0"><i class="bi-envelope"></i></div>
                     <label for="email" class="sr-only">Email</label>
-                    <input id="email" type="email" class="form-control border-white" placeholder="Email" required/>
-                    <!-- th:field="*{email}"/-->
+                    <input id="email" type="email" name="email" class="form-control border-white" placeholder="Email" required/>
                 </div>
                 <div class="input-group col-10 offset-1 mb-4 p-0 border border-secondary border-3 rounded">
                     <div class="input-group-text bg-transparent border-0"><i class="bi-asterisk"></i></div>
                     <label for="password" class="sr-only">Password</label>
-                    <input id="password" type="password" class="form-control border-white" placeholder="Password"
+                    <input id="password" type="password" name="password" class="form-control border-white" placeholder="Password"
                            required/>
-                    <!--th:field="*{password}"/-->
                 </div>
 
                 <div class="form-check mb-3">
-                    <label class="form-check-label" for="rememberMeChecked"></label>
-                    <input class="form-check-input" type="checkbox" value="remember-me" id="rememberMeChecked" checked/>
+                    <label for="remember-me" class="form-check-label"></label>
+                    <input id="remember-me" type="checkbox" name="remember-me" class="form-check-input" value="remember-me" checked/>
                     Remember me
-                    <!-- TODO th:checked="" -->
                 </div>
 
                 <button type="submit" class="btn btn-primary col-5 mt-5">Log in</button>

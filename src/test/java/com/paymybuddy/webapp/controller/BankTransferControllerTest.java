@@ -6,6 +6,7 @@ import com.paymybuddy.webapp.constants.PMBExceptionConstants;
 import com.paymybuddy.webapp.constants.ViewNameConstants;
 import com.paymybuddy.webapp.exception.PMBException;
 import com.paymybuddy.webapp.model.DTO.BankTransferDTO;
+import com.paymybuddy.webapp.service.PMBUserDetailsService;
 import com.paymybuddy.webapp.service.contract.IBankAccountService;
 import com.paymybuddy.webapp.service.contract.IBankTransferService;
 import com.paymybuddy.webapp.testconstants.BankAccountTestConstants;
@@ -17,6 +18,8 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Optional;
@@ -24,9 +27,11 @@ import java.util.Optional;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrlPattern;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
@@ -42,27 +47,51 @@ class BankTransferControllerTest {
     @MockBean
     private IBankAccountService bankAccountServiceMock;
 
+    @MockBean
+    private PMBUserDetailsService pmbUserDetailsServiceMock;
 
-    @Test
-    @DisplayName("WHEN asking for the profile page" +
-            " THEN return status is ok and the expected view is the profile page")
-    void showHomeBankTransferTest() throws Exception {
-        mockMvc.perform(get("/profile"))
-                .andExpect(status().isOk())
-                .andExpect(model().attributeExists("bankTransferDTO"))
-                .andExpect(model().attributeExists("bankTransferDTOList"))
-                .andExpect(view().name(ViewNameConstants.BANK_TRANSFER_HOME));
+    @MockBean
+    private PasswordEncoder passwordEncoderMock;
 
-        verify(bankAccountServiceMock, Mockito.times(1))
-                .getAllBankAccountsForUser(BouchonConstants.USER_BOUCHON);
-        verify(bankTransferServiceMock, Mockito.times(1))
-                .getAllBankTransfersForUser(BouchonConstants.USER_BOUCHON);
+
+    @Nested
+    @DisplayName("showHomeBankTransfer tests")
+    class ShowHomeBankTransferTest {
+
+        @WithMockUser
+        @Test
+        @DisplayName("WHEN asking for the profile page while logged in " +
+                " THEN return status is ok and the expected view is the profile page")
+        void showHomeBankTransferTest_LoggedIn() throws Exception {
+            mockMvc.perform(get("/profile"))
+                    .andExpect(status().isOk())
+                    .andExpect(model().attributeExists("bankTransferDTO"))
+                    .andExpect(model().attributeExists("bankTransferDTOList"))
+                    .andExpect(view().name(ViewNameConstants.BANK_TRANSFER_HOME));
+
+            verify(bankAccountServiceMock, Mockito.times(1))
+                    .getAllBankAccountsForUser(BouchonConstants.USER_BOUCHON);
+            verify(bankTransferServiceMock, Mockito.times(1))
+                    .getAllBankTransfersForUser(BouchonConstants.USER_BOUCHON);
+        }
+
+
+        @Test
+        @DisplayName("WHEN asking for the profile page while not logged in " +
+                " THEN return status is 302 and the expected view is the login page")
+        void showHomeBankTransferTest_NotLoggedIn() throws Exception {
+            mockMvc.perform(get("/profile"))
+                    .andExpect(status().isFound())
+                    .andExpect(redirectedUrlPattern("**/" + ViewNameConstants.USER_LOGIN));
+        }
     }
 
 
     @Nested
     @DisplayName("addBankTransfer tests")
     class AddBankTransferTest {
+
+        @WithMockUser
         @Test
         @DisplayName("GIVEN a new bank transfer to add " +
                 "WHEN processing a POST /addBankTransfer request for this bank transfer " +
@@ -84,7 +113,8 @@ class BankTransferControllerTest {
                     .param("bankAccountId", bankTransferDTOAdded.getBankAccountId().toString())
                     .param("amount", bankTransferDTOAdded.getAmount().toString())
                     .param("type", bankTransferDTOAdded.getType().toString())
-                    .param("description", bankTransferDTOAdded.getDescription()))
+                    .param("description", bankTransferDTOAdded.getDescription())
+                    .with(csrf()))
                     .andExpect(status().isOk())
                     .andExpect(model().attributeExists("bankTransferDTO"))
                     .andExpect(model().attributeExists("bankTransferDTOList"))
@@ -99,6 +129,7 @@ class BankTransferControllerTest {
         }
 
 
+        @WithMockUser
         @Test
         @DisplayName("GIVEN a new bank transfer to add with missing description " +
                 "WHEN processing a POST /addBankTransfer request for this bank transfer " +
@@ -114,7 +145,8 @@ class BankTransferControllerTest {
                     .param("bankAccountId", BankAccountTestConstants.EXISTING_BANK_ACCOUNT_ID.toString())
                     .param("amount", BankTransferTestConstants.NEW_BANK_TRANSFER_AMOUNT.toString())
                     .param("type", BankTransferTypes.DEBIT.toString())
-                    .param("description", ""))
+                    .param("description", "")
+                    .with(csrf()))
                     .andExpect(status().isOk())
                     .andExpect(model().attributeExists("bankTransferDTO"))
                     .andExpect(model().hasErrors())
@@ -130,6 +162,7 @@ class BankTransferControllerTest {
         }
 
 
+        @WithMockUser
         @Test
         @DisplayName("GIVEN a bank transfer with non existing bank account " +
                 "WHEN processing a POST /addBankTransfer request for this bank transfer " +
@@ -146,7 +179,8 @@ class BankTransferControllerTest {
                     .param("bankAccountId", BankAccountTestConstants.UNKNOWN_BANK_ACCOUNT_ID.toString())
                     .param("amount", BankTransferTestConstants.NEW_BANK_TRANSFER_AMOUNT.toString())
                     .param("type", BankTransferTypes.DEBIT.toString())
-                    .param("description", BankTransferTestConstants.NEW_BANK_TRANSFER_DESCRIPTION))
+                    .param("description", BankTransferTestConstants.NEW_BANK_TRANSFER_DESCRIPTION)
+                    .with(csrf()))
                     .andExpect(status().isOk())
                     .andExpect(model().attributeExists("bankTransferDTO"))
                     .andExpect(model().attributeHasFieldErrorCode("bankTransferDTO",
@@ -162,6 +196,7 @@ class BankTransferControllerTest {
         }
 
 
+        @WithMockUser
         @Test
         @DisplayName("GIVEN a bank transfer from PMB to bank with an amount greater than user balance " +
                 "WHEN processing a POST /addBankTransfer request for this bank transfer " +
@@ -178,7 +213,8 @@ class BankTransferControllerTest {
                     .param("bankAccountId", BankAccountTestConstants.EXISTING_BANK_ACCOUNT_ID.toString())
                     .param("amount", BankTransferTestConstants.NEW_BANK_TRANSFER_AMOUNT.toString())
                     .param("type", BankTransferTypes.DEBIT.toString())
-                    .param("description", BankTransferTestConstants.NEW_BANK_TRANSFER_DESCRIPTION))
+                    .param("description", BankTransferTestConstants.NEW_BANK_TRANSFER_DESCRIPTION)
+                    .with(csrf()))
                     .andExpect(status().isOk())
                     .andExpect(model().attributeExists("bankTransferDTO"))
                     .andExpect(model().attributeHasFieldErrorCode("bankTransferDTO",

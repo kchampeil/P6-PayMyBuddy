@@ -41,26 +41,34 @@ public class LogConstants {
     public static final String USER_REGISTRATION_REQUEST_NOT_VALID = "User information not valid";
 
     public static final String USER_PROFILE_REQUEST_RECEIVED = "GET request on endpoint /userProfile received for (ID): ";
-    public static final String USER_LOGIN_REQUEST_RECEIVED = "POST request on endpoint /logUser received for (email): ";
+    public static final String USER_LOGIN_REQUEST_RECEIVED = "POST request on endpoint /login received for (email): ";
 
+    public static final String GET_RELATIONSHIP_REQUEST_RECEIVED =
+            "GET request on endpoint /contact received for (userId): ";
     public static final String ADD_RELATIONSHIP_REQUEST_RECEIVED =
-            "POST request on endpoint /addContact received for (friend email): ";
+            "POST request on endpoint /contact received for (friend email): ";
     public static final String ADD_RELATIONSHIP_REQUEST_OK = "New relationship has been saved with id: ";
     public static final String ADD_RELATIONSHIP_REQUEST_KO = "New relationship has not been added";
     public static final String ADD_RELATIONSHIP_REQUEST_NOT_VALID = "Relationship information not valid";
 
+    public static final String GET_BANK_ACCOUNT_REQUEST_RECEIVED =
+            "GET request on endpoint /addBankAccount received for (userId): ";
     public static final String ADD_BANK_ACCOUNT_REQUEST_RECEIVED =
             "POST request on endpoint /addBankAccount received for (iban/name): ";
     public static final String ADD_BANK_ACCOUNT_REQUEST_OK = "New bank account has been saved with id: ";
     public static final String ADD_BANK_ACCOUNT_REQUEST_KO = "New bank account has not been added";
     public static final String ADD_BANK_ACCOUNT_REQUEST_NOT_VALID = "Bank account information not valid";
 
+    public static final String GET_BANK_TRANSFER_REQUEST_RECEIVED =
+            "GET request on endpoint /profile received for (userId): ";
     public static final String ADD_BANK_TRANSFER_REQUEST_RECEIVED =
             "POST request on endpoint /profile received for (bankAccountId/description/type/amount): ";
     public static final String ADD_BANK_TRANSFER_REQUEST_OK = "New bank transfer has been saved with id: ";
     public static final String ADD_BANK_TRANSFER_REQUEST_KO = "New bank transfer has not been added";
     public static final String ADD_BANK_TRANSFER_REQUEST_NOT_VALID = "Bank transfer information not valid";
 
+    public static final String GET_TRANSACTION_REQUEST_RECEIVED =
+            "GET request on endpoint /transfer received for (userId): ";
     public static final String ADD_TRANSACTION_REQUEST_RECEIVED =
             "POST request on endpoint /transfer received for (relationshipId/description/amount): ";
     public static final String ADD_TRANSACTION_REQUEST_OK = "New transaction has been saved with id: ";

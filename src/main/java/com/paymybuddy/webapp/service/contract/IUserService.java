@@ -10,7 +10,7 @@ public interface IUserService {
 
     Optional<UserDTO> createUser(UserDTO userDTOToCreate) throws PMBException;
 
-    Optional<User> getUserByEmail(String email) throws PMBException;
+    //TODEL ? Optional<User> getUserByEmail(String email) throws PMBException;
 
-    Optional<UserDTO> getUserDTOByEmail(String email) throws PMBException;
+    //TODEL ? Optional<UserDTO> getUserDTOByEmail(String email) throws PMBException;
 }

@@ -10,6 +10,7 @@ import com.paymybuddy.webapp.service.contract.IUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,10 +22,12 @@ import java.util.Optional;
 public class UserService implements IUserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
 
@@ -43,6 +46,9 @@ public class UserService implements IUserService {
         Optional<UserDTO> createdUserDTO = Optional.empty();
 
         if (checksBeforeCreatingUser(userDTOToCreate)) {
+            // encode le mot de passe
+            userDTOToCreate.setPassword(this.passwordEncoder.encode(userDTOToCreate.getPassword()));
+
             // mappe le DTO dans le DAO,
             // puis le nouvel utilisateur sauvegardé en base avant mappage inverse du DAO dans le DTO
             ModelMapper modelMapper = new ModelMapper();
@@ -71,7 +77,8 @@ public class UserService implements IUserService {
      * @return objet User contenant les informations de l'utilisateur concerné
      * @throws PMBException si l'email n'est pas renseigné
      */
-    @Override
+    //TODEL ? pas utilisé ?
+    /*@Override
     public Optional<User> getUserByEmail(String email) throws PMBException {
 
         if (email == null || email.isEmpty()) {
@@ -83,6 +90,8 @@ public class UserService implements IUserService {
         return userRepository.findByEmailIgnoreCase(email);
     }
 
+     */
+
 
     /**
      * récupère les informations relatives à un utilisateur à partir de son email
@@ -92,8 +101,8 @@ public class UserService implements IUserService {
      * @throws PMBException si l'email n'est pas renseigné
      *                      ou que l'utilisateur n'existe pas (non trouvé)
      */
-    //TODO à revoir si utile
-    @Override
+    //TODEL ? à revoir si utile car a priori utilisé seulement dans les tests ou à fusionner avec le loadUserByUsername
+    /*@Override
     public Optional<UserDTO> getUserDTOByEmail(String email) throws PMBException {
 
         Optional<User> userFound = getUserByEmail(email);
@@ -111,6 +120,8 @@ public class UserService implements IUserService {
 
         return userDTO;
     }
+
+     */
 
 
     /**

@@ -18,7 +18,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -149,6 +148,7 @@ class UserServiceTest {
     @DisplayName("getUserDTOByEmail tests")
     class GetUserDTOByEmailTest {
 
+        /* TODEL ?
         @Test
         @DisplayName("GIVEN a user in DB for an email address " +
                 "WHEN get this user information " +
@@ -181,7 +181,9 @@ class UserServiceTest {
                     .findByEmailIgnoreCase(UserTestConstants.EXISTING_USER_EMAIL);
         }
 
-/* TODO à revoir
+         */
+
+/* TODEL ?
         @Test
         @DisplayName("GIVEN no user in DB for an email address " +
                 "WHEN get this user information " +
@@ -203,7 +205,7 @@ class UserServiceTest {
 
  */
 
-
+/* TODEL ?
         @Test
         @DisplayName("GIVEN a null email " +
                 "WHEN get this user information " +
@@ -217,5 +219,7 @@ class UserServiceTest {
             verify(userRepositoryMock, Mockito.times(0))
                     .findByEmailIgnoreCase(UserTestConstants.EXISTING_USER_EMAIL);
         }
+
+ */
     }
 }

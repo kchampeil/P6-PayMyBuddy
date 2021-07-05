@@ -33,7 +33,7 @@ public class UserController {
     /**
      * afficher le formulaire d'inscription
      */
-    @GetMapping(value = "/newUser")
+    @GetMapping(value = "/registerUser")
     public String showRegistrationForm(Model model) {
         model.addAttribute("user", new UserDTO());
         return ViewNameConstants.USER_REGISTRATION;
@@ -62,9 +62,9 @@ public class UserController {
             if (userDTORegistered.isPresent()) {
                 log.info(LogConstants.USER_REGISTRATION_REQUEST_OK + userDTORegistered.get().getUserId() + "\n");
                 model.addAttribute("user", userDTORegistered.get());
-                return ViewNameConstants.USER_PROFILE;
+                return ViewNameConstants.USER_HOME;
 
-                //TODO return "redirect:/home" en mode connecté ? pour l'instant affiche le profil en mode read-only
+                //TODO return "redirect:/home" en mode connecté ? pour l'instant affiche la page d'accueil de l'utilisateur
 
             } else {
                 log.error(LogConstants.USER_REGISTRATION_REQUEST_KO + "\n");
@@ -88,21 +88,23 @@ public class UserController {
      * @param userDTO informations utilisateur
      */
     @GetMapping(value = "/userProfile")
+    //TODEL plus utilisé puisque homeUser utilisé à la place ?
+    // ==> à fusionner pour récupérer info user dans homeUser + supprimer test associé
     public String userProfile(UserDTO userDTO, Model model) {
 
         log.info(LogConstants.USER_PROFILE_REQUEST_RECEIVED + userDTO.getUserId());
 
         model.addAttribute("user", userDTO);
         return ViewNameConstants.USER_PROFILE;
+        //TODO return ViewNameConstants.USER_HOME;
 
     }
 
 
     /**
-     * connecter nouvel utilisateur
+     * connecter l'utilisateur
      */
-    //TODO changer le type de request en POST une fois implémenté
-    @GetMapping(value = "/logUser")
+    @GetMapping(value = "/login")
     public String loginUser() {
 
         return ViewNameConstants.USER_LOGIN;
@@ -111,13 +113,12 @@ public class UserController {
 
 
     /**
-     * déconnecter l'utilisateur et le renvoie sur la page d'accueil
+     * déconnecter l'utilisateur et le renvoyer sur la page d'accueil
      */
-    //TODO à revoir
     @GetMapping(value = "/logout")
-    public String logoffUser() {
+    public String logoutUser() {
 
-        return ViewNameConstants.USER_LOGOUT;
+        return ViewNameConstants.HOME;
 
     }
 
@@ -125,7 +126,7 @@ public class UserController {
     /**
      * afficher la page d'accueil utilisateur
      */
-    //TODO à fusionner à la fin
+    //TODO à fusionner à la fin avec home en mode connecté
     @GetMapping(value = "/homeUser")
     public String showHomeUser() {
 
