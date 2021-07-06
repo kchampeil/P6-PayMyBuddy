@@ -35,6 +35,8 @@ public class UserController {
      */
     @GetMapping(value = "/registerUser")
     public String showRegistrationForm(Model model) {
+        log.info(LogConstants.USER_REGISTRATION_SHOW_PAGE_RECEIVED);
+
         model.addAttribute("user", new UserDTO());
         return ViewNameConstants.USER_REGISTRATION;
     }

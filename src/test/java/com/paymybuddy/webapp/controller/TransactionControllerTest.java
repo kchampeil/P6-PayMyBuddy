@@ -1,6 +1,5 @@
 package com.paymybuddy.webapp.controller;
 
-import com.paymybuddy.webapp.constants.BouchonConstants;
 import com.paymybuddy.webapp.constants.PMBExceptionConstants;
 import com.paymybuddy.webapp.constants.ViewNameConstants;
 import com.paymybuddy.webapp.exception.PMBException;
@@ -88,9 +87,9 @@ class TransactionControllerTest {
                     .andExpect(view().name(ViewNameConstants.TRANSACTION_HOME));
 
             verify(relationshipServiceMock, Mockito.times(1))
-                    .getAllRelationshipsForUser(BouchonConstants.USER_BOUCHON);
+                    .getAllRelationshipsForUser(userInDb.getUserId());
             verify(transactionServiceMock, Mockito.times(1))
-                    .getAllTransactionsForUser(BouchonConstants.USER_BOUCHON);
+                    .getAllTransactionsForUser(userInDb.getUserId());
         }
 
 
@@ -140,9 +139,9 @@ class TransactionControllerTest {
                     .andExpect(view().name(ViewNameConstants.TRANSACTION_HOME));
 
             verify(relationshipServiceMock, Mockito.times(1))
-                    .getAllRelationshipsForUser(BouchonConstants.USER_BOUCHON);
+                    .getAllRelationshipsForUser(userInDb.getUserId());
             verify(transactionServiceMock, Mockito.times(1))
-                    .getAllTransactionsForUser(BouchonConstants.USER_BOUCHON);
+                    .getAllTransactionsForUser(userInDb.getUserId());
             verify(transactionServiceMock, Mockito.times(1))
                     .transferToFriend(any(TransactionDTO.class));
         }
@@ -175,9 +174,9 @@ class TransactionControllerTest {
                     .andExpect(view().name(ViewNameConstants.TRANSACTION_HOME));
 
             verify(relationshipServiceMock, Mockito.times(1))
-                    .getAllRelationshipsForUser(BouchonConstants.USER_BOUCHON);
+                    .getAllRelationshipsForUser(userInDb.getUserId());
             verify(transactionServiceMock, Mockito.times(1))
-                    .getAllTransactionsForUser(BouchonConstants.USER_BOUCHON);
+                    .getAllTransactionsForUser(userInDb.getUserId());
             verify(transactionServiceMock, Mockito.times(0))
                     .transferToFriend(any(TransactionDTO.class));
         }
@@ -214,9 +213,9 @@ class TransactionControllerTest {
                     .andExpect(view().name(ViewNameConstants.TRANSACTION_HOME));
 
             verify(relationshipServiceMock, Mockito.times(1))
-                    .getAllRelationshipsForUser(BouchonConstants.USER_BOUCHON);
+                    .getAllRelationshipsForUser(userInDb.getUserId());
             verify(transactionServiceMock, Mockito.times(1))
-                    .getAllTransactionsForUser(BouchonConstants.USER_BOUCHON);
+                    .getAllTransactionsForUser(userInDb.getUserId());
             verify(transactionServiceMock, Mockito.times(1))
                     .transferToFriend(any(TransactionDTO.class));
         }
@@ -253,9 +252,9 @@ class TransactionControllerTest {
                     .andExpect(view().name(ViewNameConstants.TRANSACTION_HOME));
 
             verify(relationshipServiceMock, Mockito.times(1))
-                    .getAllRelationshipsForUser(BouchonConstants.USER_BOUCHON);
+                    .getAllRelationshipsForUser(userInDb.getUserId());
             verify(transactionServiceMock, Mockito.times(1))
-                    .getAllTransactionsForUser(BouchonConstants.USER_BOUCHON);
+                    .getAllTransactionsForUser(userInDb.getUserId());
             verify(transactionServiceMock, Mockito.times(1))
                     .transferToFriend(any(TransactionDTO.class));
         }

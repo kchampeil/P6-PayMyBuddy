@@ -1,7 +1,6 @@
 package com.paymybuddy.webapp.controller;
 
 import com.paymybuddy.webapp.constants.BankTransferTypes;
-import com.paymybuddy.webapp.constants.BouchonConstants;
 import com.paymybuddy.webapp.constants.PMBExceptionConstants;
 import com.paymybuddy.webapp.constants.ViewNameConstants;
 import com.paymybuddy.webapp.exception.PMBException;
@@ -88,9 +87,9 @@ class BankTransferControllerTest {
                     .andExpect(view().name(ViewNameConstants.BANK_TRANSFER_HOME));
 
             verify(bankAccountServiceMock, Mockito.times(1))
-                    .getAllBankAccountsForUser(BouchonConstants.USER_BOUCHON);
+                    .getAllBankAccountsForUser(userInDb.getUserId());
             verify(bankTransferServiceMock, Mockito.times(1))
-                    .getAllBankTransfersForUser(BouchonConstants.USER_BOUCHON);
+                    .getAllBankTransfersForUser(userInDb.getUserId());
         }
 
 
@@ -141,9 +140,9 @@ class BankTransferControllerTest {
                     .andExpect(view().name(ViewNameConstants.BANK_TRANSFER_HOME));
 
             verify(bankAccountServiceMock, Mockito.times(1))
-                    .getAllBankAccountsForUser(BouchonConstants.USER_BOUCHON);
+                    .getAllBankAccountsForUser(userInDb.getUserId());
             verify(bankTransferServiceMock, Mockito.times(1))
-                    .getAllBankTransfersForUser(BouchonConstants.USER_BOUCHON);
+                    .getAllBankTransfersForUser(userInDb.getUserId());
             verify(bankTransferServiceMock, Mockito.times(1))
                     .transferWithBankAccount(any(BankTransferDTO.class));
         }
@@ -176,9 +175,9 @@ class BankTransferControllerTest {
                     .andExpect(view().name(ViewNameConstants.BANK_TRANSFER_HOME));
 
             verify(bankAccountServiceMock, Mockito.times(1))
-                    .getAllBankAccountsForUser(BouchonConstants.USER_BOUCHON);
+                    .getAllBankAccountsForUser(userInDb.getUserId());
             verify(bankTransferServiceMock, Mockito.times(1))
-                    .getAllBankTransfersForUser(BouchonConstants.USER_BOUCHON);
+                    .getAllBankTransfersForUser(userInDb.getUserId());
             verify(bankTransferServiceMock, Mockito.times(0))
                     .transferWithBankAccount(any(BankTransferDTO.class));
         }
@@ -212,9 +211,9 @@ class BankTransferControllerTest {
                     .andExpect(view().name(ViewNameConstants.BANK_TRANSFER_HOME));
 
             verify(bankAccountServiceMock, Mockito.times(1))
-                    .getAllBankAccountsForUser(BouchonConstants.USER_BOUCHON);
+                    .getAllBankAccountsForUser(userInDb.getUserId());
             verify(bankTransferServiceMock, Mockito.times(1))
-                    .getAllBankTransfersForUser(BouchonConstants.USER_BOUCHON);
+                    .getAllBankTransfersForUser(userInDb.getUserId());
             verify(bankTransferServiceMock, Mockito.times(1))
                     .transferWithBankAccount(any(BankTransferDTO.class));
         }
@@ -248,9 +247,9 @@ class BankTransferControllerTest {
                     .andExpect(view().name(ViewNameConstants.BANK_TRANSFER_HOME));
 
             verify(bankAccountServiceMock, Mockito.times(1))
-                    .getAllBankAccountsForUser(BouchonConstants.USER_BOUCHON);
+                    .getAllBankAccountsForUser(userInDb.getUserId());
             verify(bankTransferServiceMock, Mockito.times(1))
-                    .getAllBankTransfersForUser(BouchonConstants.USER_BOUCHON);
+                    .getAllBankTransfersForUser(userInDb.getUserId());
             verify(bankTransferServiceMock, Mockito.times(1))
                     .transferWithBankAccount(any(BankTransferDTO.class));
         }

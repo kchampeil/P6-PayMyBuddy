@@ -53,6 +53,7 @@ public class BankTransferController {
         log.info(LogConstants.GET_BANK_TRANSFER_REQUEST_RECEIVED);
 
         //récupération des informations de l'utilisateur connecté
+        //TODEL ? pas utile ici ?
         User currentUser = pmbUserDetailsService.getCurrentUser();
         if (currentUser == null) {
             log.info(LogConstants.CURRENT_USER_UNKNOWN);

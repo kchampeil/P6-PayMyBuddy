@@ -1,6 +1,5 @@
 package com.paymybuddy.webapp.controller;
 
-import com.paymybuddy.webapp.constants.BouchonConstants;
 import com.paymybuddy.webapp.constants.LogConstants;
 import com.paymybuddy.webapp.constants.PMBExceptionConstants;
 import com.paymybuddy.webapp.constants.ViewNameConstants;
