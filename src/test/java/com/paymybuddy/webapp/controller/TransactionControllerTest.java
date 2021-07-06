@@ -5,11 +5,14 @@ import com.paymybuddy.webapp.constants.PMBExceptionConstants;
 import com.paymybuddy.webapp.constants.ViewNameConstants;
 import com.paymybuddy.webapp.exception.PMBException;
 import com.paymybuddy.webapp.model.DTO.TransactionDTO;
+import com.paymybuddy.webapp.model.User;
 import com.paymybuddy.webapp.service.PMBUserDetailsService;
 import com.paymybuddy.webapp.service.contract.IRelationshipService;
 import com.paymybuddy.webapp.service.contract.ITransactionService;
 import com.paymybuddy.webapp.testconstants.RelationshipTestConstants;
 import com.paymybuddy.webapp.testconstants.TransactionTestConstants;
+import com.paymybuddy.webapp.testconstants.UserTestConstants;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -52,6 +55,18 @@ class TransactionControllerTest {
     @MockBean
     private PasswordEncoder passwordEncoderMock;
 
+    private static User userInDb;
+
+    @BeforeAll
+    private static void setUp() {
+        userInDb = new User();
+        userInDb.setUserId(UserTestConstants.EXISTING_USER_ID);
+        userInDb.setEmail(UserTestConstants.EXISTING_USER_EMAIL);
+        userInDb.setFirstname(UserTestConstants.EXISTING_USER_FIRSTNAME);
+        userInDb.setLastname(UserTestConstants.EXISTING_USER_LASTNAME);
+        userInDb.setPassword(UserTestConstants.EXISTING_USER_PASSWORD);
+        userInDb.setBalance(UserTestConstants.EXISTING_USER_WITH_HIGH_BALANCE);
+    }
 
     @Nested
     @DisplayName("showHomeTransaction tests")
@@ -62,6 +77,10 @@ class TransactionControllerTest {
         @DisplayName("WHEN asking for the transfer page while logged in " +
                 " THEN return status is ok and the expected view is the transfer page")
         void showHomeTransactionTest_LoggedIn() throws Exception {
+            //GIVEN
+            when(pmbUserDetailsServiceMock.getCurrentUser()).thenReturn(userInDb);
+
+            //THEN
             mockMvc.perform(get("/transfer"))
                     .andExpect(status().isOk())
                     .andExpect(model().attributeExists("transactionDTO"))
@@ -98,6 +117,8 @@ class TransactionControllerTest {
                 "AND the expected view is the transfer page with transaction list updated")
         void addTransactionTest_WithSuccess() throws Exception {
             //GIVEN
+            when(pmbUserDetailsServiceMock.getCurrentUser()).thenReturn(userInDb);
+
             TransactionDTO transactionDTOAdded = new TransactionDTO();
             transactionDTOAdded.setRelationshipId(RelationshipTestConstants.EXISTING_RELATIONSHIP_ID);
             transactionDTOAdded.setAmountFeeExcluded(TransactionTestConstants.NEW_TRANSACTION_AMOUNT_FEE_EXCLUDED);
@@ -135,6 +156,8 @@ class TransactionControllerTest {
                 "AND the expected view is the transfer page filled with entered transaction")
         void addTransactionTest_WithMissingInformation() throws Exception {
             //GIVEN
+            when(pmbUserDetailsServiceMock.getCurrentUser()).thenReturn(userInDb);
+
             when(transactionServiceMock.transferToFriend(any(TransactionDTO.class)))
                     .thenThrow(new PMBException(PMBExceptionConstants.MISSING_INFORMATION_NEW_TRANSACTION));
 
@@ -169,6 +192,8 @@ class TransactionControllerTest {
                 "AND an 'does not exist' error is shown")
         void addTransactionTest_WithNonExistingRelationship() throws Exception {
             //GIVEN
+            when(pmbUserDetailsServiceMock.getCurrentUser()).thenReturn(userInDb);
+
             when(transactionServiceMock.transferToFriend(any(TransactionDTO.class)))
                     .thenThrow(new PMBException(PMBExceptionConstants.DOES_NOT_EXISTS_RELATIONSHIP));
 
@@ -206,6 +231,8 @@ class TransactionControllerTest {
                 "AND an 'insufficient balance' error is shown")
         void addTransactionTest_WithInsufficientBalance() throws Exception {
             //GIVEN
+            when(pmbUserDetailsServiceMock.getCurrentUser()).thenReturn(userInDb);
+
             when(transactionServiceMock.transferToFriend(any(TransactionDTO.class)))
                     .thenThrow(new PMBException(PMBExceptionConstants.INSUFFICIENT_BALANCE));
 

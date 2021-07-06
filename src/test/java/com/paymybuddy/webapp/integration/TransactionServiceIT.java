@@ -29,6 +29,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -121,6 +122,7 @@ public class TransactionServiceIT {
             assertThat(transactionCreated).isPresent();
             assertEquals(transactionDTOToCreate.getDescription(), transactionCreated.get().getDescription());
             assertNotEquals(BigDecimal.ZERO, transactionDTOCreated.get().getFeeAmount());
+            assertFalse(transactionCreated.get().isFeeBilled());
             assertNotNull(transactionDTOCreated.get().getDate());
 
             Optional<User> userUpdated = userRepository.findById(existingUser.getUserId());

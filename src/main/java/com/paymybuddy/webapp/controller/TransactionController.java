@@ -1,12 +1,13 @@
 package com.paymybuddy.webapp.controller;
 
-import com.paymybuddy.webapp.constants.BouchonConstants;
 import com.paymybuddy.webapp.constants.LogConstants;
 import com.paymybuddy.webapp.constants.PMBExceptionConstants;
 import com.paymybuddy.webapp.constants.ViewNameConstants;
 import com.paymybuddy.webapp.exception.PMBException;
 import com.paymybuddy.webapp.model.DTO.RelationshipDTO;
 import com.paymybuddy.webapp.model.DTO.TransactionDTO;
+import com.paymybuddy.webapp.model.User;
+import com.paymybuddy.webapp.service.PMBUserDetailsService;
 import com.paymybuddy.webapp.service.contract.IRelationshipService;
 import com.paymybuddy.webapp.service.contract.ITransactionService;
 import lombok.extern.slf4j.Slf4j;
@@ -27,12 +28,18 @@ import java.util.Optional;
 public class TransactionController {
 
     private final IRelationshipService relationshipService;
+
     private final ITransactionService transactionService;
 
+    private final PMBUserDetailsService pmbUserDetailsService;
+
     @Autowired
-    public TransactionController(IRelationshipService relationshipService, ITransactionService transactionService) {
+    public TransactionController(IRelationshipService relationshipService,
+                                 ITransactionService transactionService,
+                                 PMBUserDetailsService pmbUserDetailsService) {
         this.relationshipService = relationshipService;
         this.transactionService = transactionService;
+        this.pmbUserDetailsService = pmbUserDetailsService;
     }
 
     /**
@@ -42,10 +49,18 @@ public class TransactionController {
     // TODO public String showHomeTransaction(Model model, @RequestParam(name = "page", defaultValue = "0") int page) throws PMBException {
     public String showHomeTransaction(Model model) throws PMBException {
 
+        log.info(LogConstants.GET_TRANSACTION_REQUEST_RECEIVED);
+
+        //récupération des informations de l'utilisateur connecté
+        User currentUser = pmbUserDetailsService.getCurrentUser();
+        if (currentUser == null) {
+            log.info(LogConstants.CURRENT_USER_UNKNOWN);
+            return ViewNameConstants.HOME;
+        }
+
         model.addAttribute("transactionDTO", new TransactionDTO());
 
-        //TODO-débouchonnage passer le user ID de l'utilisateur connecté
-        loadNeededLists(model, BouchonConstants.USER_BOUCHON);
+        loadNeededListsForCurrentUser(model);
         //TODO récupérer et afficher la balance du compte ?
 
         return ViewNameConstants.TRANSACTION_HOME;
@@ -57,7 +72,6 @@ public class TransactionController {
         return ViewNameConstants.TRANSACTION_HOME;
 
          */
-
     }
 
 
@@ -75,7 +89,7 @@ public class TransactionController {
         if (bindingResult.hasErrors()) {
             log.error(LogConstants.ADD_TRANSACTION_REQUEST_NOT_VALID + "\n");
 
-            loadNeededLists(model, BouchonConstants.USER_BOUCHON);//TODO-débouchonnage
+            loadNeededListsForCurrentUser(model);
             return ViewNameConstants.TRANSACTION_HOME;
         }
 
@@ -113,8 +127,7 @@ public class TransactionController {
             }
         }
 
-        //TODO-débouchonnage passer le user ID ensuite
-        loadNeededLists(model, BouchonConstants.USER_BOUCHON);
+        loadNeededListsForCurrentUser(model);
         return ViewNameConstants.TRANSACTION_HOME;
     }
 
@@ -123,11 +136,16 @@ public class TransactionController {
      * charge toutes les listes utiles (liste des connexions, liste des transactions)
      * pour l'utilisateur en cours et les ajoute au modèle
      */
-    private void loadNeededLists(Model model, Long userId) throws PMBException {
-        List<RelationshipDTO> relationshipDTOList = relationshipService.getAllRelationshipsForUser(userId);
-        model.addAttribute("relationshipDTOList", relationshipDTOList);
+    private void loadNeededListsForCurrentUser(Model model) throws PMBException {
+        User currentUser = pmbUserDetailsService.getCurrentUser();
 
-        List<TransactionDTO> transactionDTOList = transactionService.getAllTransactionsForUser(userId);
-        model.addAttribute("transactionDTOList", transactionDTOList);
+        if (currentUser != null) {
+            List<RelationshipDTO> relationshipDTOList = relationshipService.getAllRelationshipsForUser(currentUser.getUserId());
+
+            model.addAttribute("relationshipDTOList", relationshipDTOList);
+
+            List<TransactionDTO> transactionDTOList = transactionService.getAllTransactionsForUser(currentUser.getUserId());
+            model.addAttribute("transactionDTOList", transactionDTOList);
+        }
     }
 }

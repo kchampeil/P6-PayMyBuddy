@@ -30,6 +30,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -60,6 +61,7 @@ class TransactionServiceTest {
     private Transaction transactionInDb;
     private Relationship relationshipInDb;
     private User userInDb;
+    private User friendInDb;
 
 
     @BeforeEach
@@ -77,7 +79,7 @@ class TransactionServiceTest {
         userInDb.setPassword(UserTestConstants.EXISTING_USER_PASSWORD);
         userInDb.setBalance(UserTestConstants.EXISTING_USER_WITH_HIGH_BALANCE);
 
-        User friendInDb = new User();
+        friendInDb = new User();
         friendInDb.setUserId(UserTestConstants.EXISTING_USER_AS_FRIEND_ID);
         friendInDb.setEmail(UserTestConstants.EXISTING_USER_AS_FRIEND_EMAIL);
         friendInDb.setFirstname(UserTestConstants.EXISTING_USER_AS_FRIEND_FIRSTNAME);
@@ -267,6 +269,8 @@ class TransactionServiceTest {
             List<TransactionDTO> transactionDTOList = transactionService.getAllTransactionsForUser(userInDb.getUserId());
             assertEquals(1, transactionDTOList.size());
             assertEquals(transactionInDb.getTransactionId(), transactionDTOList.get(0).getTransactionId());
+            assertEquals(friendInDb.getFirstname(), transactionDTOList.get(0).getFriendFirstname());
+            assertEquals(friendInDb.getLastname(), transactionDTOList.get(0).getFriendLastname());
 
             verify(userRepositoryMock, Mockito.times(1)).findById(userInDb.getUserId());
             verify(transactionRepositoryMock, Mockito.times(1))
