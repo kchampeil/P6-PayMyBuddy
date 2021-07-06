@@ -51,13 +51,6 @@ public class TransactionController {
 
         log.info(LogConstants.GET_TRANSACTION_REQUEST_RECEIVED);
 
-        //récupération des informations de l'utilisateur connecté
-        User currentUser = pmbUserDetailsService.getCurrentUser();
-        if (currentUser == null) {
-            log.info(LogConstants.CURRENT_USER_UNKNOWN);
-            return ViewNameConstants.HOME;
-        }
-
         model.addAttribute("transactionDTO", new TransactionDTO());
 
         loadNeededListsForCurrentUser(model);

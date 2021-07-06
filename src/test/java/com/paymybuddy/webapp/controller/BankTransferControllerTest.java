@@ -86,6 +86,8 @@ class BankTransferControllerTest {
                     .andExpect(model().attributeExists("bankTransferDTOList"))
                     .andExpect(view().name(ViewNameConstants.BANK_TRANSFER_HOME));
 
+            verify(pmbUserDetailsServiceMock, Mockito.times(1))
+                    .getCurrentUser();
             verify(bankAccountServiceMock, Mockito.times(1))
                     .getAllBankAccountsForUser(userInDb.getUserId());
             verify(bankTransferServiceMock, Mockito.times(1))
@@ -100,6 +102,13 @@ class BankTransferControllerTest {
             mockMvc.perform(get("/profile"))
                     .andExpect(status().isFound())
                     .andExpect(redirectedUrlPattern("**/" + ViewNameConstants.USER_LOGIN));
+
+            verify(pmbUserDetailsServiceMock, Mockito.times(0))
+                    .getCurrentUser();
+            verify(bankAccountServiceMock, Mockito.times(0))
+                    .getAllBankAccountsForUser(userInDb.getUserId());
+            verify(bankTransferServiceMock, Mockito.times(0))
+                    .getAllBankTransfersForUser(userInDb.getUserId());
         }
     }
 
@@ -139,6 +148,8 @@ class BankTransferControllerTest {
                     .andExpect(model().attributeExists("bankTransferDTOList"))
                     .andExpect(view().name(ViewNameConstants.BANK_TRANSFER_HOME));
 
+            verify(pmbUserDetailsServiceMock, Mockito.times(1))
+                    .getCurrentUser();
             verify(bankAccountServiceMock, Mockito.times(1))
                     .getAllBankAccountsForUser(userInDb.getUserId());
             verify(bankTransferServiceMock, Mockito.times(1))
@@ -174,6 +185,8 @@ class BankTransferControllerTest {
                     .andExpect(model().attributeHasFieldErrors("bankTransferDTO", "description"))
                     .andExpect(view().name(ViewNameConstants.BANK_TRANSFER_HOME));
 
+            verify(pmbUserDetailsServiceMock, Mockito.times(1))
+                    .getCurrentUser();
             verify(bankAccountServiceMock, Mockito.times(1))
                     .getAllBankAccountsForUser(userInDb.getUserId());
             verify(bankTransferServiceMock, Mockito.times(1))
@@ -210,6 +223,8 @@ class BankTransferControllerTest {
                             "bankAccountId", "profile.BankTransferDTO.bankAccountId.doesNotExist"))
                     .andExpect(view().name(ViewNameConstants.BANK_TRANSFER_HOME));
 
+            verify(pmbUserDetailsServiceMock, Mockito.times(1))
+                    .getCurrentUser();
             verify(bankAccountServiceMock, Mockito.times(1))
                     .getAllBankAccountsForUser(userInDb.getUserId());
             verify(bankTransferServiceMock, Mockito.times(1))
@@ -246,6 +261,8 @@ class BankTransferControllerTest {
                             "amount", "profile.BankTransferDTO.amount.insufficientBalance"))
                     .andExpect(view().name(ViewNameConstants.BANK_TRANSFER_HOME));
 
+            verify(pmbUserDetailsServiceMock, Mockito.times(1))
+                    .getCurrentUser();
             verify(bankAccountServiceMock, Mockito.times(1))
                     .getAllBankAccountsForUser(userInDb.getUserId());
             verify(bankTransferServiceMock, Mockito.times(1))

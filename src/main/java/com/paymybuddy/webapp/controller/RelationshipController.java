@@ -44,16 +44,6 @@ public class RelationshipController {
 
         log.info(LogConstants.GET_RELATIONSHIP_REQUEST_RECEIVED);
 
-        //récupération des informations de l'utilisateur connecté
-        User currentUser = pmbUserDetailsService.getCurrentUser();
-        if (currentUser == null) {
-            log.info(LogConstants.CURRENT_USER_UNKNOWN);
-            return ViewNameConstants.HOME;
-        }
-
-        //initialisation de la relation à créer
-        RelationshipDTO relationshipDTO = new RelationshipDTO();
-        relationshipDTO.setUserId(currentUser.getUserId());
         model.addAttribute("relationshipDTO", new RelationshipDTO());
 
         //récupération de la liste des relations associées à l'utilisateur connecté
@@ -79,6 +69,7 @@ public class RelationshipController {
         }
 
         //TODO revoir pourquoi le userId est réinitialisé
+        // + revoir le nb de mockito times dans test une fois résolu
         relationshipDTOToAdd.setUserId(pmbUserDetailsService.getCurrentUser().getUserId());
 
         try {

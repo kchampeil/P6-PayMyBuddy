@@ -86,6 +86,8 @@ class TransactionControllerTest {
                     .andExpect(model().attributeExists("transactionDTOList"))
                     .andExpect(view().name(ViewNameConstants.TRANSACTION_HOME));
 
+            verify(pmbUserDetailsServiceMock, Mockito.times(1))
+                    .getCurrentUser();
             verify(relationshipServiceMock, Mockito.times(1))
                     .getAllRelationshipsForUser(userInDb.getUserId());
             verify(transactionServiceMock, Mockito.times(1))
@@ -100,6 +102,13 @@ class TransactionControllerTest {
             mockMvc.perform(get("/transfer"))
                     .andExpect(status().isFound())
                     .andExpect(redirectedUrlPattern("**/" + ViewNameConstants.USER_LOGIN));
+
+            verify(pmbUserDetailsServiceMock, Mockito.times(0))
+                    .getCurrentUser();
+            verify(relationshipServiceMock, Mockito.times(0))
+                    .getAllRelationshipsForUser(userInDb.getUserId());
+            verify(transactionServiceMock, Mockito.times(0))
+                    .getAllTransactionsForUser(userInDb.getUserId());
         }
     }
 
@@ -138,6 +147,8 @@ class TransactionControllerTest {
                     .andExpect(model().attributeExists("transactionDTOList"))
                     .andExpect(view().name(ViewNameConstants.TRANSACTION_HOME));
 
+            verify(pmbUserDetailsServiceMock, Mockito.times(1))
+                    .getCurrentUser();
             verify(relationshipServiceMock, Mockito.times(1))
                     .getAllRelationshipsForUser(userInDb.getUserId());
             verify(transactionServiceMock, Mockito.times(1))
@@ -173,6 +184,8 @@ class TransactionControllerTest {
                     .andExpect(model().attributeHasFieldErrors("transactionDTO", "description"))
                     .andExpect(view().name(ViewNameConstants.TRANSACTION_HOME));
 
+            verify(pmbUserDetailsServiceMock, Mockito.times(1))
+                    .getCurrentUser();
             verify(relationshipServiceMock, Mockito.times(1))
                     .getAllRelationshipsForUser(userInDb.getUserId());
             verify(transactionServiceMock, Mockito.times(1))
@@ -212,6 +225,8 @@ class TransactionControllerTest {
                             "transfer.TransactionDTO.relationshipId.doesNotExist"))
                     .andExpect(view().name(ViewNameConstants.TRANSACTION_HOME));
 
+            verify(pmbUserDetailsServiceMock, Mockito.times(1))
+                    .getCurrentUser();
             verify(relationshipServiceMock, Mockito.times(1))
                     .getAllRelationshipsForUser(userInDb.getUserId());
             verify(transactionServiceMock, Mockito.times(1))
@@ -251,6 +266,8 @@ class TransactionControllerTest {
                             "transfer.TransactionDTO.amountFeeExcluded.insufficientBalance"))
                     .andExpect(view().name(ViewNameConstants.TRANSACTION_HOME));
 
+            verify(pmbUserDetailsServiceMock, Mockito.times(1))
+                    .getCurrentUser();
             verify(relationshipServiceMock, Mockito.times(1))
                     .getAllRelationshipsForUser(userInDb.getUserId());
             verify(transactionServiceMock, Mockito.times(1))

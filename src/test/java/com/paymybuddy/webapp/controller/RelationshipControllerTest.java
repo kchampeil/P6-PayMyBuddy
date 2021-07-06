@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -22,6 +23,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -77,6 +79,11 @@ class RelationshipControllerTest {
                     .andExpect(model().attributeExists("relationshipDTO"))
                     .andExpect(model().attributeExists("relationshipDTOList"))
                     .andExpect(view().name(ViewNameConstants.RELATIONSHIP_HOME));
+
+            verify(pmbUserDetailsServiceMock, Mockito.times(1))
+                    .getCurrentUser();
+            verify(relationshipServiceMock, Mockito.times(1))
+                    .getAllRelationshipsForUser(userInDb.getUserId());
         }
 
 
@@ -87,6 +94,11 @@ class RelationshipControllerTest {
             mockMvc.perform(get("/contact"))
                     .andExpect(status().isFound())
                     .andExpect(redirectedUrlPattern("**/" + ViewNameConstants.USER_LOGIN));
+
+            verify(pmbUserDetailsServiceMock, Mockito.times(0))
+                    .getCurrentUser();
+            verify(relationshipServiceMock, Mockito.times(0))
+                    .getAllRelationshipsForUser(userInDb.getUserId());
         }
     }
 
@@ -119,6 +131,11 @@ class RelationshipControllerTest {
                     .andExpect(model().attributeExists("relationshipDTO"))
                     .andExpect(model().attributeExists("relationshipDTOList"))
                     .andExpect(view().name(ViewNameConstants.RELATIONSHIP_HOME));
+
+            verify(pmbUserDetailsServiceMock, Mockito.times(2))
+                    .getCurrentUser();
+            verify(relationshipServiceMock, Mockito.times(1))
+                    .createRelationship(any(RelationshipDTO.class));
         }
 
 
@@ -144,6 +161,11 @@ class RelationshipControllerTest {
                     .andExpect(model().hasErrors())
                     .andExpect(model().attributeHasFieldErrors("relationshipDTO", "friendEmail"))
                     .andExpect(view().name(ViewNameConstants.RELATIONSHIP_HOME));
+
+            verify(pmbUserDetailsServiceMock, Mockito.times(1))
+                    .getCurrentUser();
+            verify(relationshipServiceMock, Mockito.times(0))
+                    .createRelationship(any(RelationshipDTO.class));
         }
 
 
@@ -172,6 +194,11 @@ class RelationshipControllerTest {
                             "friendEmail",
                             "contact.RelationshipDTO.friend.alreadyExists"))
                     .andExpect(view().name(ViewNameConstants.RELATIONSHIP_HOME));
+
+            verify(pmbUserDetailsServiceMock, Mockito.times(2))
+                    .getCurrentUser();
+            verify(relationshipServiceMock, Mockito.times(1))
+                    .createRelationship(any(RelationshipDTO.class));
         }
 
 
@@ -200,6 +227,11 @@ class RelationshipControllerTest {
                             "friendEmail",
                             "contact.RelationshipDTO.email.doesNotExist"))
                     .andExpect(view().name(ViewNameConstants.RELATIONSHIP_HOME));
+
+            verify(pmbUserDetailsServiceMock, Mockito.times(2))
+                    .getCurrentUser();
+            verify(relationshipServiceMock, Mockito.times(1))
+                    .createRelationship(any(RelationshipDTO.class));
         }
 
 
@@ -228,6 +260,11 @@ class RelationshipControllerTest {
                             "friendEmail",
                             "contact.RelationshipDTO.email.invalid"))
                     .andExpect(view().name(ViewNameConstants.RELATIONSHIP_HOME));
+
+            verify(pmbUserDetailsServiceMock, Mockito.times(2))
+                    .getCurrentUser();
+            verify(relationshipServiceMock, Mockito.times(1))
+                    .createRelationship(any(RelationshipDTO.class));
         }
     }
 }

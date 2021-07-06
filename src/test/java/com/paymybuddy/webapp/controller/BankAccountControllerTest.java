@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -23,6 +24,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -79,6 +81,11 @@ class BankAccountControllerTest {
                     .andExpect(model().attributeExists("bankAccountDTO"))
                     .andExpect(model().attributeExists("bankAccountDTOList"))
                     .andExpect(view().name(ViewNameConstants.BANK_ACCOUNT_HOME));
+
+            verify(pmbUserDetailsServiceMock, Mockito.times(1))
+                    .getCurrentUser();
+            verify(bankAccountServiceMock, Mockito.times(1))
+                    .getAllBankAccountsForUser(userInDb.getUserId());
         }
 
 
@@ -89,6 +96,11 @@ class BankAccountControllerTest {
             mockMvc.perform(get("/addBankAccount"))
                     .andExpect(status().isFound())
                     .andExpect(redirectedUrlPattern("**/" + ViewNameConstants.USER_LOGIN));
+
+            verify(pmbUserDetailsServiceMock, Mockito.times(0))
+                    .getCurrentUser();
+            verify(bankAccountServiceMock, Mockito.times(0))
+                    .getAllBankAccountsForUser(userInDb.getUserId());
         }
     }
 
@@ -124,6 +136,11 @@ class BankAccountControllerTest {
                     .andExpect(model().attributeExists("bankAccountDTO"))
                     .andExpect(model().attributeExists("bankAccountDTOList"))
                     .andExpect(view().name(ViewNameConstants.BANK_ACCOUNT_HOME));
+
+            verify(pmbUserDetailsServiceMock, Mockito.times(2))
+                    .getCurrentUser();
+            verify(bankAccountServiceMock, Mockito.times(1))
+                    .createBankAccount(any(BankAccountDTO.class));
         }
 
 
@@ -150,6 +167,11 @@ class BankAccountControllerTest {
                     .andExpect(model().hasErrors())
                     .andExpect(model().attributeHasFieldErrors("bankAccountDTO", "name"))
                     .andExpect(view().name(ViewNameConstants.BANK_ACCOUNT_HOME));
+
+            verify(pmbUserDetailsServiceMock, Mockito.times(1))
+                    .getCurrentUser();
+            verify(bankAccountServiceMock, Mockito.times(0))
+                    .createBankAccount(any(BankAccountDTO.class));
         }
 
 
@@ -179,6 +201,11 @@ class BankAccountControllerTest {
                             "iban",
                             "addBankAccount.BankAccountDTO.iban.alreadyExists"))
                     .andExpect(view().name(ViewNameConstants.BANK_ACCOUNT_HOME));
+
+            verify(pmbUserDetailsServiceMock, Mockito.times(2))
+                    .getCurrentUser();
+            verify(bankAccountServiceMock, Mockito.times(1))
+                    .createBankAccount(any(BankAccountDTO.class));
         }
 
 
@@ -208,6 +235,11 @@ class BankAccountControllerTest {
                             "iban",
                             "addBankAccount.BankAccountDTO.iban.invalid"))
                     .andExpect(view().name(ViewNameConstants.BANK_ACCOUNT_HOME));
+
+            verify(pmbUserDetailsServiceMock, Mockito.times(2))
+                    .getCurrentUser();
+            verify(bankAccountServiceMock, Mockito.times(1))
+                    .createBankAccount(any(BankAccountDTO.class));
         }
     }
 }

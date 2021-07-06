@@ -44,17 +44,7 @@ public class BankAccountController {
 
         log.info(LogConstants.GET_BANK_ACCOUNT_REQUEST_RECEIVED);
 
-        //récupération des informations de l'utilisateur connecté
-        User currentUser = pmbUserDetailsService.getCurrentUser();
-        if (currentUser == null) {
-            log.info(LogConstants.CURRENT_USER_UNKNOWN);
-            return ViewNameConstants.HOME;
-        }
-
-        //initialisation du compte bancaire à créer
-        BankAccountDTO bankAccountDTO = new BankAccountDTO();
-        bankAccountDTO.setUserId(currentUser.getUserId());
-        model.addAttribute("bankAccountDTO", bankAccountDTO);
+        model.addAttribute("bankAccountDTO", new BankAccountDTO());
 
         //récupération de la liste des comptes bancaires associés à l'utilisateur connecté
         loadBankAccountDTOListForCurrentUser(model);
@@ -81,6 +71,7 @@ public class BankAccountController {
         }
 
         //TODO revoir pourquoi le userId est réinitialisé
+        // + revoir le nb de mockito times dans test une fois résolu
         bankAccountDTOToAdd.setUserId(pmbUserDetailsService.getCurrentUser().getUserId());
 
         try {
