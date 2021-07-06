@@ -1,11 +1,12 @@
 package com.paymybuddy.webapp.controller;
 
-import com.paymybuddy.webapp.constants.BouchonConstants;
 import com.paymybuddy.webapp.constants.LogConstants;
 import com.paymybuddy.webapp.constants.PMBExceptionConstants;
 import com.paymybuddy.webapp.constants.ViewNameConstants;
 import com.paymybuddy.webapp.exception.PMBException;
 import com.paymybuddy.webapp.model.DTO.RelationshipDTO;
+import com.paymybuddy.webapp.model.User;
+import com.paymybuddy.webapp.service.PMBUserDetailsService;
 import com.paymybuddy.webapp.service.contract.IRelationshipService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +27,12 @@ public class RelationshipController {
 
     private final IRelationshipService relationshipService;
 
+    private final PMBUserDetailsService pmbUserDetailsService;
+
     @Autowired
-    public RelationshipController(IRelationshipService relationshipService) {
+    public RelationshipController(IRelationshipService relationshipService, PMBUserDetailsService pmbUserDetailsService) {
         this.relationshipService = relationshipService;
+        this.pmbUserDetailsService = pmbUserDetailsService;
     }
 
 
@@ -38,13 +42,24 @@ public class RelationshipController {
     @GetMapping(value = "/contact")
     public String showHomeRelationship(Model model) throws PMBException {
 
+        log.info(LogConstants.GET_RELATIONSHIP_REQUEST_RECEIVED);
+
+        //récupération des informations de l'utilisateur connecté
+        User currentUser = pmbUserDetailsService.getCurrentUser();
+        if (currentUser == null) {
+            log.info(LogConstants.CURRENT_USER_UNKNOWN);
+            return ViewNameConstants.HOME;
+        }
+
+        //initialisation de la relation à créer
+        RelationshipDTO relationshipDTO = new RelationshipDTO();
+        relationshipDTO.setUserId(currentUser.getUserId());
         model.addAttribute("relationshipDTO", new RelationshipDTO());
 
-        //TODO-débouchonnage passer le user ID de l'utilisateur connecté
-        loadRelationshipDTOList(model, BouchonConstants.USER_BOUCHON);
+        //récupération de la liste des relations associées à l'utilisateur connecté
+        loadRelationshipDTOListForCurrentUser(model);
 
         return ViewNameConstants.RELATIONSHIP_HOME;
-
     }
 
 
@@ -59,12 +74,12 @@ public class RelationshipController {
 
         if (bindingResult.hasErrors()) {
             log.error(LogConstants.ADD_RELATIONSHIP_REQUEST_NOT_VALID + "\n");
-            loadRelationshipDTOList(model, BouchonConstants.USER_BOUCHON);//TODO-débouchonnage
+            loadRelationshipDTOListForCurrentUser(model);//TODO-débouchonnage
             return ViewNameConstants.RELATIONSHIP_HOME;
         }
 
-        //TODO revoir pour mettre ça dans le relationshipService une fois spring security en place ?
-        relationshipDTOToAdd.setUserId(BouchonConstants.USER_BOUCHON); //TODO-débouchonnage
+        //TODO revoir pourquoi le userId est réinitialisé
+        relationshipDTOToAdd.setUserId(pmbUserDetailsService.getCurrentUser().getUserId());
 
         try {
 
@@ -97,13 +112,25 @@ public class RelationshipController {
             }
         }
 
-        //TODO-débouchonnage passer le user ID ensuite
-        loadRelationshipDTOList(model, BouchonConstants.USER_BOUCHON);
+        loadRelationshipDTOListForCurrentUser(model);
         return ViewNameConstants.RELATIONSHIP_HOME;
     }
 
-    private void loadRelationshipDTOList(Model model, Long userId) throws PMBException {
-        List<RelationshipDTO> relationshipDTOList = relationshipService.getAllRelationshipsForUser(userId);
-        model.addAttribute("relationshipDTOList", relationshipDTOList);
+
+    /**
+     * charge la liste des relations associées à l'utilisateur connecté
+     *
+     * @param model model en cours
+     * @throws PMBException si l'identifiant transmis est nul
+     *                      ou que l'utilisateur n'existe pas
+     */
+    private void loadRelationshipDTOListForCurrentUser(Model model) throws PMBException {
+        User currentUser = pmbUserDetailsService.getCurrentUser();
+
+        if (currentUser != null) {
+            List<RelationshipDTO> relationshipDTOList =
+                    relationshipService.getAllRelationshipsForUser(currentUser.getUserId());
+            model.addAttribute("relationshipDTOList", relationshipDTOList);
+        }
     }
 }

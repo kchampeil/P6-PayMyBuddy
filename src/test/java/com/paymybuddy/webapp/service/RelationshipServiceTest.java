@@ -112,6 +112,8 @@ class RelationshipServiceTest {
             assertNotNull(createdRelationshipDTO.get().getRelationshipId());
             assertEquals(userInDb.getUserId(), createdRelationshipDTO.get().getUserId());
             assertEquals(friendInDb.getUserId(), createdRelationshipDTO.get().getFriendId());
+            assertEquals(friendInDb.getFirstname(), createdRelationshipDTO.get().getFriendFirstname());
+            assertEquals(friendInDb.getLastname(), createdRelationshipDTO.get().getFriendLastname());
 
             verify(userRepositoryMock, Mockito.times(1))
                     .findById(userInDb.getUserId());

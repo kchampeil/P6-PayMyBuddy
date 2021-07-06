@@ -112,6 +112,8 @@ public class RelationshipService implements IRelationshipService {
             relationshipList.forEach(relationship ->
                     relationshipDTOList
                             .add(modelMapper.map(relationship, RelationshipDTO.class)));
+
+            log.info(LogConstants.LIST_RELATIONSHIP_OK + relationshipDTOList.size());
         }
 
         return relationshipDTOList;

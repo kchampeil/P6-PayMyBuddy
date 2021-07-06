@@ -4,9 +4,11 @@ import com.paymybuddy.webapp.constants.PMBExceptionConstants;
 import com.paymybuddy.webapp.constants.ViewNameConstants;
 import com.paymybuddy.webapp.exception.PMBException;
 import com.paymybuddy.webapp.model.DTO.RelationshipDTO;
+import com.paymybuddy.webapp.model.User;
 import com.paymybuddy.webapp.service.PMBUserDetailsService;
 import com.paymybuddy.webapp.service.contract.IRelationshipService;
 import com.paymybuddy.webapp.testconstants.UserTestConstants;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -44,6 +46,18 @@ class RelationshipControllerTest {
     @MockBean
     private PasswordEncoder passwordEncoderMock;
 
+    private static User userInDb;
+
+    @BeforeAll
+    private static void setUp() {
+        userInDb = new User();
+        userInDb.setUserId(UserTestConstants.EXISTING_USER_ID);
+        userInDb.setEmail(UserTestConstants.EXISTING_USER_EMAIL);
+        userInDb.setFirstname(UserTestConstants.EXISTING_USER_FIRSTNAME);
+        userInDb.setLastname(UserTestConstants.EXISTING_USER_LASTNAME);
+        userInDb.setPassword(UserTestConstants.EXISTING_USER_PASSWORD);
+        userInDb.setBalance(UserTestConstants.EXISTING_USER_WITH_HIGH_BALANCE);
+    }
 
     @Nested
     @DisplayName("showHomeRelationship tests")
@@ -54,6 +68,10 @@ class RelationshipControllerTest {
         @DisplayName("WHEN asking for the contact page while logged in " +
                 " THEN return status is ok and the expected view is the contact page")
         void showHomeRelationshipTest_LoggedIn() throws Exception {
+            //GIVEN
+            when(pmbUserDetailsServiceMock.getCurrentUser()).thenReturn(userInDb);
+
+            //THEN
             mockMvc.perform(get("/contact"))
                     .andExpect(status().isOk())
                     .andExpect(model().attributeExists("relationshipDTO"))
@@ -84,6 +102,8 @@ class RelationshipControllerTest {
                 "AND the expected view is the contact page with relationship list updated")
         void addRelationshipTest_WithSuccess() throws Exception {
             //GIVEN
+            when(pmbUserDetailsServiceMock.getCurrentUser()).thenReturn(userInDb);
+
             RelationshipDTO relationshipDTOAdded = new RelationshipDTO();
             relationshipDTOAdded.setUserId(UserTestConstants.EXISTING_USER_ID);
             relationshipDTOAdded.setFriendEmail(UserTestConstants.EXISTING_USER_AS_FRIEND_EMAIL);
@@ -110,6 +130,8 @@ class RelationshipControllerTest {
                 "AND the expected view is the contact page filled with entered friend email")
         void addRelationshipTest_WithMissingInformation() throws Exception {
             //GIVEN
+            when(pmbUserDetailsServiceMock.getCurrentUser()).thenReturn(userInDb);
+
             when(relationshipServiceMock.createRelationship(any(RelationshipDTO.class)))
                     .thenThrow(new PMBException(PMBExceptionConstants.MISSING_INFORMATION_NEW_RELATIONSHIP));
 
@@ -134,6 +156,8 @@ class RelationshipControllerTest {
                 "AND an 'already exists' error is shown")
         void addRelationshipTest_WithAlreadyExistingRelationship() throws Exception {
             //GIVEN
+            when(pmbUserDetailsServiceMock.getCurrentUser()).thenReturn(userInDb);
+
             when(relationshipServiceMock.createRelationship(any(RelationshipDTO.class)))
                     .thenThrow(new PMBException(PMBExceptionConstants.ALREADY_EXIST_RELATIONSHIP));
 
@@ -160,6 +184,8 @@ class RelationshipControllerTest {
                 "AND an 'does not exist' error is shown")
         void addRelationshipTest_WithUnknownFriendEmail() throws Exception {
             //GIVEN
+            when(pmbUserDetailsServiceMock.getCurrentUser()).thenReturn(userInDb);
+
             when(relationshipServiceMock.createRelationship(any(RelationshipDTO.class)))
                     .thenThrow(new PMBException(PMBExceptionConstants.DOES_NOT_EXISTS_USER));
 
@@ -186,6 +212,8 @@ class RelationshipControllerTest {
                 "AND an 'invalid email' error is shown")
         void addRelationshipTest_WithInvalidEmail() throws Exception {
             //GIVEN
+            when(pmbUserDetailsServiceMock.getCurrentUser()).thenReturn(userInDb);
+
             when(relationshipServiceMock.createRelationship(any(RelationshipDTO.class)))
                     .thenThrow(new PMBException(PMBExceptionConstants.INVALID_FRIEND_EMAIL));
 
