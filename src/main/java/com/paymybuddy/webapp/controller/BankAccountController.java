@@ -6,6 +6,8 @@ import com.paymybuddy.webapp.constants.PMBExceptionConstants;
 import com.paymybuddy.webapp.constants.ViewNameConstants;
 import com.paymybuddy.webapp.exception.PMBException;
 import com.paymybuddy.webapp.model.DTO.BankAccountDTO;
+import com.paymybuddy.webapp.model.User;
+import com.paymybuddy.webapp.service.PMBUserDetailsService;
 import com.paymybuddy.webapp.service.contract.IBankAccountService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +28,12 @@ public class BankAccountController {
 
     private final IBankAccountService bankAccountService;
 
+    private final PMBUserDetailsService pmbUserDetailsService;
+
     @Autowired
-    public BankAccountController(IBankAccountService bankAccountService) {
+    public BankAccountController(IBankAccountService bankAccountService, PMBUserDetailsService pmbUserDetailsService) {
         this.bankAccountService = bankAccountService;
+        this.pmbUserDetailsService = pmbUserDetailsService;
     }
 
 
@@ -38,13 +43,24 @@ public class BankAccountController {
     @GetMapping(value = "/addBankAccount")
     public String showHomeBankAccount(Model model) throws PMBException {
 
-        model.addAttribute("bankAccountDTO", new BankAccountDTO());
+        log.info(LogConstants.GET_BANK_ACCOUNT_REQUEST_RECEIVED);
 
-        //TODO-débouchonnage passer le user ID de l'utilisateur connecté
-        loadBankAccountDTOList(model, BouchonConstants.USER_BOUCHON);
+        //récupération des informations de l'utilisateur connecté
+        User currentUser = pmbUserDetailsService.getCurrentUser();
+        if (currentUser == null) {
+            log.info(LogConstants.CURRENT_USER_UNKNOWN);
+            return ViewNameConstants.HOME;
+        }
+
+        //initialisation du compte bancaire à créer
+        BankAccountDTO bankAccountDTO = new BankAccountDTO();
+        bankAccountDTO.setUserId(currentUser.getUserId());
+        model.addAttribute("bankAccountDTO", bankAccountDTO);
+
+        //récupération de la liste des comptes bancaires associés à l'utilisateur connecté
+        loadBankAccountDTOListForCurrentUser(model);
 
         return ViewNameConstants.BANK_ACCOUNT_HOME;
-
     }
 
     /**
@@ -60,12 +76,13 @@ public class BankAccountController {
         if (bindingResult.hasErrors()) {
             log.error(LogConstants.ADD_BANK_ACCOUNT_REQUEST_NOT_VALID + "\n");
 
-            loadBankAccountDTOList(model, BouchonConstants.USER_BOUCHON);//TODO-débouchonnage
+            loadBankAccountDTOListForCurrentUser(model);
+
             return ViewNameConstants.BANK_ACCOUNT_HOME;
         }
 
-        //TODO revoir pour mettre ça dans le bankAccountService une fois spring security en place ?
-        bankAccountDTOToAdd.setUserId(BouchonConstants.USER_BOUCHON); //TODO-débouchonnage
+        //TODO revoir pourquoi le userId est réinitialisé
+        bankAccountDTOToAdd.setUserId(pmbUserDetailsService.getCurrentUser().getUserId());
 
         try {
 
@@ -98,14 +115,25 @@ public class BankAccountController {
             }
         }
 
-        //TODO-débouchonnage passer le user ID ensuite
-        loadBankAccountDTOList(model, BouchonConstants.USER_BOUCHON);
+        loadBankAccountDTOListForCurrentUser(model);
         return ViewNameConstants.BANK_ACCOUNT_HOME;
     }
 
 
-    private void loadBankAccountDTOList(Model model, Long userId) throws PMBException {
-        List<BankAccountDTO> bankAccountDTOList = bankAccountService.getAllBankAccountsForUser(userId);
-        model.addAttribute("bankAccountDTOList", bankAccountDTOList);
+    /**
+     * charge la liste des comptes bancaires associés à l'utilisateur connecté
+     *
+     * @param model model en cours
+     * @throws PMBException si l'identifiant transmis est nul
+     *                      ou que l'utilisateur n'existe pas
+     */
+    private void loadBankAccountDTOListForCurrentUser(Model model) throws PMBException {
+        User currentUser = pmbUserDetailsService.getCurrentUser();
+
+        if (currentUser != null) {
+            List<BankAccountDTO> bankAccountDTOList =
+                    bankAccountService.getAllBankAccountsForUser(currentUser.getUserId());
+            model.addAttribute("bankAccountDTOList", bankAccountDTOList);
+        }
     }
 }

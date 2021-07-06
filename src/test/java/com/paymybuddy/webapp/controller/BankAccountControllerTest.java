@@ -4,10 +4,12 @@ import com.paymybuddy.webapp.constants.PMBExceptionConstants;
 import com.paymybuddy.webapp.constants.ViewNameConstants;
 import com.paymybuddy.webapp.exception.PMBException;
 import com.paymybuddy.webapp.model.DTO.BankAccountDTO;
+import com.paymybuddy.webapp.model.User;
 import com.paymybuddy.webapp.service.PMBUserDetailsService;
 import com.paymybuddy.webapp.service.contract.IBankAccountService;
 import com.paymybuddy.webapp.testconstants.BankAccountTestConstants;
 import com.paymybuddy.webapp.testconstants.UserTestConstants;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -46,6 +48,18 @@ class BankAccountControllerTest {
     @MockBean
     private PasswordEncoder passwordEncoderMock;
 
+    private static User userInDb;
+
+    @BeforeAll
+    private static void setUp() {
+        userInDb = new User();
+        userInDb.setUserId(UserTestConstants.EXISTING_USER_ID);
+        userInDb.setEmail(UserTestConstants.EXISTING_USER_EMAIL);
+        userInDb.setFirstname(UserTestConstants.EXISTING_USER_FIRSTNAME);
+        userInDb.setLastname(UserTestConstants.EXISTING_USER_LASTNAME);
+        userInDb.setPassword(UserTestConstants.EXISTING_USER_PASSWORD);
+        userInDb.setBalance(UserTestConstants.EXISTING_USER_WITH_HIGH_BALANCE);
+    }
 
     @Nested
     @DisplayName("showHomeBankAccount tests")
@@ -56,6 +70,10 @@ class BankAccountControllerTest {
         @DisplayName("WHEN asking for the bank account page while logged in " +
                 " THEN return status is ok and the expected view is the bank account page")
         void showHomeBankAccountTest_LoggedIn() throws Exception {
+            //GIVEN
+            when(pmbUserDetailsServiceMock.getCurrentUser()).thenReturn(userInDb);
+
+            //THEN
             mockMvc.perform(get("/addBankAccount"))
                     .andExpect(status().isOk())
                     .andExpect(model().attributeExists("bankAccountDTO"))
@@ -66,7 +84,7 @@ class BankAccountControllerTest {
 
         @Test
         @DisplayName("WHEN asking for the bank account page while not logged in " +
-                " THEN return status is 302 and the expected view is the login page")
+                " THEN return status is Found (302) and the expected view is the login page")
         void showHomeBankAccountTest_NotLoggedIn() throws Exception {
             mockMvc.perform(get("/addBankAccount"))
                     .andExpect(status().isFound())
@@ -87,6 +105,8 @@ class BankAccountControllerTest {
                 "AND the expected view is the bank account page with bank account list updated")
         void addBankAccountTest_WithSuccess() throws Exception {
             //GIVEN
+            when(pmbUserDetailsServiceMock.getCurrentUser()).thenReturn(userInDb);
+
             BankAccountDTO bankAccountDTOAdded = new BankAccountDTO();
             bankAccountDTOAdded.setUserId(UserTestConstants.EXISTING_USER_ID);
             bankAccountDTOAdded.setIban(BankAccountTestConstants.NEW_BANK_ACCOUNT_IBAN);
@@ -115,6 +135,8 @@ class BankAccountControllerTest {
                 "AND the expected view is the bank account page filled with entered bank account")
         void addBankAccountTest_WithMissingInformation() throws Exception {
             //GIVEN
+            when(pmbUserDetailsServiceMock.getCurrentUser()).thenReturn(userInDb);
+
             when(bankAccountServiceMock.createBankAccount(any(BankAccountDTO.class)))
                     .thenThrow(new PMBException(PMBExceptionConstants.MISSING_INFORMATION_NEW_BANK_ACCOUNT));
 
@@ -140,6 +162,8 @@ class BankAccountControllerTest {
                 "AND an 'already exists' error is shown")
         void addBankAccountTest_WithAlreadyExistingBankAccount() throws Exception {
             //GIVEN
+            when(pmbUserDetailsServiceMock.getCurrentUser()).thenReturn(userInDb);
+
             when(bankAccountServiceMock.createBankAccount(any(BankAccountDTO.class)))
                     .thenThrow(new PMBException(PMBExceptionConstants.ALREADY_EXIST_BANK_ACCOUNT));
 
@@ -167,6 +191,8 @@ class BankAccountControllerTest {
                 "AND an 'invalid iban' error is shown")
         void addBankAccountTest_WithInvalidIban() throws Exception {
             //GIVEN
+            when(pmbUserDetailsServiceMock.getCurrentUser()).thenReturn(userInDb);
+
             when(bankAccountServiceMock.createBankAccount(any(BankAccountDTO.class)))
                     .thenThrow(new PMBException(PMBExceptionConstants.INVALID_IBAN));
 
