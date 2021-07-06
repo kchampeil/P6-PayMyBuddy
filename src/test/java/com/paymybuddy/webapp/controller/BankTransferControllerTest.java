@@ -6,11 +6,14 @@ import com.paymybuddy.webapp.constants.PMBExceptionConstants;
 import com.paymybuddy.webapp.constants.ViewNameConstants;
 import com.paymybuddy.webapp.exception.PMBException;
 import com.paymybuddy.webapp.model.DTO.BankTransferDTO;
+import com.paymybuddy.webapp.model.User;
 import com.paymybuddy.webapp.service.PMBUserDetailsService;
 import com.paymybuddy.webapp.service.contract.IBankAccountService;
 import com.paymybuddy.webapp.service.contract.IBankTransferService;
 import com.paymybuddy.webapp.testconstants.BankAccountTestConstants;
 import com.paymybuddy.webapp.testconstants.BankTransferTestConstants;
+import com.paymybuddy.webapp.testconstants.UserTestConstants;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -53,6 +56,18 @@ class BankTransferControllerTest {
     @MockBean
     private PasswordEncoder passwordEncoderMock;
 
+    private static User userInDb;
+
+    @BeforeAll
+    private static void setUp() {
+        userInDb = new User();
+        userInDb.setUserId(UserTestConstants.EXISTING_USER_ID);
+        userInDb.setEmail(UserTestConstants.EXISTING_USER_EMAIL);
+        userInDb.setFirstname(UserTestConstants.EXISTING_USER_FIRSTNAME);
+        userInDb.setLastname(UserTestConstants.EXISTING_USER_LASTNAME);
+        userInDb.setPassword(UserTestConstants.EXISTING_USER_PASSWORD);
+        userInDb.setBalance(UserTestConstants.EXISTING_USER_WITH_HIGH_BALANCE);
+    }
 
     @Nested
     @DisplayName("showHomeBankTransfer tests")
@@ -63,6 +78,9 @@ class BankTransferControllerTest {
         @DisplayName("WHEN asking for the profile page while logged in " +
                 " THEN return status is ok and the expected view is the profile page")
         void showHomeBankTransferTest_LoggedIn() throws Exception {
+            //GIVEN
+            when(pmbUserDetailsServiceMock.getCurrentUser()).thenReturn(userInDb);
+
             mockMvc.perform(get("/profile"))
                     .andExpect(status().isOk())
                     .andExpect(model().attributeExists("bankTransferDTO"))
@@ -99,6 +117,8 @@ class BankTransferControllerTest {
                 "AND the expected view is the profile page with bank transfer list updated")
         void addBankTransferTest_WithSuccess() throws Exception {
             //GIVEN
+            when(pmbUserDetailsServiceMock.getCurrentUser()).thenReturn(userInDb);
+
             BankTransferDTO bankTransferDTOAdded = new BankTransferDTO();
             bankTransferDTOAdded.setBankAccountId(BankAccountTestConstants.EXISTING_BANK_ACCOUNT_ID);
             bankTransferDTOAdded.setAmount(BankTransferTestConstants.NEW_BANK_TRANSFER_AMOUNT);
@@ -137,6 +157,8 @@ class BankTransferControllerTest {
                 "AND the expected view is the profile page filled with entered bank transfer")
         void addBankTransferTest_WithMissingInformation() throws Exception {
             //GIVEN
+            when(pmbUserDetailsServiceMock.getCurrentUser()).thenReturn(userInDb);
+
             when(bankTransferServiceMock.transferWithBankAccount(any(BankTransferDTO.class)))
                     .thenThrow(new PMBException(PMBExceptionConstants.MISSING_INFORMATION_NEW_BANK_TRANSFER));
 
@@ -171,6 +193,8 @@ class BankTransferControllerTest {
                 "AND an 'does not exist' error is shown")
         void addBankTransferTest_WithNonExistingBankAccount() throws Exception {
             //GIVEN
+            when(pmbUserDetailsServiceMock.getCurrentUser()).thenReturn(userInDb);
+
             when(bankTransferServiceMock.transferWithBankAccount(any(BankTransferDTO.class)))
                     .thenThrow(new PMBException(PMBExceptionConstants.DOES_NOT_EXISTS_BANK_ACCOUNT));
 
@@ -205,6 +229,8 @@ class BankTransferControllerTest {
                 "AND an 'insufficient balance' error is shown")
         void addBankTransferTest_WithInsufficientBalance() throws Exception {
             //GIVEN
+            when(pmbUserDetailsServiceMock.getCurrentUser()).thenReturn(userInDb);
+
             when(bankTransferServiceMock.transferWithBankAccount(any(BankTransferDTO.class)))
                     .thenThrow(new PMBException(PMBExceptionConstants.INSUFFICIENT_BALANCE));
 

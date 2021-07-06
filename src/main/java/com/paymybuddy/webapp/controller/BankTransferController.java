@@ -1,13 +1,14 @@
 package com.paymybuddy.webapp.controller;
 
 import com.paymybuddy.webapp.constants.BankTransferTypes;
-import com.paymybuddy.webapp.constants.BouchonConstants;
 import com.paymybuddy.webapp.constants.LogConstants;
 import com.paymybuddy.webapp.constants.PMBExceptionConstants;
 import com.paymybuddy.webapp.constants.ViewNameConstants;
 import com.paymybuddy.webapp.exception.PMBException;
 import com.paymybuddy.webapp.model.DTO.BankAccountDTO;
 import com.paymybuddy.webapp.model.DTO.BankTransferDTO;
+import com.paymybuddy.webapp.model.User;
+import com.paymybuddy.webapp.service.PMBUserDetailsService;
 import com.paymybuddy.webapp.service.contract.IBankAccountService;
 import com.paymybuddy.webapp.service.contract.IBankTransferService;
 import lombok.extern.slf4j.Slf4j;
@@ -28,12 +29,18 @@ import java.util.Optional;
 public class BankTransferController {
 
     private final IBankTransferService bankTransferService;
+
     private final IBankAccountService bankAccountService;
 
+    private final PMBUserDetailsService pmbUserDetailsService;
+
     @Autowired
-    public BankTransferController(IBankTransferService bankTransferService, IBankAccountService bankAccountService) {
+    public BankTransferController(IBankTransferService bankTransferService,
+                                  IBankAccountService bankAccountService,
+                                  PMBUserDetailsService pmbUserDetailsService) {
         this.bankTransferService = bankTransferService;
         this.bankAccountService = bankAccountService;
+        this.pmbUserDetailsService = pmbUserDetailsService;
     }
 
 
@@ -43,10 +50,19 @@ public class BankTransferController {
     @GetMapping(value = "/profile")
     public String showHomeBankTransfer(Model model) throws PMBException {
 
+        log.info(LogConstants.GET_BANK_TRANSFER_REQUEST_RECEIVED);
+
+        //récupération des informations de l'utilisateur connecté
+        User currentUser = pmbUserDetailsService.getCurrentUser();
+        if (currentUser == null) {
+            log.info(LogConstants.CURRENT_USER_UNKNOWN);
+            return ViewNameConstants.HOME;
+        }
+
+        //initialisation du transfert bancaire à créer
         model.addAttribute("bankTransferDTO", new BankTransferDTO());
 
-        //TODO-débouchonnage passer le user ID de l'utilisateur connecté
-        loadNeededLists(model, BouchonConstants.USER_BOUCHON);
+        loadNeededListsForCurrentUser(model);
         //TODO récupérer et afficher la balance du compte ?
 
         return ViewNameConstants.BANK_TRANSFER_HOME;
@@ -67,7 +83,7 @@ public class BankTransferController {
         if (bindingResult.hasErrors()) {
             log.error(LogConstants.ADD_BANK_TRANSFER_REQUEST_NOT_VALID + "\n");
 
-            loadNeededLists(model, BouchonConstants.USER_BOUCHON);//TODO-débouchonnage
+            loadNeededListsForCurrentUser(model);
             return ViewNameConstants.BANK_TRANSFER_HOME;
         }
 
@@ -104,8 +120,7 @@ public class BankTransferController {
             }
         }
 
-        //TODO-débouchonnage passer le user ID ensuite
-        loadNeededLists(model, BouchonConstants.USER_BOUCHON);
+        loadNeededListsForCurrentUser(model);
         return ViewNameConstants.BANK_TRANSFER_HOME;
     }
 
@@ -114,13 +129,17 @@ public class BankTransferController {
      * charge toutes les listes utiles (liste des comptes bancaires, liste des transferts bancaires, etc.)
      * pour l'utilisateur en cours et les ajoute au modèle
      */
-    private void loadNeededLists(Model model, Long userId) throws PMBException {
+    private void loadNeededListsForCurrentUser(Model model) throws PMBException {
         model.addAttribute("typeOfTransferList", BankTransferTypes.values());
 
-        List<BankAccountDTO> bankAccountDTOList = bankAccountService.getAllBankAccountsForUser(userId);
-        model.addAttribute("bankAccountDTOList", bankAccountDTOList);
+        User currentUser = pmbUserDetailsService.getCurrentUser();
 
-        List<BankTransferDTO> bankTransferDTOList = bankTransferService.getAllBankTransfersForUser(userId);
-        model.addAttribute("bankTransferDTOList", bankTransferDTOList);
+        if (currentUser != null) {
+            List<BankAccountDTO> bankAccountDTOList = bankAccountService.getAllBankAccountsForUser(currentUser.getUserId());
+            model.addAttribute("bankAccountDTOList", bankAccountDTOList);
+
+            List<BankTransferDTO> bankTransferDTOList = bankTransferService.getAllBankTransfersForUser(currentUser.getUserId());
+            model.addAttribute("bankTransferDTOList", bankTransferDTOList);
+        }
     }
 }
