@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import java.util.concurrent.TimeUnit;
 
@@ -53,7 +54,7 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and().formLogin()
                 .loginPage("/login").permitAll()
                 .usernameParameter("email")
-                .defaultSuccessUrl("/homeUser", true) //TODO pour réorienté sur home de manière connectée ?
+                .defaultSuccessUrl("/", true)
                 .failureUrl("/login?error=true")
 
                 //si la case remember-me est cochée l'utilisateur reste connecté pour une duré d'1j
@@ -61,8 +62,10 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
 
                 // à la déconnexion l'utilisateur est redirigé vers la page de login si tout s'est bien passé
                 // + fermeture session, suppression cookies, etc
+
                 .and().logout()
                 .logoutUrl("/logout")
+                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                 .clearAuthentication(true)
                 .invalidateHttpSession(true)
                 .deleteCookies("JSESSIONID", "remember-me")
@@ -71,7 +74,7 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
 
 
     /**
-     * Prépare l'authenticationProvider en positionnant:
+     * Prépare authenticationProvider en positionnant:
      * le service qui récupère l'utilisateur dans la DB
      * et l'encodeur de mot de passe
      *

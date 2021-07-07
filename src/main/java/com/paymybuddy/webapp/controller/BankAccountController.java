@@ -70,7 +70,7 @@ public class BankAccountController {
             return ViewNameConstants.BANK_ACCOUNT_HOME;
         }
 
-        //TODO revoir pourquoi le userId est réinitialisé
+        //TODO revoir pourquoi le userId est réinitialisé ==> créer un @ModelAttribute BankAccountDTO ?
         // + revoir le nb de mockito times dans test une fois résolu
         bankAccountDTOToAdd.setUserId(pmbUserDetailsService.getCurrentUser().getUserId());
 
@@ -117,10 +117,11 @@ public class BankAccountController {
      * @throws PMBException si l'identifiant transmis est nul
      *                      ou que l'utilisateur n'existe pas
      */
+    //TODO à passer en @ModelAttribute ?
     private void loadBankAccountDTOListForCurrentUser(Model model) throws PMBException {
-        User currentUser = pmbUserDetailsService.getCurrentUser();
+        if (model.getAttribute("user") != null) {
+            User currentUser = (User) model.getAttribute("user");
 
-        if (currentUser != null) {
             List<BankAccountDTO> bankAccountDTOList =
                     bankAccountService.getAllBankAccountsForUser(currentUser.getUserId());
             model.addAttribute("bankAccountDTOList", bankAccountDTOList);

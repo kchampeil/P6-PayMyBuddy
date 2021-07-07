@@ -64,11 +64,11 @@ public class RelationshipController {
 
         if (bindingResult.hasErrors()) {
             log.error(LogConstants.ADD_RELATIONSHIP_REQUEST_NOT_VALID + "\n");
-            loadRelationshipDTOListForCurrentUser(model);//TODO-débouchonnage
+            loadRelationshipDTOListForCurrentUser(model);
             return ViewNameConstants.RELATIONSHIP_HOME;
         }
 
-        //TODO revoir pourquoi le userId est réinitialisé
+        //TODO revoir pourquoi le userId est réinitialisé  ==> créer un @ModelAttribute RelationshipDTO ?
         // + revoir le nb de mockito times dans test une fois résolu
         relationshipDTOToAdd.setUserId(pmbUserDetailsService.getCurrentUser().getUserId());
 
@@ -115,10 +115,11 @@ public class RelationshipController {
      * @throws PMBException si l'identifiant transmis est nul
      *                      ou que l'utilisateur n'existe pas
      */
+    //TODO à passer en @ModelAttribute ?
     private void loadRelationshipDTOListForCurrentUser(Model model) throws PMBException {
-        User currentUser = pmbUserDetailsService.getCurrentUser();
 
-        if (currentUser != null) {
+        if (model.getAttribute("user") != null) {
+            User currentUser = (User) model.getAttribute("user");
             List<RelationshipDTO> relationshipDTOList =
                     relationshipService.getAllRelationshipsForUser(currentUser.getUserId());
             model.addAttribute("relationshipDTOList", relationshipDTOList);

@@ -7,7 +7,6 @@ import com.paymybuddy.webapp.exception.PMBException;
 import com.paymybuddy.webapp.model.DTO.RelationshipDTO;
 import com.paymybuddy.webapp.model.DTO.TransactionDTO;
 import com.paymybuddy.webapp.model.User;
-import com.paymybuddy.webapp.service.PMBUserDetailsService;
 import com.paymybuddy.webapp.service.contract.IRelationshipService;
 import com.paymybuddy.webapp.service.contract.ITransactionService;
 import lombok.extern.slf4j.Slf4j;
@@ -31,15 +30,11 @@ public class TransactionController {
 
     private final ITransactionService transactionService;
 
-    private final PMBUserDetailsService pmbUserDetailsService;
-
     @Autowired
     public TransactionController(IRelationshipService relationshipService,
-                                 ITransactionService transactionService,
-                                 PMBUserDetailsService pmbUserDetailsService) {
+                                 ITransactionService transactionService) {
         this.relationshipService = relationshipService;
         this.transactionService = transactionService;
-        this.pmbUserDetailsService = pmbUserDetailsService;
     }
 
     /**
@@ -129,10 +124,12 @@ public class TransactionController {
      * charge toutes les listes utiles (liste des connexions, liste des transactions)
      * pour l'utilisateur en cours et les ajoute au modèle
      */
+    //TODO à passer en @ModelAttribute ?
     private void loadNeededListsForCurrentUser(Model model) throws PMBException {
-        User currentUser = pmbUserDetailsService.getCurrentUser();
 
-        if (currentUser != null) {
+        if (model.getAttribute("user") != null) {
+            User currentUser = (User) model.getAttribute("user");
+
             List<RelationshipDTO> relationshipDTOList = relationshipService.getAllRelationshipsForUser(currentUser.getUserId());
 
             model.addAttribute("relationshipDTOList", relationshipDTOList);

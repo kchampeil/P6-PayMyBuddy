@@ -37,7 +37,7 @@ public class UserController {
     public String showRegistrationForm(Model model) {
         log.info(LogConstants.USER_REGISTRATION_SHOW_PAGE_RECEIVED);
 
-        model.addAttribute("user", new UserDTO());
+        model.addAttribute("userToRegister", new UserDTO());
         return ViewNameConstants.USER_REGISTRATION;
     }
 
@@ -48,7 +48,7 @@ public class UserController {
      * @param userDTOToRegister informations sur le nouvel utilisateur à créer
      */
     @PostMapping(value = "/registerUser")
-    public String saveUser(@ModelAttribute("user") @Valid UserDTO userDTOToRegister,
+    public String saveUser(@ModelAttribute("userToRegister") @Valid UserDTO userDTOToRegister,
                            BindingResult bindingResult, Model model) {
 
         log.info(LogConstants.USER_REGISTRATION_REQUEST_RECEIVED + userDTOToRegister.getEmail());
@@ -64,9 +64,11 @@ public class UserController {
             if (userDTORegistered.isPresent()) {
                 log.info(LogConstants.USER_REGISTRATION_REQUEST_OK + userDTORegistered.get().getUserId() + "\n");
                 model.addAttribute("user", userDTORegistered.get());
-                return ViewNameConstants.USER_HOME;
 
-                //TODO return "redirect:/home" en mode connecté ? pour l'instant affiche la page d'accueil de l'utilisateur
+                return ViewNameConstants.USER_REGISTRATION_SUCCESSFUL;
+                /*TODO V2 pour l'instant affiche une page de confirmation d'enregistrement,
+                   l'autologin sera mis en place dans la prochaine version
+                 */
 
             } else {
                 log.error(LogConstants.USER_REGISTRATION_REQUEST_KO + "\n");
@@ -89,18 +91,26 @@ public class UserController {
      *
      * @param userDTO informations utilisateur
      */
-    @GetMapping(value = "/userProfile")
+    /*@GetMapping(value = "/userProfile")
     //TODEL plus utilisé puisque homeUser utilisé à la place ?
     // ==> à fusionner pour récupérer info user dans homeUser + supprimer test associé
     public String userProfile(UserDTO userDTO, Model model) {
 
         log.info(LogConstants.USER_PROFILE_REQUEST_RECEIVED + userDTO.getUserId());
 
-        model.addAttribute("user", userDTO);
-        return ViewNameConstants.USER_PROFILE;
-        //TODO return ViewNameConstants.USER_HOME;
+        User currentUser = pmbUserDetailsService.getCurrentUser();
 
+        if (currentUser != null) {
+
+            model.addAttribute("user", userDTO);
+            //TODEL return ViewNameConstants.USER_PROFILE;
+            return ViewNameConstants.USER_HOME;
+        }
+
+        return ViewNameConstants.HOME;
     }
+
+     */
 
 
     /**
@@ -117,24 +127,14 @@ public class UserController {
     /**
      * déconnecter l'utilisateur et le renvoyer sur la page d'accueil
      */
-    @GetMapping(value = "/logout")
+    /*TODEL ? @GetMapping(value = "/logout")
     public String logoutUser() {
 
         return ViewNameConstants.HOME;
 
     }
 
-
-    /**
-     * afficher la page d'accueil utilisateur
      */
-    //TODO à fusionner à la fin avec home en mode connecté
-    @GetMapping(value = "/homeUser")
-    public String showHomeUser() {
-
-        return ViewNameConstants.USER_HOME;
-
-    }
 
 
     /**

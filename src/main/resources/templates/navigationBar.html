@@ -5,14 +5,17 @@
         </a>
     </div>
     <div class="navbar-nav mr-auto">
-        <!--TODO voir pourquoi ne s'aligne pas à droite : https://mdbootstrap.com/docs/standard/navigation/navbar/
-        ou justify-content-end ou float-right
-        ou https://stackoverflow.com/questions/19733447/bootstrap-navbar-with-left-center-or-right-aligned-items ?-->
-        <a class="nav-item nav-link" th:href="@{/homeUser}">Home</a>
+        <a class="nav-item nav-link" th:href="@{/}">Home</a>
         <a class="nav-item nav-link" th:href="@{/transfer}">Transfer</a>
         <a class="nav-item nav-link" th:href="@{/profile}">Profile</a>
         <a class="nav-item nav-link" th:href="@{/contact}">Contact</a>
         <a class="nav-item nav-link" th:href="@{/logout}">Log off</a>
+    </div>
+    <div class="text-info">
+        <span>connected with: </span>
+        <span th:text="${user.email}"> Email </span>
+        <span> / balance: </span>
+        <span th:text="${user.balance} + '€'"> Balance </span>
     </div>
 </nav>
 

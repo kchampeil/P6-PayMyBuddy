@@ -8,7 +8,6 @@ import com.paymybuddy.webapp.exception.PMBException;
 import com.paymybuddy.webapp.model.DTO.BankAccountDTO;
 import com.paymybuddy.webapp.model.DTO.BankTransferDTO;
 import com.paymybuddy.webapp.model.User;
-import com.paymybuddy.webapp.service.PMBUserDetailsService;
 import com.paymybuddy.webapp.service.contract.IBankAccountService;
 import com.paymybuddy.webapp.service.contract.IBankTransferService;
 import lombok.extern.slf4j.Slf4j;
@@ -32,15 +31,11 @@ public class BankTransferController {
 
     private final IBankAccountService bankAccountService;
 
-    private final PMBUserDetailsService pmbUserDetailsService;
-
     @Autowired
     public BankTransferController(IBankTransferService bankTransferService,
-                                  IBankAccountService bankAccountService,
-                                  PMBUserDetailsService pmbUserDetailsService) {
+                                  IBankAccountService bankAccountService) {
         this.bankTransferService = bankTransferService;
         this.bankAccountService = bankAccountService;
-        this.pmbUserDetailsService = pmbUserDetailsService;
     }
 
 
@@ -121,12 +116,13 @@ public class BankTransferController {
      * charge toutes les listes utiles (liste des comptes bancaires, liste des transferts bancaires, etc.)
      * pour l'utilisateur en cours et les ajoute au modèle
      */
+    //TODO à passer en @ModelAttribute ?
     private void loadNeededListsForCurrentUser(Model model) throws PMBException {
         model.addAttribute("typeOfTransferList", BankTransferTypes.values());
 
-        User currentUser = pmbUserDetailsService.getCurrentUser();
+        if (model.getAttribute("user") != null) {
+            User currentUser = (User) model.getAttribute("user");
 
-        if (currentUser != null) {
             List<BankAccountDTO> bankAccountDTOList = bankAccountService.getAllBankAccountsForUser(currentUser.getUserId());
             model.addAttribute("bankAccountDTOList", bankAccountDTOList);
 

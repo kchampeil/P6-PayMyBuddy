@@ -2,27 +2,24 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8"/>
-    <title>Home User</title> <!--TODO à fusionner avec home à la fin -->
+    <title>Registration successful</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}"/>
 </head>
 
 <body>
-<th:block th:include="/navigationBar"></th:block>
-
-<nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item active" aria-current="page">Home</li>
-    </ol>
-</nav>
-
 <div class="container my-1 spacer">
 
     <div class="row spacer">
 
         <!-- informations utilisateur -->
-        <div class="col-6 mx-auto" th:object="${user}">
+        <div class="col-6 mx-auto text-center" th:object="${user}">
+            <div class="mb-5">
+                <img class="rounded" src="./img/PMB_logo.png" width="200" height="60"
+                     alt="PMB Logo"/>
+            </div>
+            <span>Registered with success !</span>
             <div class="form-group mt-3 row">
                 <label for="email" class="col-2 col-form-label">email </label>
                 <div class="col-8">
@@ -51,17 +48,13 @@
             </div>
         </div>
 
-        <div class="col-3 mx-auto">
-            <div>
-                <a class="btn btn-primary btn-block mt-3" th:href="@{/transfer}">Transfer</a>
-                <a class="btn btn-primary btn-block mt-3" th:href="@{/profile}">Profile</a>
-            </div>
-            <div>
-                <a class="btn btn-primary btn-block mt-3" th:href="@{/contact}">Contact</a>
-                <a class="btn btn-primary btn-block mt-3" th:href="@{/addBankAccount}">Bank accounts</a>
-            </div>
-        </div>
+    </div>
 
+    <div class="row mt-5 text-center">
+        <div class="col-6 mx-auto">
+            Please log in to access to your Pay My Buddy Account
+            <a class="btn btn-primary btn-block col-4 offset-4 mt-2" th:href="@{/login}">Login</a>
+        </div>
     </div>
 </div>
 

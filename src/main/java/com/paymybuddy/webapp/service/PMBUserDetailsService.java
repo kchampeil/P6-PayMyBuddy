@@ -55,6 +55,7 @@ public class PMBUserDetailsService implements UserDetailsService {
      * récupère les informations du user courant
      * @return les informations de l'utilisateur connecté
      */
+    //TODO récupérer plutôt le DTO + faire les tests
     public User getCurrentUser() {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -67,7 +68,7 @@ public class PMBUserDetailsService implements UserDetailsService {
      * @param username identifiant de l'utilisateur
      * @return les informations de l'utilisateur
      */
-    //TODO à mettre ailleurs ? dans UserService ?
+    //TODO à mettre ailleurs ? dans UserService ? (déplacer les tests aussi)
     public User getUserByUsername(String username) {
 
         if (username == null || username.isEmpty()) {
