@@ -143,7 +143,7 @@ class TransactionServiceTest {
         @DisplayName("GIVEN a new transaction to a friend to add for an existing relationship " +
                 "but with an insufficient user's balance for transaction + fee amount " +
                 "WHEN saving this new transaction " +
-                "THEN an PMB Exception is thrown")
+                "THEN a PMB Exception is thrown")
         void transferToFriend_WithInsufficientUserBalance() {
             //GIVEN
             BigDecimal insufficientBalance = transactionDTOToCreate.getAmountFeeExcluded()
@@ -170,7 +170,7 @@ class TransactionServiceTest {
         @Test
         @DisplayName("GIVEN a new transaction to a friend to add with a non-existing relationship " +
                 "WHEN saving this new transaction " +
-                "THEN an PMB Exception is thrown")
+                "THEN a PMB Exception is thrown")
         void transferToFriend_WithNoExistingRelationshipInRepository() {
             //GIVEN
             when(relationshipRepositoryMock.findById(transactionDTOToCreate.getRelationshipId()))
@@ -192,7 +192,7 @@ class TransactionServiceTest {
         @Test
         @DisplayName("GIVEN a new transaction to a friend to add with missing informations" +
                 "WHEN saving this new transaction " +
-                "THEN an PMB Exception is thrown")
+                "THEN a PMB Exception is thrown")
         void transferToFriend_WithMissingInformations() {
             //GIVEN
             transactionDTOToCreate.setDescription(null);
@@ -304,7 +304,7 @@ class TransactionServiceTest {
         @Test
         @DisplayName("GIVEN an unknown user " +
                 "WHEN getting all the transactions for this user " +
-                "THEN an PMB Exception is thrown")
+                "THEN a PMB Exception is thrown")
         void getAllTransactionsForUser_WithUnknownUser() {
             //GIVEN
             when(userRepositoryMock.findById(UserTestConstants.UNKNOWN_USER_ID))
@@ -326,7 +326,7 @@ class TransactionServiceTest {
         @Test
         @DisplayName("GIVEN an null userId " +
                 "WHEN getting all the transactions for this user " +
-                "THEN an PMB Exception is thrown")
+                "THEN a PMB Exception is thrown")
         void getAllTransactionsForUser_WithNullUserId() {
             //THEN
             Exception exception =

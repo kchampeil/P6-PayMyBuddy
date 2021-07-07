@@ -86,7 +86,6 @@ public class BankAccountController {
 
                 /* actualise la liste des comptes bancaires associés à l'utilisateur
                 avant de réafficher la page pour une autre saisie */
-                //TODO dans les autres controllers
                 loadBankAccountDTOListForCurrentUser(model, bankAccountDTOAdded.get().getUserId());
                 return showHomeBankAccount();
             }

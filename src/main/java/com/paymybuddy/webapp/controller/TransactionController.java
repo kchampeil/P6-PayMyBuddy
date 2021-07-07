@@ -133,7 +133,6 @@ public class TransactionController {
      * charge toutes les listes utiles (liste des connexions, liste des transactions)
      * pour l'utilisateur en cours et les ajoute au modèle
      */
-    //TODO à passer en @ModelAttribute ?
     private void loadNeededListsForCurrentUser(Model model) throws PMBException {
 
         if (model.getAttribute("user") != null) {

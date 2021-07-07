@@ -111,7 +111,7 @@ class BankAccountServiceTest {
         @Test
         @DisplayName("GIVEN a new bank account to add with an already existing bank account for this user " +
                 "WHEN saving this new bank account " +
-                "THEN an PMB Exception is thrown")
+                "THEN a PMB Exception is thrown")
         void createBankAccount_WithExistingBankAccountInRepository() {
             //GIVEN
             when(userRepositoryMock.findById(bankAccountDTOToCreate.getUserId()))
@@ -136,7 +136,7 @@ class BankAccountServiceTest {
         @Test
         @DisplayName("GIVEN a new bank account to add with missing informations " +
                 "WHEN saving this new bank account " +
-                "THEN an PMB Exception is thrown")
+                "THEN a PMB Exception is thrown")
         void createBankAccount_WithMissingInformations() {
             //GIVEN
             bankAccountDTOToCreate.setName(null);
@@ -157,7 +157,7 @@ class BankAccountServiceTest {
         @Test
         @DisplayName("GIVEN a new bank account to add with invalid IBAN " +
                 "WHEN saving this new bank account " +
-                "THEN an PMB Exception is thrown")
+                "THEN a PMB Exception is thrown")
         void createBankAccount_WithInvalidIBAN() {
             //GIVEN
             bankAccountDTOToCreate.setIban(BankAccountTestConstants.NEW_BANK_ACCOUNT_INVALID_IBAN);
@@ -253,7 +253,7 @@ class BankAccountServiceTest {
         @Test
         @DisplayName("GIVEN an unknown user " +
                 "WHEN getting all the bank accounts for this user " +
-                "THEN an PMB Exception is thrown")
+                "THEN a PMB Exception is thrown")
         void getAllBankAccountsForUser_WithUnknownUser() {
             //GIVEN
             when(userRepositoryMock.findById(UserTestConstants.UNKNOWN_USER_ID))
@@ -274,7 +274,7 @@ class BankAccountServiceTest {
         @Test
         @DisplayName("GIVEN an null userId " +
                 "WHEN getting all the bank accounts for this user " +
-                "THEN an PMB Exception is thrown")
+                "THEN a PMB Exception is thrown")
         void getAllBankAccountsForUser_WithNullUserId() {
             //THEN
             Exception exception = assertThrows(PMBException.class,

@@ -129,7 +129,7 @@ class RelationshipServiceTest {
         @Test
         @DisplayName("GIVEN a new relationship to add with the same relationship already existing for this user " +
                 "WHEN saving this new relationship " +
-                "THEN an PMB Exception is thrown")
+                "THEN a PMB Exception is thrown")
         void createRelationship_WithExistingRelationshipInRepository() {
             //GIVEN
             when(userRepositoryMock.findById(userInDb.getUserId()))
@@ -159,7 +159,7 @@ class RelationshipServiceTest {
         @Test
         @DisplayName("GIVEN a new relationship to add with missing informations " +
                 "WHEN saving this new relationship " +
-                "THEN an PMB Exception is thrown")
+                "THEN a PMB Exception is thrown")
         void createRelationship_WithMissingInformations() {
             //GIVEN
             relationshipDTOToCreate.setUserId(null);
@@ -183,7 +183,7 @@ class RelationshipServiceTest {
         @Test
         @DisplayName("GIVEN a new relationship to add with an unknown friend " +
                 "WHEN saving this new relationship " +
-                "THEN an PMB Exception is thrown")
+                "THEN a PMB Exception is thrown")
         void createRelationship_WithUnknownFriend() {
             //GIVEN
             relationshipDTOToCreate.setFriendEmail(UserTestConstants.UNKNOWN_USER_EMAIL);
@@ -211,7 +211,7 @@ class RelationshipServiceTest {
         @Test
         @DisplayName("GIVEN a new relationship to add with the email of the current user as friend's email " +
                 "WHEN saving this new relationship " +
-                "THEN an PMB Exception is thrown")
+                "THEN a PMB Exception is thrown")
         void createRelationship_WithSameEmail() {
             //GIVEN
             relationshipDTOToCreate.setFriendEmail(userInDb.getEmail());
@@ -324,7 +324,7 @@ class RelationshipServiceTest {
         @Test
         @DisplayName("GIVEN an unknown user " +
                 "WHEN getting all the relationships for this user " +
-                "THEN an PMB Exception is thrown")
+                "THEN a PMB Exception is thrown")
         void getAllRelationshipsForUser_WithUnknownUser() {
             //GIVEN
             when(userRepositoryMock.findById(UserTestConstants.UNKNOWN_USER_ID))
@@ -345,7 +345,7 @@ class RelationshipServiceTest {
         @Test
         @DisplayName("GIVEN an null userId " +
                 "WHEN getting all the relationships for this user " +
-                "THEN an PMB Exception is thrown")
+                "THEN a PMB Exception is thrown")
         void getAllRelationshipsForUser_WithNullUserId() {
             //THEN
             Exception exception = assertThrows(PMBException.class,

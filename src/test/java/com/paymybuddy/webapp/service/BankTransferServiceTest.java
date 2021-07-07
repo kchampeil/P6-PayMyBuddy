@@ -160,7 +160,7 @@ class BankTransferServiceTest {
         @Test
         @DisplayName("GIVEN a new bank transfer from bank (ie CREDIT) to add with a non-existing bank account " +
                 "WHEN saving this new bank transfer " +
-                "THEN an PMB Exception is thrown")
+                "THEN a PMB Exception is thrown")
         void transferWithBankAccount_WithNoExistingBankAccountInRepository() {
             //GIVEN
             when(bankAccountRepositoryMock.findById(bankTransferDTOToCreate.getBankAccountId()))
@@ -183,7 +183,7 @@ class BankTransferServiceTest {
         @Test
         @DisplayName("GIVEN a new bank transfer from bank (ie CREDIT) to add with missing informations" +
                 "WHEN saving this new bank transfer " +
-                "THEN an PMB Exception is thrown")
+                "THEN a PMB Exception is thrown")
         void transferWithBankAccount_WithMissingInformations() {
             //GIVEN
             bankTransferDTOToCreate.setDescription(null);
@@ -206,7 +206,7 @@ class BankTransferServiceTest {
         @DisplayName("GIVEN a new bank transfer to bank (ie DEBIT) to add for an existing bank account " +
                 "but with an insufficient user's balance " +
                 "WHEN saving this new bank transfer " +
-                "THEN an PMB Exception is thrown")
+                "THEN a PMB Exception is thrown")
         void transferToBankAccount_WithInsufficientUserBalance() {
             //GIVEN
             bankTransferDTOToCreate.setType(BankTransferTypes.DEBIT);
@@ -313,7 +313,7 @@ class BankTransferServiceTest {
         @Test
         @DisplayName("GIVEN an unknown user " +
                 "WHEN getting all the bank transfers for this user " +
-                "THEN an PMB Exception is thrown")
+                "THEN a PMB Exception is thrown")
         void getAllBankTransfersForUser_WithUnknownUser() {
             //GIVEN
             when(userRepositoryMock.findById(UserTestConstants.UNKNOWN_USER_ID))
@@ -335,7 +335,7 @@ class BankTransferServiceTest {
         @Test
         @DisplayName("GIVEN an null userId " +
                 "WHEN getting all the bank transfers for this user " +
-                "THEN an PMB Exception is thrown")
+                "THEN a PMB Exception is thrown")
         void getAllBankTransfersForUser_WithNullUserId() {
             //THEN
             Exception exception =
