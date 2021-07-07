@@ -155,9 +155,9 @@ class BankTransferControllerTest {
 
             verify(userServiceMock, Mockito.times(1))
                     .getUserDTOByEmail(anyString());
-            verify(bankAccountServiceMock, Mockito.times(1))
+            verify(bankAccountServiceMock, Mockito.times(2))
                     .getAllBankAccountsForUser(userInDb.getUserId());
-            verify(bankTransferServiceMock, Mockito.times(1))
+            verify(bankTransferServiceMock, Mockito.times(2))
                     .getAllBankTransfersForUser(userInDb.getUserId());
             verify(bankTransferServiceMock, Mockito.times(1))
                     .transferWithBankAccount(any(BankTransferDTO.class));

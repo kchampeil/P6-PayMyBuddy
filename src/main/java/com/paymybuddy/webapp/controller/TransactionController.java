@@ -38,17 +38,27 @@ public class TransactionController {
     }
 
     /**
+     * initialise le modèle avec la liste des transactions associées à l'utilisateur courant
+     * et avec un transactionDTO initialisé
+     */
+    @ModelAttribute
+    public void addTransactionAttributesToModel(Model model) throws PMBException {
+
+        loadNeededListsForCurrentUser(model);
+
+        TransactionDTO transactionDTO = new TransactionDTO();
+        model.addAttribute("transactionDTO", transactionDTO);
+    }
+
+
+    /**
      * afficher la page d'accueil transaction
      */
     @GetMapping(value = "/transfer")
     // TODO public String showHomeTransaction(Model model, @RequestParam(name = "page", defaultValue = "0") int page) throws PMBException {
-    public String showHomeTransaction(Model model) throws PMBException {
+    public String showHomeTransaction() throws PMBException {
 
         log.info(LogConstants.GET_TRANSACTION_REQUEST_RECEIVED);
-
-        model.addAttribute("transactionDTO", new TransactionDTO());
-
-        loadNeededListsForCurrentUser(model);
 
         return ViewNameConstants.TRANSACTION_HOME;
 
@@ -67,7 +77,7 @@ public class TransactionController {
      */
     @PostMapping(value = "/transfer")
     public String addTransaction(@ModelAttribute("transactionDTO") @Valid TransactionDTO transactionDTOToAdd,
-                                 BindingResult bindingResult, Model model) throws PMBException {
+                                 BindingResult bindingResult, Model model) {
 
         log.info(LogConstants.ADD_TRANSACTION_REQUEST_RECEIVED
                 + transactionDTOToAdd.getRelationshipId() + " / " + transactionDTOToAdd.getDescription()
@@ -75,8 +85,6 @@ public class TransactionController {
 
         if (bindingResult.hasErrors()) {
             log.error(LogConstants.ADD_TRANSACTION_REQUEST_NOT_VALID + "\n");
-
-            loadNeededListsForCurrentUser(model);
             return ViewNameConstants.TRANSACTION_HOME;
         }
 
@@ -88,7 +96,10 @@ public class TransactionController {
                 log.info(LogConstants.ADD_TRANSACTION_REQUEST_OK
                         + transactionDTOAdded.get().getTransactionId() + "\n");
 
-                return showHomeTransaction(model);
+                /* actualise la liste des transactions associées à l'utilisateur
+                avant de réafficher la page pour une autre saisie */
+                loadNeededListsForCurrentUser(model);
+                return showHomeTransaction();
             }
 
         } catch (PMBException pmbException) {
@@ -114,7 +125,6 @@ public class TransactionController {
             }
         }
 
-        loadNeededListsForCurrentUser(model);
         return ViewNameConstants.TRANSACTION_HOME;
     }
 

@@ -38,18 +38,30 @@ public class BankTransferController {
         this.bankAccountService = bankAccountService;
     }
 
+    /**
+     * initialise le modèle avec la liste des types de transferts,
+     * des transferts bancaires associés à l'utilisateur courant
+     * et avec un bankTransferDTO initialisé
+     */
+    @ModelAttribute
+    public void addBankTransferAttributesToModel(Model model) throws PMBException {
+
+        model.addAttribute("typeOfTransferList", BankTransferTypes.values());
+
+        loadNeededListsForCurrentUser(model);
+
+        BankTransferDTO bankTransferDTO = new BankTransferDTO();
+        model.addAttribute("bankTransferDTO", bankTransferDTO);
+    }
+
 
     /**
      * afficher la page d'accueil transfert bancaire
      */
     @GetMapping(value = "/profile")
-    public String showHomeBankTransfer(Model model) throws PMBException {
+    public String showHomeBankTransfer() throws PMBException {
 
         log.info(LogConstants.GET_BANK_TRANSFER_REQUEST_RECEIVED);
-
-        model.addAttribute("bankTransferDTO", new BankTransferDTO());
-
-        loadNeededListsForCurrentUser(model);
 
         return ViewNameConstants.BANK_TRANSFER_HOME;
     }
@@ -60,7 +72,7 @@ public class BankTransferController {
      */
     @PostMapping(value = "/profile")
     public String addBankTransfer(@ModelAttribute("bankTransferDTO") @Valid BankTransferDTO bankTransferDTOToAdd,
-                                  BindingResult bindingResult, Model model) throws PMBException {
+                                  BindingResult bindingResult, Model model) {
 
         log.info(LogConstants.ADD_BANK_TRANSFER_REQUEST_RECEIVED
                 + bankTransferDTOToAdd.getBankAccountId() + " / " + bankTransferDTOToAdd.getDescription()
@@ -68,8 +80,6 @@ public class BankTransferController {
 
         if (bindingResult.hasErrors()) {
             log.error(LogConstants.ADD_BANK_TRANSFER_REQUEST_NOT_VALID + "\n");
-
-            loadNeededListsForCurrentUser(model);
             return ViewNameConstants.BANK_TRANSFER_HOME;
         }
 
@@ -81,7 +91,10 @@ public class BankTransferController {
                 log.info(LogConstants.ADD_BANK_TRANSFER_REQUEST_OK
                         + bankTransferDTOAdded.get().getBankTransferId() + "\n");
 
-                return showHomeBankTransfer(model);
+                /* actualise la liste des transferts bancaires associés à l'utilisateur
+                avant de réafficher la page pour une autre saisie */
+                loadNeededListsForCurrentUser(model);
+                return showHomeBankTransfer();
             }
 
         } catch (PMBException pmbException) {
@@ -106,18 +119,15 @@ public class BankTransferController {
             }
         }
 
-        loadNeededListsForCurrentUser(model);
         return ViewNameConstants.BANK_TRANSFER_HOME;
     }
 
 
     /**
-     * charge toutes les listes utiles (liste des comptes bancaires, liste des transferts bancaires, etc.)
+     * charge la liste des comptes bancaires et la liste des transferts bancaires
      * pour l'utilisateur en cours et les ajoute au modèle
      */
-    //TODO à passer en @ModelAttribute ?
     private void loadNeededListsForCurrentUser(Model model) throws PMBException {
-        model.addAttribute("typeOfTransferList", BankTransferTypes.values());
 
         if (model.getAttribute("user") != null) {
             UserDTO currentUser = (UserDTO) model.getAttribute("user");

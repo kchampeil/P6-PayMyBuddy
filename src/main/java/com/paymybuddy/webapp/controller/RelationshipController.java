@@ -31,19 +31,32 @@ public class RelationshipController {
         this.relationshipService = relationshipService;
     }
 
+    /**
+     * initialise le modèle avec la liste des connexions associées à l'utilisateur courant
+     * et avec un relationshipDTO initialisé avec l'id de l'utilisateur courant
+     */
+    @ModelAttribute
+    public void addRelationshipAttributesToModel(Model model) throws PMBException {
+
+        if (model.getAttribute("user") != null) {
+            UserDTO currentUser = (UserDTO) model.getAttribute("user");
+
+            loadRelationshipDTOListForCurrentUser(model, currentUser.getUserId());
+
+            RelationshipDTO relationshipDTO = new RelationshipDTO();
+            relationshipDTO.setUserId(currentUser.getUserId());
+            model.addAttribute("relationshipDTO", relationshipDTO);
+        }
+    }
+
 
     /**
      * afficher la page d'accueil relation/connexion ami
      */
     @GetMapping(value = "/contact")
-    public String showHomeRelationship(Model model) throws PMBException {
+    public String showHomeRelationship() throws PMBException {
 
         log.info(LogConstants.GET_RELATIONSHIP_REQUEST_RECEIVED);
-
-        model.addAttribute("relationshipDTO", new RelationshipDTO());
-
-        //récupération de la liste des relations associées à l'utilisateur connecté
-        loadRelationshipDTOListForCurrentUser(model);
 
         return ViewNameConstants.RELATIONSHIP_HOME;
     }
@@ -54,23 +67,16 @@ public class RelationshipController {
      */
     @PostMapping(value = "/contact")
     public String addRelationship(@ModelAttribute("relationshipDTO") @Valid RelationshipDTO relationshipDTOToAdd,
-                                  BindingResult bindingResult, Model model) throws PMBException {
+                                  BindingResult bindingResult, Model model) {
 
         log.info(LogConstants.ADD_RELATIONSHIP_REQUEST_RECEIVED + relationshipDTOToAdd.getFriendEmail());
 
         if (bindingResult.hasErrors()) {
             log.error(LogConstants.ADD_RELATIONSHIP_REQUEST_NOT_VALID + "\n");
-            loadRelationshipDTOListForCurrentUser(model);
             return ViewNameConstants.RELATIONSHIP_HOME;
         }
 
-        //TODO revoir pourquoi le userId est réinitialisé  ==> créer un @ModelAttribute RelationshipDTO ?
-        // + revoir le nb de mockito times dans test une fois résolu
-        UserDTO currentUser = (UserDTO) model.getAttribute("user");
-        relationshipDTOToAdd.setUserId(currentUser.getUserId());
-
         try {
-
             Optional<RelationshipDTO> relationshipDTOAdded =
                     relationshipService.createRelationship(relationshipDTOToAdd);
 
@@ -78,7 +84,10 @@ public class RelationshipController {
                 log.info(LogConstants.ADD_RELATIONSHIP_REQUEST_OK
                         + relationshipDTOAdded.get().getRelationshipId() + "\n");
 
-                return showHomeRelationship(model);
+                /* actualise la liste des connexions associées à l'utilisateur
+                avant de réafficher la page pour une autre saisie */
+                loadRelationshipDTOListForCurrentUser(model, relationshipDTOAdded.get().getUserId());
+                return showHomeRelationship();
             }
 
         } catch (PMBException pmbException) {
@@ -100,7 +109,6 @@ public class RelationshipController {
             }
         }
 
-        loadRelationshipDTOListForCurrentUser(model);
         return ViewNameConstants.RELATIONSHIP_HOME;
     }
 
@@ -112,14 +120,9 @@ public class RelationshipController {
      * @throws PMBException si l'identifiant transmis est nul
      *                      ou que l'utilisateur n'existe pas
      */
-    //TODO à passer en @ModelAttribute ?
-    private void loadRelationshipDTOListForCurrentUser(Model model) throws PMBException {
-
-        if (model.getAttribute("user") != null) {
-            UserDTO currentUser = (UserDTO) model.getAttribute("user");
-            List<RelationshipDTO> relationshipDTOList =
-                    relationshipService.getAllRelationshipsForUser(currentUser.getUserId());
-            model.addAttribute("relationshipDTOList", relationshipDTOList);
-        }
+    private void loadRelationshipDTOListForCurrentUser(Model model, Long userId) throws PMBException {
+        List<RelationshipDTO> relationshipDTOList =
+                relationshipService.getAllRelationshipsForUser(userId);
+        model.addAttribute("relationshipDTOList", relationshipDTOList);
     }
 }

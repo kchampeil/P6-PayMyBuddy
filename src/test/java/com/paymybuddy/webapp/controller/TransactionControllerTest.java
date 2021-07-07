@@ -154,9 +154,9 @@ class TransactionControllerTest {
 
             verify(userServiceMock, Mockito.times(1))
                     .getUserDTOByEmail(anyString());
-            verify(relationshipServiceMock, Mockito.times(1))
+            verify(relationshipServiceMock, Mockito.times(2))
                     .getAllRelationshipsForUser(userInDb.getUserId());
-            verify(transactionServiceMock, Mockito.times(1))
+            verify(transactionServiceMock, Mockito.times(2))
                     .getAllTransactionsForUser(userInDb.getUserId());
             verify(transactionServiceMock, Mockito.times(1))
                     .transferToFriend(any(TransactionDTO.class));

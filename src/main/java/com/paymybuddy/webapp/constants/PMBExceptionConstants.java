@@ -25,7 +25,7 @@ public class PMBExceptionConstants {
 
     //Already exists
     public static final String ALREADY_EXIST_USER = "One user already exists with this email";
-    public static final String ALREADY_EXIST_BANK_ACCOUNT = "This bank account (IBAN) already exists for user (ID): ";
+    public static final String ALREADY_EXIST_BANK_ACCOUNT = "This bank account (IBAN) already exists for this user";
     public static final String ALREADY_EXIST_RELATIONSHIP = "This relationship already exists";
 
     //Does not exists
