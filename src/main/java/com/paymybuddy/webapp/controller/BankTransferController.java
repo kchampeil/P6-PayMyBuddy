@@ -50,7 +50,6 @@ public class BankTransferController {
         model.addAttribute("bankTransferDTO", new BankTransferDTO());
 
         loadNeededListsForCurrentUser(model);
-        //TODO récupérer et afficher la balance du compte ?
 
         return ViewNameConstants.BANK_TRANSFER_HOME;
     }

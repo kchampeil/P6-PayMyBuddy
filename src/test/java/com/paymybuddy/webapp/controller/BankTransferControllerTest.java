@@ -9,6 +9,7 @@ import com.paymybuddy.webapp.model.DTO.UserDTO;
 import com.paymybuddy.webapp.service.PMBUserDetailsService;
 import com.paymybuddy.webapp.service.contract.IBankAccountService;
 import com.paymybuddy.webapp.service.contract.IBankTransferService;
+import com.paymybuddy.webapp.service.contract.IUserService;
 import com.paymybuddy.webapp.testconstants.BankAccountTestConstants;
 import com.paymybuddy.webapp.testconstants.BankTransferTestConstants;
 import com.paymybuddy.webapp.testconstants.UserTestConstants;
@@ -27,6 +28,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -48,6 +50,9 @@ class BankTransferControllerTest {
 
     @MockBean
     private IBankAccountService bankAccountServiceMock;
+
+    @MockBean
+    private IUserService userServiceMock;
 
     @MockBean
     private PMBUserDetailsService pmbUserDetailsServiceMock;
@@ -78,7 +83,7 @@ class BankTransferControllerTest {
                 " THEN return status is ok and the expected view is the profile page")
         void showHomeBankTransferTest_LoggedIn() throws Exception {
             //GIVEN
-            when(pmbUserDetailsServiceMock.getCurrentUser()).thenReturn(userInDb);
+            when(userServiceMock.getUserDTOByEmail(anyString())).thenReturn(userInDb);
 
             mockMvc.perform(get("/profile"))
                     .andExpect(status().isOk())
@@ -86,8 +91,8 @@ class BankTransferControllerTest {
                     .andExpect(model().attributeExists("bankTransferDTOList"))
                     .andExpect(view().name(ViewNameConstants.BANK_TRANSFER_HOME));
 
-            verify(pmbUserDetailsServiceMock, Mockito.times(1))
-                    .getCurrentUser();
+            verify(userServiceMock, Mockito.times(1))
+                    .getUserDTOByEmail(anyString());
             verify(bankAccountServiceMock, Mockito.times(1))
                     .getAllBankAccountsForUser(userInDb.getUserId());
             verify(bankTransferServiceMock, Mockito.times(1))
@@ -103,8 +108,8 @@ class BankTransferControllerTest {
                     .andExpect(status().isFound())
                     .andExpect(redirectedUrlPattern("**/" + ViewNameConstants.USER_LOGIN));
 
-            verify(pmbUserDetailsServiceMock, Mockito.times(0))
-                    .getCurrentUser();
+            verify(userServiceMock, Mockito.times(0))
+                    .getUserDTOByEmail(anyString());
             verify(bankAccountServiceMock, Mockito.times(0))
                     .getAllBankAccountsForUser(userInDb.getUserId());
             verify(bankTransferServiceMock, Mockito.times(0))
@@ -125,7 +130,7 @@ class BankTransferControllerTest {
                 "AND the expected view is the profile page with bank transfer list updated")
         void addBankTransferTest_WithSuccess() throws Exception {
             //GIVEN
-            when(pmbUserDetailsServiceMock.getCurrentUser()).thenReturn(userInDb);
+            when(userServiceMock.getUserDTOByEmail(anyString())).thenReturn(userInDb);
 
             BankTransferDTO bankTransferDTOAdded = new BankTransferDTO();
             bankTransferDTOAdded.setBankAccountId(BankAccountTestConstants.EXISTING_BANK_ACCOUNT_ID);
@@ -148,8 +153,8 @@ class BankTransferControllerTest {
                     .andExpect(model().attributeExists("bankTransferDTOList"))
                     .andExpect(view().name(ViewNameConstants.BANK_TRANSFER_HOME));
 
-            verify(pmbUserDetailsServiceMock, Mockito.times(1))
-                    .getCurrentUser();
+            verify(userServiceMock, Mockito.times(1))
+                    .getUserDTOByEmail(anyString());
             verify(bankAccountServiceMock, Mockito.times(1))
                     .getAllBankAccountsForUser(userInDb.getUserId());
             verify(bankTransferServiceMock, Mockito.times(1))
@@ -167,7 +172,7 @@ class BankTransferControllerTest {
                 "AND the expected view is the profile page filled with entered bank transfer")
         void addBankTransferTest_WithMissingInformation() throws Exception {
             //GIVEN
-            when(pmbUserDetailsServiceMock.getCurrentUser()).thenReturn(userInDb);
+            when(userServiceMock.getUserDTOByEmail(anyString())).thenReturn(userInDb);
 
             when(bankTransferServiceMock.transferWithBankAccount(any(BankTransferDTO.class)))
                     .thenThrow(new PMBException(PMBExceptionConstants.MISSING_INFORMATION_NEW_BANK_TRANSFER));
@@ -185,8 +190,8 @@ class BankTransferControllerTest {
                     .andExpect(model().attributeHasFieldErrors("bankTransferDTO", "description"))
                     .andExpect(view().name(ViewNameConstants.BANK_TRANSFER_HOME));
 
-            verify(pmbUserDetailsServiceMock, Mockito.times(1))
-                    .getCurrentUser();
+            verify(userServiceMock, Mockito.times(1))
+                    .getUserDTOByEmail(anyString());
             verify(bankAccountServiceMock, Mockito.times(1))
                     .getAllBankAccountsForUser(userInDb.getUserId());
             verify(bankTransferServiceMock, Mockito.times(1))
@@ -205,7 +210,7 @@ class BankTransferControllerTest {
                 "AND an 'does not exist' error is shown")
         void addBankTransferTest_WithNonExistingBankAccount() throws Exception {
             //GIVEN
-            when(pmbUserDetailsServiceMock.getCurrentUser()).thenReturn(userInDb);
+            when(userServiceMock.getUserDTOByEmail(anyString())).thenReturn(userInDb);
 
             when(bankTransferServiceMock.transferWithBankAccount(any(BankTransferDTO.class)))
                     .thenThrow(new PMBException(PMBExceptionConstants.DOES_NOT_EXISTS_BANK_ACCOUNT));
@@ -223,8 +228,8 @@ class BankTransferControllerTest {
                             "bankAccountId", "profile.BankTransferDTO.bankAccountId.doesNotExist"))
                     .andExpect(view().name(ViewNameConstants.BANK_TRANSFER_HOME));
 
-            verify(pmbUserDetailsServiceMock, Mockito.times(1))
-                    .getCurrentUser();
+            verify(userServiceMock, Mockito.times(1))
+                    .getUserDTOByEmail(anyString());
             verify(bankAccountServiceMock, Mockito.times(1))
                     .getAllBankAccountsForUser(userInDb.getUserId());
             verify(bankTransferServiceMock, Mockito.times(1))
@@ -243,7 +248,7 @@ class BankTransferControllerTest {
                 "AND an 'insufficient balance' error is shown")
         void addBankTransferTest_WithInsufficientBalance() throws Exception {
             //GIVEN
-            when(pmbUserDetailsServiceMock.getCurrentUser()).thenReturn(userInDb);
+            when(userServiceMock.getUserDTOByEmail(anyString())).thenReturn(userInDb);
 
             when(bankTransferServiceMock.transferWithBankAccount(any(BankTransferDTO.class)))
                     .thenThrow(new PMBException(PMBExceptionConstants.INSUFFICIENT_BALANCE));
@@ -261,8 +266,8 @@ class BankTransferControllerTest {
                             "amount", "profile.BankTransferDTO.amount.insufficientBalance"))
                     .andExpect(view().name(ViewNameConstants.BANK_TRANSFER_HOME));
 
-            verify(pmbUserDetailsServiceMock, Mockito.times(1))
-                    .getCurrentUser();
+            verify(userServiceMock, Mockito.times(1))
+                    .getUserDTOByEmail(anyString());
             verify(bankAccountServiceMock, Mockito.times(1))
                     .getAllBankAccountsForUser(userInDb.getUserId());
             verify(bankTransferServiceMock, Mockito.times(1))

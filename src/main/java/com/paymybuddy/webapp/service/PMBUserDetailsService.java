@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
 import java.util.HashSet;
 
 @Slf4j
@@ -47,17 +48,5 @@ public class PMBUserDetailsService implements UserDetailsService {
                 true,
                 true,
                 true);
-    }
-
-
-    /**
-     * récupère les informations du user courant
-     *
-     * @return les informations de l'utilisateur connecté
-     */
-    public UserDTO getCurrentUser() {
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return userService.getUserDTOByEmail(authentication.getName());
     }
 }

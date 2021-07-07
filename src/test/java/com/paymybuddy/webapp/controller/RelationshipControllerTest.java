@@ -5,9 +5,9 @@ import com.paymybuddy.webapp.constants.ViewNameConstants;
 import com.paymybuddy.webapp.exception.PMBException;
 import com.paymybuddy.webapp.model.DTO.RelationshipDTO;
 import com.paymybuddy.webapp.model.DTO.UserDTO;
-import com.paymybuddy.webapp.model.User;
 import com.paymybuddy.webapp.service.PMBUserDetailsService;
 import com.paymybuddy.webapp.service.contract.IRelationshipService;
+import com.paymybuddy.webapp.service.contract.IUserService;
 import com.paymybuddy.webapp.testconstants.UserTestConstants;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -24,6 +24,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -42,6 +43,9 @@ class RelationshipControllerTest {
 
     @MockBean
     private IRelationshipService relationshipServiceMock;
+
+    @MockBean
+    private IUserService userServiceMock;
 
     @MockBean
     private PMBUserDetailsService pmbUserDetailsServiceMock;
@@ -72,7 +76,7 @@ class RelationshipControllerTest {
                 " THEN return status is ok and the expected view is the contact page")
         void showHomeRelationshipTest_LoggedIn() throws Exception {
             //GIVEN
-            when(pmbUserDetailsServiceMock.getCurrentUser()).thenReturn(userInDb);
+            when(userServiceMock.getUserDTOByEmail(anyString())).thenReturn(userInDb);
 
             //THEN
             mockMvc.perform(get("/contact"))
@@ -81,8 +85,8 @@ class RelationshipControllerTest {
                     .andExpect(model().attributeExists("relationshipDTOList"))
                     .andExpect(view().name(ViewNameConstants.RELATIONSHIP_HOME));
 
-            verify(pmbUserDetailsServiceMock, Mockito.times(1))
-                    .getCurrentUser();
+            verify(userServiceMock, Mockito.times(1))
+                    .getUserDTOByEmail(anyString());
             verify(relationshipServiceMock, Mockito.times(1))
                     .getAllRelationshipsForUser(userInDb.getUserId());
         }
@@ -96,8 +100,8 @@ class RelationshipControllerTest {
                     .andExpect(status().isFound())
                     .andExpect(redirectedUrlPattern("**/" + ViewNameConstants.USER_LOGIN));
 
-            verify(pmbUserDetailsServiceMock, Mockito.times(0))
-                    .getCurrentUser();
+            verify(userServiceMock, Mockito.times(0))
+                    .getUserDTOByEmail(anyString());
             verify(relationshipServiceMock, Mockito.times(0))
                     .getAllRelationshipsForUser(userInDb.getUserId());
         }
@@ -115,7 +119,7 @@ class RelationshipControllerTest {
                 "AND the expected view is the contact page with relationship list updated")
         void addRelationshipTest_WithSuccess() throws Exception {
             //GIVEN
-            when(pmbUserDetailsServiceMock.getCurrentUser()).thenReturn(userInDb);
+            when(userServiceMock.getUserDTOByEmail(anyString())).thenReturn(userInDb);
 
             RelationshipDTO relationshipDTOAdded = new RelationshipDTO();
             relationshipDTOAdded.setUserId(UserTestConstants.EXISTING_USER_ID);
@@ -133,8 +137,8 @@ class RelationshipControllerTest {
                     .andExpect(model().attributeExists("relationshipDTOList"))
                     .andExpect(view().name(ViewNameConstants.RELATIONSHIP_HOME));
 
-            verify(pmbUserDetailsServiceMock, Mockito.times(2))
-                    .getCurrentUser();
+            verify(userServiceMock, Mockito.times(1))
+                    .getUserDTOByEmail(anyString());
             verify(relationshipServiceMock, Mockito.times(1))
                     .createRelationship(any(RelationshipDTO.class));
         }
@@ -148,7 +152,7 @@ class RelationshipControllerTest {
                 "AND the expected view is the contact page filled with entered friend email")
         void addRelationshipTest_WithMissingInformation() throws Exception {
             //GIVEN
-            when(pmbUserDetailsServiceMock.getCurrentUser()).thenReturn(userInDb);
+            when(userServiceMock.getUserDTOByEmail(anyString())).thenReturn(userInDb);
 
             when(relationshipServiceMock.createRelationship(any(RelationshipDTO.class)))
                     .thenThrow(new PMBException(PMBExceptionConstants.MISSING_INFORMATION_NEW_RELATIONSHIP));
@@ -163,8 +167,8 @@ class RelationshipControllerTest {
                     .andExpect(model().attributeHasFieldErrors("relationshipDTO", "friendEmail"))
                     .andExpect(view().name(ViewNameConstants.RELATIONSHIP_HOME));
 
-            verify(pmbUserDetailsServiceMock, Mockito.times(1))
-                    .getCurrentUser();
+            verify(userServiceMock, Mockito.times(1))
+                    .getUserDTOByEmail(anyString());
             verify(relationshipServiceMock, Mockito.times(0))
                     .createRelationship(any(RelationshipDTO.class));
         }
@@ -179,7 +183,7 @@ class RelationshipControllerTest {
                 "AND an 'already exists' error is shown")
         void addRelationshipTest_WithAlreadyExistingRelationship() throws Exception {
             //GIVEN
-            when(pmbUserDetailsServiceMock.getCurrentUser()).thenReturn(userInDb);
+            when(userServiceMock.getUserDTOByEmail(anyString())).thenReturn(userInDb);
 
             when(relationshipServiceMock.createRelationship(any(RelationshipDTO.class)))
                     .thenThrow(new PMBException(PMBExceptionConstants.ALREADY_EXIST_RELATIONSHIP));
@@ -196,8 +200,8 @@ class RelationshipControllerTest {
                             "contact.RelationshipDTO.friend.alreadyExists"))
                     .andExpect(view().name(ViewNameConstants.RELATIONSHIP_HOME));
 
-            verify(pmbUserDetailsServiceMock, Mockito.times(2))
-                    .getCurrentUser();
+            verify(userServiceMock, Mockito.times(1))
+                    .getUserDTOByEmail(anyString());
             verify(relationshipServiceMock, Mockito.times(1))
                     .createRelationship(any(RelationshipDTO.class));
         }
@@ -212,7 +216,7 @@ class RelationshipControllerTest {
                 "AND an 'does not exist' error is shown")
         void addRelationshipTest_WithUnknownFriendEmail() throws Exception {
             //GIVEN
-            when(pmbUserDetailsServiceMock.getCurrentUser()).thenReturn(userInDb);
+            when(userServiceMock.getUserDTOByEmail(anyString())).thenReturn(userInDb);
 
             when(relationshipServiceMock.createRelationship(any(RelationshipDTO.class)))
                     .thenThrow(new PMBException(PMBExceptionConstants.DOES_NOT_EXISTS_USER));
@@ -229,8 +233,8 @@ class RelationshipControllerTest {
                             "contact.RelationshipDTO.email.doesNotExist"))
                     .andExpect(view().name(ViewNameConstants.RELATIONSHIP_HOME));
 
-            verify(pmbUserDetailsServiceMock, Mockito.times(2))
-                    .getCurrentUser();
+            verify(userServiceMock, Mockito.times(1))
+                    .getUserDTOByEmail(anyString());
             verify(relationshipServiceMock, Mockito.times(1))
                     .createRelationship(any(RelationshipDTO.class));
         }
@@ -245,7 +249,7 @@ class RelationshipControllerTest {
                 "AND an 'invalid email' error is shown")
         void addRelationshipTest_WithInvalidEmail() throws Exception {
             //GIVEN
-            when(pmbUserDetailsServiceMock.getCurrentUser()).thenReturn(userInDb);
+            when(userServiceMock.getUserDTOByEmail(anyString())).thenReturn(userInDb);
 
             when(relationshipServiceMock.createRelationship(any(RelationshipDTO.class)))
                     .thenThrow(new PMBException(PMBExceptionConstants.INVALID_FRIEND_EMAIL));
@@ -262,8 +266,8 @@ class RelationshipControllerTest {
                             "contact.RelationshipDTO.email.invalid"))
                     .andExpect(view().name(ViewNameConstants.RELATIONSHIP_HOME));
 
-            verify(pmbUserDetailsServiceMock, Mockito.times(2))
-                    .getCurrentUser();
+            verify(userServiceMock, Mockito.times(1))
+                    .getUserDTOByEmail(anyString());
             verify(relationshipServiceMock, Mockito.times(1))
                     .createRelationship(any(RelationshipDTO.class));
         }

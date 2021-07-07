@@ -6,7 +6,6 @@ import com.paymybuddy.webapp.constants.ViewNameConstants;
 import com.paymybuddy.webapp.exception.PMBException;
 import com.paymybuddy.webapp.model.DTO.RelationshipDTO;
 import com.paymybuddy.webapp.model.DTO.UserDTO;
-import com.paymybuddy.webapp.service.PMBUserDetailsService;
 import com.paymybuddy.webapp.service.contract.IRelationshipService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,12 +26,9 @@ public class RelationshipController {
 
     private final IRelationshipService relationshipService;
 
-    private final PMBUserDetailsService pmbUserDetailsService;
-
     @Autowired
-    public RelationshipController(IRelationshipService relationshipService, PMBUserDetailsService pmbUserDetailsService) {
+    public RelationshipController(IRelationshipService relationshipService) {
         this.relationshipService = relationshipService;
-        this.pmbUserDetailsService = pmbUserDetailsService;
     }
 
 
@@ -70,7 +66,8 @@ public class RelationshipController {
 
         //TODO revoir pourquoi le userId est réinitialisé  ==> créer un @ModelAttribute RelationshipDTO ?
         // + revoir le nb de mockito times dans test une fois résolu
-        relationshipDTOToAdd.setUserId(pmbUserDetailsService.getCurrentUser().getUserId());
+        UserDTO currentUser = (UserDTO) model.getAttribute("user");
+        relationshipDTOToAdd.setUserId(currentUser.getUserId());
 
         try {
 

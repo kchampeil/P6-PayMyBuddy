@@ -49,7 +49,6 @@ public class TransactionController {
         model.addAttribute("transactionDTO", new TransactionDTO());
 
         loadNeededListsForCurrentUser(model);
-        //TODO récupérer et afficher la balance du compte ?
 
         return ViewNameConstants.TRANSACTION_HOME;
 

@@ -5,10 +5,10 @@ import com.paymybuddy.webapp.constants.ViewNameConstants;
 import com.paymybuddy.webapp.exception.PMBException;
 import com.paymybuddy.webapp.model.DTO.TransactionDTO;
 import com.paymybuddy.webapp.model.DTO.UserDTO;
-import com.paymybuddy.webapp.model.User;
 import com.paymybuddy.webapp.service.PMBUserDetailsService;
 import com.paymybuddy.webapp.service.contract.IRelationshipService;
 import com.paymybuddy.webapp.service.contract.ITransactionService;
+import com.paymybuddy.webapp.service.contract.IUserService;
 import com.paymybuddy.webapp.testconstants.RelationshipTestConstants;
 import com.paymybuddy.webapp.testconstants.TransactionTestConstants;
 import com.paymybuddy.webapp.testconstants.UserTestConstants;
@@ -27,6 +27,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -48,6 +49,9 @@ class TransactionControllerTest {
 
     @MockBean
     private IRelationshipService relationshipServiceMock;
+
+    @MockBean
+    private IUserService userServiceMock;
 
     @MockBean
     private PMBUserDetailsService pmbUserDetailsServiceMock;
@@ -78,7 +82,7 @@ class TransactionControllerTest {
                 " THEN return status is ok and the expected view is the transfer page")
         void showHomeTransactionTest_LoggedIn() throws Exception {
             //GIVEN
-            when(pmbUserDetailsServiceMock.getCurrentUser()).thenReturn(userInDb);
+            when(userServiceMock.getUserDTOByEmail(anyString())).thenReturn(userInDb);
 
             //THEN
             mockMvc.perform(get("/transfer"))
@@ -87,8 +91,8 @@ class TransactionControllerTest {
                     .andExpect(model().attributeExists("transactionDTOList"))
                     .andExpect(view().name(ViewNameConstants.TRANSACTION_HOME));
 
-            verify(pmbUserDetailsServiceMock, Mockito.times(1))
-                    .getCurrentUser();
+            verify(userServiceMock, Mockito.times(1))
+                    .getUserDTOByEmail(anyString());
             verify(relationshipServiceMock, Mockito.times(1))
                     .getAllRelationshipsForUser(userInDb.getUserId());
             verify(transactionServiceMock, Mockito.times(1))
@@ -104,8 +108,8 @@ class TransactionControllerTest {
                     .andExpect(status().isFound())
                     .andExpect(redirectedUrlPattern("**/" + ViewNameConstants.USER_LOGIN));
 
-            verify(pmbUserDetailsServiceMock, Mockito.times(0))
-                    .getCurrentUser();
+            verify(userServiceMock, Mockito.times(0))
+                    .getUserDTOByEmail(anyString());
             verify(relationshipServiceMock, Mockito.times(0))
                     .getAllRelationshipsForUser(userInDb.getUserId());
             verify(transactionServiceMock, Mockito.times(0))
@@ -126,7 +130,7 @@ class TransactionControllerTest {
                 "AND the expected view is the transfer page with transaction list updated")
         void addTransactionTest_WithSuccess() throws Exception {
             //GIVEN
-            when(pmbUserDetailsServiceMock.getCurrentUser()).thenReturn(userInDb);
+            when(userServiceMock.getUserDTOByEmail(anyString())).thenReturn(userInDb);
 
             TransactionDTO transactionDTOAdded = new TransactionDTO();
             transactionDTOAdded.setRelationshipId(RelationshipTestConstants.EXISTING_RELATIONSHIP_ID);
@@ -148,8 +152,8 @@ class TransactionControllerTest {
                     .andExpect(model().attributeExists("transactionDTOList"))
                     .andExpect(view().name(ViewNameConstants.TRANSACTION_HOME));
 
-            verify(pmbUserDetailsServiceMock, Mockito.times(1))
-                    .getCurrentUser();
+            verify(userServiceMock, Mockito.times(1))
+                    .getUserDTOByEmail(anyString());
             verify(relationshipServiceMock, Mockito.times(1))
                     .getAllRelationshipsForUser(userInDb.getUserId());
             verify(transactionServiceMock, Mockito.times(1))
@@ -167,7 +171,7 @@ class TransactionControllerTest {
                 "AND the expected view is the transfer page filled with entered transaction")
         void addTransactionTest_WithMissingInformation() throws Exception {
             //GIVEN
-            when(pmbUserDetailsServiceMock.getCurrentUser()).thenReturn(userInDb);
+            when(userServiceMock.getUserDTOByEmail(anyString())).thenReturn(userInDb);
 
             when(transactionServiceMock.transferToFriend(any(TransactionDTO.class)))
                     .thenThrow(new PMBException(PMBExceptionConstants.MISSING_INFORMATION_NEW_TRANSACTION));
@@ -185,8 +189,8 @@ class TransactionControllerTest {
                     .andExpect(model().attributeHasFieldErrors("transactionDTO", "description"))
                     .andExpect(view().name(ViewNameConstants.TRANSACTION_HOME));
 
-            verify(pmbUserDetailsServiceMock, Mockito.times(1))
-                    .getCurrentUser();
+            verify(userServiceMock, Mockito.times(1))
+                    .getUserDTOByEmail(anyString());
             verify(relationshipServiceMock, Mockito.times(1))
                     .getAllRelationshipsForUser(userInDb.getUserId());
             verify(transactionServiceMock, Mockito.times(1))
@@ -205,7 +209,7 @@ class TransactionControllerTest {
                 "AND an 'does not exist' error is shown")
         void addTransactionTest_WithNonExistingRelationship() throws Exception {
             //GIVEN
-            when(pmbUserDetailsServiceMock.getCurrentUser()).thenReturn(userInDb);
+            when(userServiceMock.getUserDTOByEmail(anyString())).thenReturn(userInDb);
 
             when(transactionServiceMock.transferToFriend(any(TransactionDTO.class)))
                     .thenThrow(new PMBException(PMBExceptionConstants.DOES_NOT_EXISTS_RELATIONSHIP));
@@ -226,8 +230,8 @@ class TransactionControllerTest {
                             "transfer.TransactionDTO.relationshipId.doesNotExist"))
                     .andExpect(view().name(ViewNameConstants.TRANSACTION_HOME));
 
-            verify(pmbUserDetailsServiceMock, Mockito.times(1))
-                    .getCurrentUser();
+            verify(userServiceMock, Mockito.times(1))
+                    .getUserDTOByEmail(anyString());
             verify(relationshipServiceMock, Mockito.times(1))
                     .getAllRelationshipsForUser(userInDb.getUserId());
             verify(transactionServiceMock, Mockito.times(1))
@@ -246,7 +250,7 @@ class TransactionControllerTest {
                 "AND an 'insufficient balance' error is shown")
         void addTransactionTest_WithInsufficientBalance() throws Exception {
             //GIVEN
-            when(pmbUserDetailsServiceMock.getCurrentUser()).thenReturn(userInDb);
+            when(userServiceMock.getUserDTOByEmail(anyString())).thenReturn(userInDb);
 
             when(transactionServiceMock.transferToFriend(any(TransactionDTO.class)))
                     .thenThrow(new PMBException(PMBExceptionConstants.INSUFFICIENT_BALANCE));
@@ -267,8 +271,8 @@ class TransactionControllerTest {
                             "transfer.TransactionDTO.amountFeeExcluded.insufficientBalance"))
                     .andExpect(view().name(ViewNameConstants.TRANSACTION_HOME));
 
-            verify(pmbUserDetailsServiceMock, Mockito.times(1))
-                    .getCurrentUser();
+            verify(userServiceMock, Mockito.times(1))
+                    .getUserDTOByEmail(anyString());
             verify(relationshipServiceMock, Mockito.times(1))
                     .getAllRelationshipsForUser(userInDb.getUserId());
             verify(transactionServiceMock, Mockito.times(1))

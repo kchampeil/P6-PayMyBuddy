@@ -27,12 +27,9 @@ public class BankAccountController {
 
     private final IBankAccountService bankAccountService;
 
-    private final PMBUserDetailsService pmbUserDetailsService;
-
     @Autowired
-    public BankAccountController(IBankAccountService bankAccountService, PMBUserDetailsService pmbUserDetailsService) {
+    public BankAccountController(IBankAccountService bankAccountService) {
         this.bankAccountService = bankAccountService;
-        this.pmbUserDetailsService = pmbUserDetailsService;
     }
 
 
@@ -72,7 +69,8 @@ public class BankAccountController {
 
         //TODO revoir pourquoi le userId est réinitialisé ==> créer un @ModelAttribute BankAccountDTO ?
         // + revoir le nb de mockito times dans test une fois résolu
-        bankAccountDTOToAdd.setUserId(pmbUserDetailsService.getCurrentUser().getUserId());
+        UserDTO currentUser = (UserDTO) model.getAttribute("user");
+        bankAccountDTOToAdd.setUserId(currentUser.getUserId());
 
         try {
 

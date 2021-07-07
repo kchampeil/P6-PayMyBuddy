@@ -2,7 +2,7 @@ package com.paymybuddy.webapp.controller;
 
 import com.paymybuddy.webapp.constants.LogConstants;
 import com.paymybuddy.webapp.model.DTO.UserDTO;
-import com.paymybuddy.webapp.service.PMBUserDetailsService;
+import com.paymybuddy.webapp.service.contract.IUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
@@ -15,19 +15,21 @@ import java.security.Principal;
 @ControllerAdvice
 public class PMBControllerAdvice {
 
-    private final PMBUserDetailsService pmbUserDetailsService;
+    private final IUserService userService;
 
     @Autowired
-    public PMBControllerAdvice(PMBUserDetailsService pmbUserDetailsService) {
-        this.pmbUserDetailsService = pmbUserDetailsService;
+    public PMBControllerAdvice(IUserService userService) {
+        this.userService = userService;
     }
 
     @ModelAttribute
     public void addUserToModel(Principal principal, Model model) {
 
         UserDTO currentUser = null;
+
         if (principal != null) {
-            currentUser = pmbUserDetailsService.getCurrentUser();
+            currentUser = userService.getUserDTOByEmail(principal.getName());
+
         } else {
             log.info(LogConstants.CURRENT_USER_UNKNOWN);
         }

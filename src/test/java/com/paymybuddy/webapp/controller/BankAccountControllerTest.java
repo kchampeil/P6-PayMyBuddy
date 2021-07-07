@@ -7,6 +7,7 @@ import com.paymybuddy.webapp.model.DTO.BankAccountDTO;
 import com.paymybuddy.webapp.model.DTO.UserDTO;
 import com.paymybuddy.webapp.service.PMBUserDetailsService;
 import com.paymybuddy.webapp.service.contract.IBankAccountService;
+import com.paymybuddy.webapp.service.contract.IUserService;
 import com.paymybuddy.webapp.testconstants.BankAccountTestConstants;
 import com.paymybuddy.webapp.testconstants.UserTestConstants;
 import org.junit.jupiter.api.BeforeAll;
@@ -24,6 +25,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -43,6 +45,9 @@ class BankAccountControllerTest {
 
     @MockBean
     private IBankAccountService bankAccountServiceMock;
+
+    @MockBean
+    private IUserService userServiceMock;
 
     @MockBean
     private PMBUserDetailsService pmbUserDetailsServiceMock;
@@ -73,7 +78,7 @@ class BankAccountControllerTest {
                 " THEN return status is ok and the expected view is the bank account page")
         void showHomeBankAccountTest_LoggedIn() throws Exception {
             //GIVEN
-            when(pmbUserDetailsServiceMock.getCurrentUser()).thenReturn(userInDb);
+            when(userServiceMock.getUserDTOByEmail(anyString())).thenReturn(userInDb);
 
             //THEN
             mockMvc.perform(get("/addBankAccount"))
@@ -82,8 +87,8 @@ class BankAccountControllerTest {
                     .andExpect(model().attributeExists("bankAccountDTOList"))
                     .andExpect(view().name(ViewNameConstants.BANK_ACCOUNT_HOME));
 
-            verify(pmbUserDetailsServiceMock, Mockito.times(1))
-                    .getCurrentUser();
+            verify(userServiceMock, Mockito.times(1))
+                    .getUserDTOByEmail(anyString());
             verify(bankAccountServiceMock, Mockito.times(1))
                     .getAllBankAccountsForUser(userInDb.getUserId());
         }
@@ -97,8 +102,8 @@ class BankAccountControllerTest {
                     .andExpect(status().isFound())
                     .andExpect(redirectedUrlPattern("**/" + ViewNameConstants.USER_LOGIN));
 
-            verify(pmbUserDetailsServiceMock, Mockito.times(0))
-                    .getCurrentUser();
+            verify(userServiceMock, Mockito.times(0))
+                    .getUserDTOByEmail(anyString());
             verify(bankAccountServiceMock, Mockito.times(0))
                     .getAllBankAccountsForUser(userInDb.getUserId());
         }
@@ -117,7 +122,7 @@ class BankAccountControllerTest {
                 "AND the expected view is the bank account page with bank account list updated")
         void addBankAccountTest_WithSuccess() throws Exception {
             //GIVEN
-            when(pmbUserDetailsServiceMock.getCurrentUser()).thenReturn(userInDb);
+            when(userServiceMock.getUserDTOByEmail(anyString())).thenReturn(userInDb);
 
             BankAccountDTO bankAccountDTOAdded = new BankAccountDTO();
             bankAccountDTOAdded.setUserId(UserTestConstants.EXISTING_USER_ID);
@@ -137,8 +142,8 @@ class BankAccountControllerTest {
                     .andExpect(model().attributeExists("bankAccountDTOList"))
                     .andExpect(view().name(ViewNameConstants.BANK_ACCOUNT_HOME));
 
-            verify(pmbUserDetailsServiceMock, Mockito.times(2))
-                    .getCurrentUser();
+            verify(userServiceMock, Mockito.times(1))
+                    .getUserDTOByEmail(anyString());
             verify(bankAccountServiceMock, Mockito.times(1))
                     .createBankAccount(any(BankAccountDTO.class));
         }
@@ -152,7 +157,7 @@ class BankAccountControllerTest {
                 "AND the expected view is the bank account page filled with entered bank account")
         void addBankAccountTest_WithMissingInformation() throws Exception {
             //GIVEN
-            when(pmbUserDetailsServiceMock.getCurrentUser()).thenReturn(userInDb);
+            when(userServiceMock.getUserDTOByEmail(anyString())).thenReturn(userInDb);
 
             when(bankAccountServiceMock.createBankAccount(any(BankAccountDTO.class)))
                     .thenThrow(new PMBException(PMBExceptionConstants.MISSING_INFORMATION_NEW_BANK_ACCOUNT));
@@ -168,8 +173,8 @@ class BankAccountControllerTest {
                     .andExpect(model().attributeHasFieldErrors("bankAccountDTO", "name"))
                     .andExpect(view().name(ViewNameConstants.BANK_ACCOUNT_HOME));
 
-            verify(pmbUserDetailsServiceMock, Mockito.times(1))
-                    .getCurrentUser();
+            verify(userServiceMock, Mockito.times(1))
+                    .getUserDTOByEmail(anyString());
             verify(bankAccountServiceMock, Mockito.times(0))
                     .createBankAccount(any(BankAccountDTO.class));
         }
@@ -184,7 +189,7 @@ class BankAccountControllerTest {
                 "AND an 'already exists' error is shown")
         void addBankAccountTest_WithAlreadyExistingBankAccount() throws Exception {
             //GIVEN
-            when(pmbUserDetailsServiceMock.getCurrentUser()).thenReturn(userInDb);
+            when(userServiceMock.getUserDTOByEmail(anyString())).thenReturn(userInDb);
 
             when(bankAccountServiceMock.createBankAccount(any(BankAccountDTO.class)))
                     .thenThrow(new PMBException(PMBExceptionConstants.ALREADY_EXIST_BANK_ACCOUNT));
@@ -202,8 +207,8 @@ class BankAccountControllerTest {
                             "addBankAccount.BankAccountDTO.iban.alreadyExists"))
                     .andExpect(view().name(ViewNameConstants.BANK_ACCOUNT_HOME));
 
-            verify(pmbUserDetailsServiceMock, Mockito.times(2))
-                    .getCurrentUser();
+            verify(userServiceMock, Mockito.times(1))
+                    .getUserDTOByEmail(anyString());
             verify(bankAccountServiceMock, Mockito.times(1))
                     .createBankAccount(any(BankAccountDTO.class));
         }
@@ -218,7 +223,7 @@ class BankAccountControllerTest {
                 "AND an 'invalid iban' error is shown")
         void addBankAccountTest_WithInvalidIban() throws Exception {
             //GIVEN
-            when(pmbUserDetailsServiceMock.getCurrentUser()).thenReturn(userInDb);
+            when(userServiceMock.getUserDTOByEmail(anyString())).thenReturn(userInDb);
 
             when(bankAccountServiceMock.createBankAccount(any(BankAccountDTO.class)))
                     .thenThrow(new PMBException(PMBExceptionConstants.INVALID_IBAN));
@@ -236,8 +241,8 @@ class BankAccountControllerTest {
                             "addBankAccount.BankAccountDTO.iban.invalid"))
                     .andExpect(view().name(ViewNameConstants.BANK_ACCOUNT_HOME));
 
-            verify(pmbUserDetailsServiceMock, Mockito.times(2))
-                    .getCurrentUser();
+            verify(userServiceMock, Mockito.times(1))
+                    .getUserDTOByEmail(anyString());
             verify(bankAccountServiceMock, Mockito.times(1))
                     .createBankAccount(any(BankAccountDTO.class));
         }
