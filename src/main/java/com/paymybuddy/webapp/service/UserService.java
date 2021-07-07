@@ -10,6 +10,7 @@ import com.paymybuddy.webapp.service.contract.IUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -71,57 +72,33 @@ public class UserService implements IUserService {
 
 
     /**
-     * récupère les informations relatives à un utilisateur à partir de son email
+     * récupère les informations correspondant à l'utilisateur à partir de son email
      *
-     * @param email de l'utilisateur dont on cherche à récupérer les informations
-     * @return objet User contenant les informations de l'utilisateur concerné
-     * @throws PMBException si l'email n'est pas renseigné
+     * @param email identifiant de l'utilisateur
+     * @return les informations de l'utilisateur
      */
-    //TODEL ? pas utilisé ?
-    /*@Override
-    public Optional<User> getUserByEmail(String email) throws PMBException {
+    public UserDTO getUserDTOByEmail(String email) throws UsernameNotFoundException {
 
         if (email == null || email.isEmpty()) {
             log.error(LogConstants.GET_USER_INFO_ERROR
                     + PMBExceptionConstants.MISSING_INFORMATION_GETTING_USER);
-            throw new PMBException(PMBExceptionConstants.MISSING_INFORMATION_GETTING_USER);
+            throw new UsernameNotFoundException(PMBExceptionConstants.MISSING_INFORMATION_GETTING_USER);
         }
 
-        return userRepository.findByEmailIgnoreCase(email);
-    }
-
-     */
-
-
-    /**
-     * récupère les informations relatives à un utilisateur à partir de son email
-     *
-     * @param email de l'utilisateur dont on cherche à récupérer les informations
-     * @return objet UserDTO contenant les informations de l'utilisateur concerné
-     * @throws PMBException si l'email n'est pas renseigné
-     *                      ou que l'utilisateur n'existe pas (non trouvé)
-     */
-    //TODEL ? à revoir si utile car a priori utilisé seulement dans les tests ou à fusionner avec le loadUserByUsername
-    /*@Override
-    public Optional<UserDTO> getUserDTOByEmail(String email) throws PMBException {
-
-        Optional<User> userFound = getUserByEmail(email);
-
-        if (!userFound.isPresent()) {
-            log.error(LogConstants.GET_USER_INFO_ERROR
-                    + PMBExceptionConstants.DOES_NOT_EXISTS_USER + " for: " + email);
-            throw new PMBException(PMBExceptionConstants.DOES_NOT_EXISTS_USER);
-        }
+        User user = userRepository
+                .findByEmailIgnoreCase(email)
+                .orElseThrow(() -> {
+                    log.error(PMBExceptionConstants.DOES_NOT_EXISTS_USER + " for: " + email);
+                    return new UsernameNotFoundException(PMBExceptionConstants.DOES_NOT_EXISTS_USER);
+                });
 
         ModelMapper modelMapper = new ModelMapper();
-        Optional<UserDTO> userDTO = Optional.ofNullable(modelMapper.map(userFound.get(), UserDTO.class));
+        UserDTO userDTO = modelMapper.map(user, UserDTO.class);
 
-        log.info(LogConstants.GET_USER_INFO_OK + email);
+        log.info(LogConstants.GET_USER_INFO_OK + email + "\n");
 
         return userDTO;
     }
-
-     */
 
 
     /**

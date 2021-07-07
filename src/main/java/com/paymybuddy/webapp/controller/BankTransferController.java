@@ -7,7 +7,7 @@ import com.paymybuddy.webapp.constants.ViewNameConstants;
 import com.paymybuddy.webapp.exception.PMBException;
 import com.paymybuddy.webapp.model.DTO.BankAccountDTO;
 import com.paymybuddy.webapp.model.DTO.BankTransferDTO;
-import com.paymybuddy.webapp.model.User;
+import com.paymybuddy.webapp.model.DTO.UserDTO;
 import com.paymybuddy.webapp.service.contract.IBankAccountService;
 import com.paymybuddy.webapp.service.contract.IBankTransferService;
 import lombok.extern.slf4j.Slf4j;
@@ -121,7 +121,7 @@ public class BankTransferController {
         model.addAttribute("typeOfTransferList", BankTransferTypes.values());
 
         if (model.getAttribute("user") != null) {
-            User currentUser = (User) model.getAttribute("user");
+            UserDTO currentUser = (UserDTO) model.getAttribute("user");
 
             List<BankAccountDTO> bankAccountDTOList = bankAccountService.getAllBankAccountsForUser(currentUser.getUserId());
             model.addAttribute("bankAccountDTOList", bankAccountDTOList);

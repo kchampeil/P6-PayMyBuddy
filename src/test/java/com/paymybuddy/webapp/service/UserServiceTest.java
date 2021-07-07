@@ -15,6 +15,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.Optional;
 
@@ -91,7 +92,7 @@ class UserServiceTest {
         @Test
         @DisplayName("GIVEN a new user to add with an already existing email" +
                 "WHEN saving this new user " +
-                "THEN an PMB Exception is thrown")
+                "THEN a PMB Exception is thrown")
         void createUser_WithExistingEmailInRepository() {
             //GIVEN
             when(userRepositoryMock.findByEmailIgnoreCase(userDTOToCreate.getEmail()))
@@ -110,7 +111,7 @@ class UserServiceTest {
         @Test
         @DisplayName("GIVEN a new user to add with missing informations" +
                 "WHEN saving this new user " +
-                "THEN an PMB Exception is thrown")
+                "THEN a PMB Exception is thrown")
         void createUser_WithMissingInformations() {
             //GIVEN
             userDTOToCreate.setLastname(null);
@@ -128,7 +129,7 @@ class UserServiceTest {
         @Test
         @DisplayName("GIVEN a new user to add with incorrect email" +
                 "WHEN saving this new user " +
-                "THEN an PMB Exception is thrown")
+                "THEN a PMB Exception is thrown")
         void createUser_WithIncorrectEmail() {
             //GIVEN
             userDTOToCreate.setEmail(UserTestConstants.NEW_USER_INVALID_EMAIL);
@@ -148,12 +149,11 @@ class UserServiceTest {
     @DisplayName("getUserDTOByEmail tests")
     class GetUserDTOByEmailTest {
 
-        /* TODEL ?
         @Test
         @DisplayName("GIVEN a user in DB for an email address " +
                 "WHEN get this user information " +
                 "THEN the returned value is the user information")
-        void getUserDTOByEmail_WithSuccess() throws PMBException {
+        void getUserDTOByEmail_WithSuccess() {
             //GIVEN
             User userInDb;
             userInDb = new User();
@@ -168,58 +168,51 @@ class UserServiceTest {
                     .thenReturn(Optional.of(userInDb));
 
             //WHEN
-            Optional<UserDTO> userDTO = userService.getUserDTOByEmail(UserTestConstants.EXISTING_USER_EMAIL);
+            UserDTO userDTO = userService.getUserDTOByEmail(UserTestConstants.EXISTING_USER_EMAIL);
 
             //THEN
-            assertTrue(userDTO.isPresent());
-            assertNotNull(userDTO.get().getUserId());
-            assertEquals(userInDb.getEmail(), userDTO.get().getEmail());
-            assertEquals(userInDb.getFirstname(), userDTO.get().getFirstname());
-            assertEquals(userInDb.getLastname(), userDTO.get().getLastname());
+            assertNotNull(userDTO.getUserId());
+            assertEquals(userInDb.getEmail(), userDTO.getEmail());
+            assertEquals(userInDb.getFirstname(), userDTO.getFirstname());
+            assertEquals(userInDb.getLastname(), userDTO.getLastname());
 
             verify(userRepositoryMock, Mockito.times(1))
                     .findByEmailIgnoreCase(UserTestConstants.EXISTING_USER_EMAIL);
         }
 
-         */
 
-/* TODEL ?
         @Test
         @DisplayName("GIVEN no user in DB for an email address " +
                 "WHEN get this user information " +
-                "THEN the returned value is an empty user")
-        void getUserDTOByEmail_WithUnknownUser() throws PMBException {
+                "THEN UsernameNotFoundException is thrown")
+        void getUserDTOByEmail_WithUnknownUser() {
             //GIVEN
             when(userRepositoryMock.findByEmailIgnoreCase(UserTestConstants.UNKNOWN_USER_EMAIL))
                     .thenReturn(Optional.ofNullable(null));
 
-            //WHEN
-            Optional<UserDTO> userDTO = userService.getUserByEmail(UserTestConstants.UNKNOWN_USER_EMAIL);
-
             //THEN
-            assertFalse(userDTO.isPresent());
+            Exception exception = assertThrows(UsernameNotFoundException.class,
+                    () -> userService.getUserDTOByEmail(UserTestConstants.UNKNOWN_USER_EMAIL));
+            assertEquals(PMBExceptionConstants.DOES_NOT_EXISTS_USER, exception.getMessage());
 
             verify(userRepositoryMock, Mockito.times(1))
                     .findByEmailIgnoreCase(UserTestConstants.UNKNOWN_USER_EMAIL);
         }
 
- */
 
-/* TODEL ?
         @Test
         @DisplayName("GIVEN a null email " +
                 "WHEN get this user information " +
-                "THEN an PMB Exception is thrown")
+                "THEN UsernameNotFoundException is thrown")
         void getUserDTOByEmail_WithMissingInformations() {
             //THEN
-            Exception exception = assertThrows(PMBException.class,
+            Exception exception = assertThrows(UsernameNotFoundException.class,
                     () -> userService.getUserDTOByEmail(null));
             assertEquals(PMBExceptionConstants.MISSING_INFORMATION_GETTING_USER, exception.getMessage());
 
             verify(userRepositoryMock, Mockito.times(0))
-                    .findByEmailIgnoreCase(UserTestConstants.EXISTING_USER_EMAIL);
+                    .findByEmailIgnoreCase(null);
         }
 
- */
     }
 }

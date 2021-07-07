@@ -148,19 +148,6 @@ class UserControllerTest {
         }
     }
 
-    /*TODEL @WithMockUser
-    @Test
-    @DisplayName("WHEN asking for the user profile page while logged in" +
-            " THEN return status is ok and the expected view is the home user page")
-    void userProfile() throws Exception {
-        mockMvc.perform(get("/userProfile"))
-                .andExpect(status().isOk())
-                //TODO .andExpect(model().attributeExists("user"))
-                .andExpect(view().name(ViewNameConstants.HOME));
-    }
-
-     */
-
 
     @Test
     @DisplayName("WHEN asking for the login page" +
@@ -170,33 +157,6 @@ class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(view().name(ViewNameConstants.USER_LOGIN));
     }
-
-
-    /*TODEL @WithMockUser
-    @Test
-    @DisplayName("WHEN asking for logout" +
-            " THEN return status is ok and the expected view is the home page")
-    void logoutUserTest() throws Exception {
-        mockMvc.perform(get("/logout"))
-                .andExpect(status().isFound())
-                .andExpect(redirectedUrlPattern(ViewNameConstants.USER_LOGIN));
-    }
-
-     */
-
-
-    /* TODEL @WithMockUser
-    @Test
-    @DisplayName("WHEN asking for home user" +
-            " THEN return status is ok and the expected view is the home user page")
-        //TODO à revoir une fois fusion des home pages
-    void showHomeUserTest() throws Exception {
-        mockMvc.perform(get("/homeUser"))
-                .andExpect(status().isOk())
-                .andExpect(view().name(ViewNameConstants.USER_HOME));
-    }
-
-     */
 
 
     @Test
@@ -210,5 +170,4 @@ class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(view().name(ViewNameConstants.UNDER_CONSTRUCTION));
     }
-
 }

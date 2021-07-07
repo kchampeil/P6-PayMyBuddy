@@ -97,11 +97,11 @@ public class UserServiceIT {
         }
     }
 
-/*TODEL ?
+
     @Test
     @DisplayName("WHEN getting the user information for an existing user " +
             "THEN the user information in DB is returned")
-    public void getUserByEmailIT_WithData() throws PMBException {
+    public void getUserByEmailIT_WithData() {
 
         //initialisation du test avec un utilisateur en base
         User existingUser = new User();
@@ -113,14 +113,11 @@ public class UserServiceIT {
         existingUser = userRepository.save(existingUser);
 
         //test
-        Optional<UserDTO> userDTO = userService.getUserDTOByEmail(existingUser.getEmail());
+        UserDTO userDTO = userService.getUserDTOByEmail(existingUser.getEmail());
 
-        assertThat(userDTO).isNotEmpty();
-        assertEquals(existingUser.getUserId(), userDTO.get().getUserId());
+        assertEquals(existingUser.getUserId(), userDTO.getUserId());
 
         //nettoyage de la DB en fin de test en supprimant l'utilisateur' créé par le test
         userRepository.deleteById(existingUser.getUserId());
     }
-
- */
 }

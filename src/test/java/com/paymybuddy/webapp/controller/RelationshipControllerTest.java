@@ -4,6 +4,7 @@ import com.paymybuddy.webapp.constants.PMBExceptionConstants;
 import com.paymybuddy.webapp.constants.ViewNameConstants;
 import com.paymybuddy.webapp.exception.PMBException;
 import com.paymybuddy.webapp.model.DTO.RelationshipDTO;
+import com.paymybuddy.webapp.model.DTO.UserDTO;
 import com.paymybuddy.webapp.model.User;
 import com.paymybuddy.webapp.service.PMBUserDetailsService;
 import com.paymybuddy.webapp.service.contract.IRelationshipService;
@@ -48,11 +49,11 @@ class RelationshipControllerTest {
     @MockBean
     private PasswordEncoder passwordEncoderMock;
 
-    private static User userInDb;
+    private static UserDTO userInDb;
 
     @BeforeAll
     private static void setUp() {
-        userInDb = new User();
+        userInDb = new UserDTO();
         userInDb.setUserId(UserTestConstants.EXISTING_USER_ID);
         userInDb.setEmail(UserTestConstants.EXISTING_USER_EMAIL);
         userInDb.setFirstname(UserTestConstants.EXISTING_USER_FIRSTNAME);

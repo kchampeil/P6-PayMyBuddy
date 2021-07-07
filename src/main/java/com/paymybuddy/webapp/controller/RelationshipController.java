@@ -5,7 +5,7 @@ import com.paymybuddy.webapp.constants.PMBExceptionConstants;
 import com.paymybuddy.webapp.constants.ViewNameConstants;
 import com.paymybuddy.webapp.exception.PMBException;
 import com.paymybuddy.webapp.model.DTO.RelationshipDTO;
-import com.paymybuddy.webapp.model.User;
+import com.paymybuddy.webapp.model.DTO.UserDTO;
 import com.paymybuddy.webapp.service.PMBUserDetailsService;
 import com.paymybuddy.webapp.service.contract.IRelationshipService;
 import lombok.extern.slf4j.Slf4j;
@@ -119,7 +119,7 @@ public class RelationshipController {
     private void loadRelationshipDTOListForCurrentUser(Model model) throws PMBException {
 
         if (model.getAttribute("user") != null) {
-            User currentUser = (User) model.getAttribute("user");
+            UserDTO currentUser = (UserDTO) model.getAttribute("user");
             List<RelationshipDTO> relationshipDTOList =
                     relationshipService.getAllRelationshipsForUser(currentUser.getUserId());
             model.addAttribute("relationshipDTOList", relationshipDTOList);

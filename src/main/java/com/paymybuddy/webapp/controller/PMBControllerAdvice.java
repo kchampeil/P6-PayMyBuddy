@@ -1,7 +1,7 @@
 package com.paymybuddy.webapp.controller;
 
 import com.paymybuddy.webapp.constants.LogConstants;
-import com.paymybuddy.webapp.model.User;
+import com.paymybuddy.webapp.model.DTO.UserDTO;
 import com.paymybuddy.webapp.service.PMBUserDetailsService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +25,7 @@ public class PMBControllerAdvice {
     @ModelAttribute
     public void addUserToModel(Principal principal, Model model) {
 
-        User currentUser = null;
+        UserDTO currentUser = null;
         if (principal != null) {
             currentUser = pmbUserDetailsService.getCurrentUser();
         } else {

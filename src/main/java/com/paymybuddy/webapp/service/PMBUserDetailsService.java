@@ -1,10 +1,9 @@
 package com.paymybuddy.webapp.service;
 
 import com.paymybuddy.webapp.constants.LogConstants;
-import com.paymybuddy.webapp.constants.PMBExceptionConstants;
+import com.paymybuddy.webapp.model.DTO.UserDTO;
 import com.paymybuddy.webapp.model.PMBUserDetails;
-import com.paymybuddy.webapp.model.User;
-import com.paymybuddy.webapp.repository.UserRepository;
+import com.paymybuddy.webapp.service.contract.IUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -20,11 +19,11 @@ import java.util.HashSet;
 @Service
 public class PMBUserDetailsService implements UserDetailsService {
 
-    private final UserRepository userRepository;
+    private final IUserService userService;
 
     @Autowired
-    public PMBUserDetailsService(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public PMBUserDetailsService(IUserService userService) {
+        this.userService = userService;
     }
 
 
@@ -39,10 +38,10 @@ public class PMBUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
         log.info(LogConstants.USER_LOGIN_REQUEST_RECEIVED + username);
-        User user = getUserByUsername(username);
+        UserDTO userDTO = userService.getUserDTOByEmail(username);
 
-        return new PMBUserDetails(user.getEmail(),
-                user.getPassword(),
+        return new PMBUserDetails(userDTO.getEmail(),
+                userDTO.getPassword(),
                 new HashSet<>(), //TODO V2 dans cette version démo les 'authorities' ne sont pas gérées
                 true,
                 true,
@@ -53,39 +52,12 @@ public class PMBUserDetailsService implements UserDetailsService {
 
     /**
      * récupère les informations du user courant
+     *
      * @return les informations de l'utilisateur connecté
      */
-    //TODO récupérer plutôt le DTO + faire les tests
-    public User getCurrentUser() {
+    public UserDTO getCurrentUser() {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        return getUserByUsername(authentication.getName());
-    }
-
-
-    /**
-     * récupère les informations correspondant à l'utilisateur dont l'identifiant est passé en paramètre
-     * @param username identifiant de l'utilisateur
-     * @return les informations de l'utilisateur
-     */
-    //TODO à mettre ailleurs ? dans UserService ? (déplacer les tests aussi)
-    public User getUserByUsername(String username) {
-
-        if (username == null || username.isEmpty()) {
-            log.error(LogConstants.GET_USER_INFO_ERROR
-                    + PMBExceptionConstants.MISSING_INFORMATION_GETTING_USER);
-            throw new UsernameNotFoundException(PMBExceptionConstants.MISSING_INFORMATION_GETTING_USER);
-        }
-
-        User user = userRepository
-                .findByEmailIgnoreCase(username)
-                .orElseThrow(() -> {
-                    log.error(PMBExceptionConstants.DOES_NOT_EXISTS_USER + " for: " + username);
-                    return new UsernameNotFoundException(PMBExceptionConstants.DOES_NOT_EXISTS_USER);
-                });
-
-        log.info(LogConstants.GET_USER_INFO_OK + username + "\n");
-
-        return user;
+        return userService.getUserDTOByEmail(authentication.getName());
     }
 }

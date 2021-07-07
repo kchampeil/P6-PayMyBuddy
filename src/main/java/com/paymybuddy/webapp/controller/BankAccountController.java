@@ -5,7 +5,7 @@ import com.paymybuddy.webapp.constants.PMBExceptionConstants;
 import com.paymybuddy.webapp.constants.ViewNameConstants;
 import com.paymybuddy.webapp.exception.PMBException;
 import com.paymybuddy.webapp.model.DTO.BankAccountDTO;
-import com.paymybuddy.webapp.model.User;
+import com.paymybuddy.webapp.model.DTO.UserDTO;
 import com.paymybuddy.webapp.service.PMBUserDetailsService;
 import com.paymybuddy.webapp.service.contract.IBankAccountService;
 import lombok.extern.slf4j.Slf4j;
@@ -120,7 +120,7 @@ public class BankAccountController {
     //TODO à passer en @ModelAttribute ?
     private void loadBankAccountDTOListForCurrentUser(Model model) throws PMBException {
         if (model.getAttribute("user") != null) {
-            User currentUser = (User) model.getAttribute("user");
+            UserDTO currentUser = (UserDTO) model.getAttribute("user");
 
             List<BankAccountDTO> bankAccountDTOList =
                     bankAccountService.getAllBankAccountsForUser(currentUser.getUserId());

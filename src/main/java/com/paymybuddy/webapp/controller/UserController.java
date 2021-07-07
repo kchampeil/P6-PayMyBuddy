@@ -87,33 +87,6 @@ public class UserController {
 
 
     /**
-     * afficher le profil utilisateur après son enregistrement
-     *
-     * @param userDTO informations utilisateur
-     */
-    /*@GetMapping(value = "/userProfile")
-    //TODEL plus utilisé puisque homeUser utilisé à la place ?
-    // ==> à fusionner pour récupérer info user dans homeUser + supprimer test associé
-    public String userProfile(UserDTO userDTO, Model model) {
-
-        log.info(LogConstants.USER_PROFILE_REQUEST_RECEIVED + userDTO.getUserId());
-
-        User currentUser = pmbUserDetailsService.getCurrentUser();
-
-        if (currentUser != null) {
-
-            model.addAttribute("user", userDTO);
-            //TODEL return ViewNameConstants.USER_PROFILE;
-            return ViewNameConstants.USER_HOME;
-        }
-
-        return ViewNameConstants.HOME;
-    }
-
-     */
-
-
-    /**
      * connecter l'utilisateur
      */
     @GetMapping(value = "/login")
@@ -122,19 +95,6 @@ public class UserController {
         return ViewNameConstants.USER_LOGIN;
 
     }
-
-
-    /**
-     * déconnecter l'utilisateur et le renvoyer sur la page d'accueil
-     */
-    /*TODEL ? @GetMapping(value = "/logout")
-    public String logoutUser() {
-
-        return ViewNameConstants.HOME;
-
-    }
-
-     */
 
 
     /**
