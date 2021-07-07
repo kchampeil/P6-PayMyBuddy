@@ -122,7 +122,7 @@ class RelationshipControllerTest {
             when(userServiceMock.getUserDTOByEmail(anyString())).thenReturn(userInDb);
 
             RelationshipDTO relationshipDTOAdded = new RelationshipDTO();
-            relationshipDTOAdded.setUserId(UserTestConstants.EXISTING_USER_ID);
+            relationshipDTOAdded.setUser(userInDb);
             relationshipDTOAdded.setFriendEmail(UserTestConstants.EXISTING_USER_AS_FRIEND_EMAIL);
 
             when(relationshipServiceMock.createRelationship(any(RelationshipDTO.class)))

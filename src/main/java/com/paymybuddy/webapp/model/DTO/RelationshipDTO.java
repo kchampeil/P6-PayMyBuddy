@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
@@ -14,8 +15,8 @@ public class RelationshipDTO {
 
     private Long relationshipId;
 
-    // TODO @NotNull
-    private Long userId;
+    @NotNull(message = "User must be specified")
+    private UserDTO user;
 
     private Long friendId;
 
@@ -34,7 +35,7 @@ public class RelationshipDTO {
      * @return true si relationshipDTO est correct, sinon false
      */
     public boolean isValid() {
-        return this.userId != null
+        return this.user != null
                 && this.friendEmail != null && !this.friendEmail.isEmpty();
     }
 }

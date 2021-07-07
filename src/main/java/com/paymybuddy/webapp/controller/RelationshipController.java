@@ -44,7 +44,7 @@ public class RelationshipController {
             loadRelationshipDTOListForCurrentUser(model, currentUser.getUserId());
 
             RelationshipDTO relationshipDTO = new RelationshipDTO();
-            relationshipDTO.setUserId(currentUser.getUserId());
+            relationshipDTO.setUser(currentUser);
             model.addAttribute("relationshipDTO", relationshipDTO);
         }
     }
@@ -86,7 +86,7 @@ public class RelationshipController {
 
                 /* actualise la liste des connexions associées à l'utilisateur
                 avant de réafficher la page pour une autre saisie */
-                loadRelationshipDTOListForCurrentUser(model, relationshipDTOAdded.get().getUserId());
+                loadRelationshipDTOListForCurrentUser(model, relationshipDTOAdded.get().getUser().getUserId());
                 return showHomeRelationship();
             }
 

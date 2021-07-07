@@ -3,6 +3,7 @@ package com.paymybuddy.webapp.integration;
 import com.paymybuddy.webapp.constants.PMBExceptionConstants;
 import com.paymybuddy.webapp.exception.PMBException;
 import com.paymybuddy.webapp.model.DTO.RelationshipDTO;
+import com.paymybuddy.webapp.model.DTO.UserDTO;
 import com.paymybuddy.webapp.model.Relationship;
 import com.paymybuddy.webapp.model.User;
 import com.paymybuddy.webapp.repository.RelationshipRepository;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -63,8 +65,10 @@ public class RelationshipServiceIT {
         existingFriend = userRepository.save(existingFriend);
 
         //initialisation de la relation à créer
+        ModelMapper modelMapper = new ModelMapper();
+        UserDTO existingUserDTO = modelMapper.map(existingUser, UserDTO.class);
         relationshipDTOToCreate = new RelationshipDTO();
-        relationshipDTOToCreate.setUserId(existingUser.getUserId());
+        relationshipDTOToCreate.setUser(existingUserDTO);
         relationshipDTOToCreate.setFriendEmail(existingFriend.getEmail());
     }
 

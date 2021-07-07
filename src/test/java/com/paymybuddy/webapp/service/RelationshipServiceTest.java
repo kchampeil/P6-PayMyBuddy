@@ -3,6 +3,7 @@ package com.paymybuddy.webapp.service;
 import com.paymybuddy.webapp.constants.PMBExceptionConstants;
 import com.paymybuddy.webapp.exception.PMBException;
 import com.paymybuddy.webapp.model.DTO.RelationshipDTO;
+import com.paymybuddy.webapp.model.DTO.UserDTO;
 import com.paymybuddy.webapp.model.Relationship;
 import com.paymybuddy.webapp.model.User;
 import com.paymybuddy.webapp.repository.RelationshipRepository;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -82,8 +84,11 @@ class RelationshipServiceTest {
             relationshipInDb.setUser(userInDb);
             relationshipInDb.setFriend(friendInDb);
 
+            ModelMapper modelMapper = new ModelMapper();
+            UserDTO userInDbDTO = modelMapper.map(userInDb, UserDTO.class);
+
             relationshipDTOToCreate = new RelationshipDTO();
-            relationshipDTOToCreate.setUserId(userInDb.getUserId());
+            relationshipDTOToCreate.setUser(userInDbDTO);
             relationshipDTOToCreate.setFriendEmail(friendInDb.getEmail());
         }
 
@@ -93,8 +98,6 @@ class RelationshipServiceTest {
                 "THEN the returned value is the added relationship")
         void createRelationship_WithSuccess() throws PMBException {
             //GIVEN
-            when(userRepositoryMock.findById(userInDb.getUserId()))
-                    .thenReturn(Optional.ofNullable(userInDb));
             when(userRepositoryMock.findByEmailIgnoreCase(friendInDb.getEmail()))
                     .thenReturn(Optional.ofNullable(friendInDb));
             when(relationshipRepositoryMock
@@ -110,13 +113,11 @@ class RelationshipServiceTest {
             //THEN
             assertTrue(createdRelationshipDTO.isPresent());
             assertNotNull(createdRelationshipDTO.get().getRelationshipId());
-            assertEquals(userInDb.getUserId(), createdRelationshipDTO.get().getUserId());
+            assertEquals(userInDb.getUserId(), createdRelationshipDTO.get().getUser().getUserId());
             assertEquals(friendInDb.getUserId(), createdRelationshipDTO.get().getFriendId());
             assertEquals(friendInDb.getFirstname(), createdRelationshipDTO.get().getFriendFirstname());
             assertEquals(friendInDb.getLastname(), createdRelationshipDTO.get().getFriendLastname());
 
-            verify(userRepositoryMock, Mockito.times(1))
-                    .findById(userInDb.getUserId());
             verify(userRepositoryMock, Mockito.times(1))
                     .findByEmailIgnoreCase(friendInDb.getEmail());
             verify(relationshipRepositoryMock, Mockito.times(1))
@@ -132,8 +133,6 @@ class RelationshipServiceTest {
                 "THEN a PMB Exception is thrown")
         void createRelationship_WithExistingRelationshipInRepository() {
             //GIVEN
-            when(userRepositoryMock.findById(userInDb.getUserId()))
-                    .thenReturn(Optional.ofNullable(userInDb));
             when(userRepositoryMock.findByEmailIgnoreCase(friendInDb.getEmail()))
                     .thenReturn(Optional.ofNullable(friendInDb));
             when(relationshipRepositoryMock
@@ -145,8 +144,6 @@ class RelationshipServiceTest {
                     () -> relationshipService.createRelationship(relationshipDTOToCreate));
             assertEquals(PMBExceptionConstants.ALREADY_EXIST_RELATIONSHIP, exception.getMessage());
 
-            verify(userRepositoryMock, Mockito.times(1))
-                    .findById(userInDb.getUserId());
             verify(userRepositoryMock, Mockito.times(1))
                     .findByEmailIgnoreCase(friendInDb.getEmail());
             verify(relationshipRepositoryMock, Mockito.times(1))
@@ -162,15 +159,13 @@ class RelationshipServiceTest {
                 "THEN a PMB Exception is thrown")
         void createRelationship_WithMissingInformations() {
             //GIVEN
-            relationshipDTOToCreate.setUserId(null);
+            relationshipDTOToCreate.setFriendEmail(null);
 
             //THEN
             Exception exception = assertThrows(PMBException.class,
                     () -> relationshipService.createRelationship(relationshipDTOToCreate));
             assertEquals(PMBExceptionConstants.MISSING_INFORMATION_NEW_RELATIONSHIP, exception.getMessage());
 
-            verify(userRepositoryMock, Mockito.times(0))
-                    .findById(null);
             verify(userRepositoryMock, Mockito.times(0))
                     .findByEmailIgnoreCase(friendInDb.getEmail());
             verify(relationshipRepositoryMock, Mockito.times(0))
@@ -187,8 +182,6 @@ class RelationshipServiceTest {
         void createRelationship_WithUnknownFriend() {
             //GIVEN
             relationshipDTOToCreate.setFriendEmail(UserTestConstants.UNKNOWN_USER_EMAIL);
-            when(userRepositoryMock.findById(userInDb.getUserId()))
-                    .thenReturn(Optional.ofNullable(userInDb));
             when(userRepositoryMock.findByEmailIgnoreCase(UserTestConstants.UNKNOWN_USER_EMAIL))
                     .thenReturn(Optional.empty());
 
@@ -197,8 +190,6 @@ class RelationshipServiceTest {
                     () -> relationshipService.createRelationship(relationshipDTOToCreate));
             assertEquals(PMBExceptionConstants.DOES_NOT_EXISTS_USER, exception.getMessage());
 
-            verify(userRepositoryMock, Mockito.times(1))
-                    .findById(userInDb.getUserId());
             verify(userRepositoryMock, Mockito.times(1))
                     .findByEmailIgnoreCase(UserTestConstants.UNKNOWN_USER_EMAIL);
             verify(relationshipRepositoryMock, Mockito.times(0))
@@ -215,8 +206,6 @@ class RelationshipServiceTest {
         void createRelationship_WithSameEmail() {
             //GIVEN
             relationshipDTOToCreate.setFriendEmail(userInDb.getEmail());
-            when(userRepositoryMock.findById(userInDb.getUserId()))
-                    .thenReturn(Optional.ofNullable(userInDb));
             when(userRepositoryMock.findByEmailIgnoreCase(userInDb.getEmail()))
                     .thenReturn(Optional.ofNullable(userInDb));
 
@@ -225,8 +214,6 @@ class RelationshipServiceTest {
                     () -> relationshipService.createRelationship(relationshipDTOToCreate));
             assertEquals(PMBExceptionConstants.INVALID_FRIEND_EMAIL, exception.getMessage());
 
-            verify(userRepositoryMock, Mockito.times(1))
-                    .findById(userInDb.getUserId());
             verify(userRepositoryMock, Mockito.times(1))
                     .findByEmailIgnoreCase(userInDb.getEmail());
             verify(relationshipRepositoryMock, Mockito.times(0))

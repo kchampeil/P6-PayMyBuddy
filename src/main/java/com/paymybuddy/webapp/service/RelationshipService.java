@@ -55,20 +55,20 @@ public class RelationshipService implements IRelationshipService {
         if (!relationshipDTOToCreate.isValid()) {
             log.error(LogConstants.CREATE_RELATIONSHIP_ERROR
                     + PMBExceptionConstants.MISSING_INFORMATION_NEW_RELATIONSHIP
-                    + "for: " + relationshipDTOToCreate.getUserId() + " // " + relationshipDTOToCreate.getFriendEmail());
+                    + "for: " + relationshipDTOToCreate.getUser().getUserId() + " // " + relationshipDTOToCreate.getFriendEmail());
             throw new PMBException(PMBExceptionConstants.MISSING_INFORMATION_NEW_RELATIONSHIP);
         }
 
-        //récupère les informations user et friend en base
-        //TODO à voir ensuite pour utiliser directement info user ou userDTO plutôt que rechercher de nouveau le user courant ?
-        Optional<User> user = userRepository.findById(relationshipDTOToCreate.getUserId());
+        //récupère les informations user dans le relationshipDTOToCreate et friend en base
+        ModelMapper modelMapper = new ModelMapper();
+        User user = modelMapper.map(relationshipDTOToCreate.getUser(), User.class);
         Optional<User> friend = userRepository.findByEmailIgnoreCase(relationshipDTOToCreate.getFriendEmail());
 
         if (checksBeforeCreatingRelationship(user, friend)) {
             //mappe le DTO dans le DAO,
             // puis la nouvelle relation est sauvegardée en base avant mappage inverse du DAO dans le DTO
             Relationship relationshipToCreate = new Relationship();
-            relationshipToCreate.setUser(user.get());
+            relationshipToCreate.setUser(user);
             relationshipToCreate.setFriend(friend.get());
             Relationship createdRelationship;
 
@@ -76,12 +76,11 @@ public class RelationshipService implements IRelationshipService {
                 createdRelationship = relationshipRepository.save(relationshipToCreate);
 
             } catch (Exception exception) {
-                log.error(LogConstants.CREATE_RELATIONSHIP_ERROR + relationshipDTOToCreate.getUserId()
+                log.error(LogConstants.CREATE_RELATIONSHIP_ERROR + relationshipDTOToCreate.getUser().getUserId()
                         + " // " + relationshipDTOToCreate.getFriendEmail());
                 throw exception;
             }
 
-            ModelMapper modelMapper = new ModelMapper();
             createdRelationshipDTO =
                     Optional.ofNullable(modelMapper.map(createdRelationship, RelationshipDTO.class));
             log.info(LogConstants.CREATE_RELATIONSHIP_OK
@@ -132,16 +131,10 @@ public class RelationshipService implements IRelationshipService {
      *                      ou que l'email fourni pour l'utilisateur 'ami' est identique à l'email de l'utilisateur
      *                      ou que la relation existe déjà
      */
-    private boolean checksBeforeCreatingRelationship(Optional<User> user, Optional<User> friend)
+    private boolean checksBeforeCreatingRelationship(User user, Optional<User> friend)
             throws PMBException {
 
-        //vérifie que les deux utilisateurs existent bien
-        if (!user.isPresent()) {
-            log.error(LogConstants.CREATE_RELATIONSHIP_ERROR
-                    + PMBExceptionConstants.DOES_NOT_EXISTS_USER + " for user");
-            throw new PMBException(PMBExceptionConstants.DOES_NOT_EXISTS_USER);
-        }
-
+        //vérifie que l'utilisateur ami existe bien
         if (!friend.isPresent()) {
             log.error(LogConstants.CREATE_RELATIONSHIP_ERROR
                     + PMBExceptionConstants.DOES_NOT_EXISTS_USER + " for friend email");
@@ -149,7 +142,7 @@ public class RelationshipService implements IRelationshipService {
         }
 
         //vérifie que l'email de l'ami n'est pas celui du user courant
-        if (user.get().getEmail().equals(friend.get().getEmail())) {
+        if (user.getEmail().equals(friend.get().getEmail())) {
             log.error(LogConstants.CREATE_RELATIONSHIP_ERROR
                     + PMBExceptionConstants.INVALID_FRIEND_EMAIL + " for: " + friend.get().getEmail());
             throw new PMBException(PMBExceptionConstants.INVALID_FRIEND_EMAIL);
@@ -157,10 +150,10 @@ public class RelationshipService implements IRelationshipService {
 
         //vérifie que la relation n'existe pas déjà pour l'utilisateur
         if (relationshipRepository
-                .findByUserAndFriend(user.get(), friend.get()).isPresent()) {
+                .findByUserAndFriend(user, friend.get()).isPresent()) {
             log.error(LogConstants.CREATE_RELATIONSHIP_ERROR
                     + PMBExceptionConstants.ALREADY_EXIST_RELATIONSHIP
-                    + " for users: " + user.get().getUserId() + " // " + friend.get().getUserId());
+                    + " for users: " + user.getUserId() + " // " + friend.get().getUserId());
             throw new PMBException(PMBExceptionConstants.ALREADY_EXIST_RELATIONSHIP);
         }
 
