@@ -19,9 +19,8 @@ import java.time.LocalDateTime;
 /**
  * La classe Transaction permet d'enregistrer un transfert entre un compte utilisateur
  * et le compte d'un utilisateur déclaré comme ami par le premier dans PayMyBuddy
- *
+ * <p>
  * 'feeBilled' permet d'identifier les frais non encore facturés (true si facturés)
- *
  */
 @Getter
 @Setter

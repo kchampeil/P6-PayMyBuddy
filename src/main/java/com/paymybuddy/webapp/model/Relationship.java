@@ -15,7 +15,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 /**
- * La classe Relationship contient les liens déclaré par un utilisateur avec d'autres utilisateurs de l'application ("amis")
+ * La classe Relationship contient les liens déclaré par un utilisateur avec d'autres
+ * utilisateurs de l'application ("amis")
  * Un utilisateur peut avoir plusieurs "amis" déclarés
  */
 @Getter
@@ -26,7 +27,7 @@ import javax.persistence.Table;
 public class Relationship {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name="relationship_id", nullable = false)
+    @Column(name = "relationship_id", nullable = false)
     private Long relationshipId;
 
     @ManyToOne(fetch = FetchType.LAZY)

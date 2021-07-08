@@ -26,22 +26,22 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name="user_id", nullable = false)
+    @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    @Column(name="email", nullable = false, length = 256)
+    @Column(name = "email", unique = true, nullable = false, length = 256)
     private String email;
 
-    @Column(name="firstname", nullable = false, length = 64)
+    @Column(name = "firstname", nullable = false, length = 64)
     private String firstname;
 
-    @Column(name="lastname", nullable = false, length = 64)
+    @Column(name = "lastname", nullable = false, length = 64)
     private String lastname;
 
     @Column(name = "password", nullable = false, length = 256)
     private String password;
 
     @Column(name = "balance", nullable = false, precision = 7, scale = 2)
-    private BigDecimal balance=BigDecimal.ZERO;
+    private BigDecimal balance = BigDecimal.ZERO;
 
 }
