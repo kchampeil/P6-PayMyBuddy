@@ -24,7 +24,6 @@
 		<maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
 		<maven-site-plugin.version>3.9.1</maven-site-plugin.version>
 		<maven-project-info-reports-plugin.version>3.1.1</maven-project-info-reports-plugin.version>
-		<spotbugs-maven-plugin.version>4.2.0</spotbugs-maven-plugin.version>
 	</properties>
 
 	<dependencies>
