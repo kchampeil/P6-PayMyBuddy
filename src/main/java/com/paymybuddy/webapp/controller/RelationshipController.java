@@ -41,7 +41,9 @@ public class RelationshipController {
         if (model.getAttribute("user") != null) {
             UserDTO currentUser = (UserDTO) model.getAttribute("user");
 
-            loadRelationshipDTOListForCurrentUser(model, currentUser.getUserId());
+            List<RelationshipDTO> relationshipDTOList =
+                    relationshipService.getAllRelationshipsForUser(currentUser.getUserId());
+            model.addAttribute("relationshipDTOList", relationshipDTOList);
 
             RelationshipDTO relationshipDTO = new RelationshipDTO();
             relationshipDTO.setUser(currentUser);
@@ -86,9 +88,9 @@ public class RelationshipController {
                 log.info(LogConstants.ADD_RELATIONSHIP_REQUEST_OK
                         + relationshipDTOAdded.get().getRelationshipId() + "\n");
 
-                /* actualise la liste des connexions associées à l'utilisateur
+                /* met à jour les éléments du modèle
                 avant de réafficher la page pour une autre saisie */
-                loadRelationshipDTOListForCurrentUser(model, relationshipDTOAdded.get().getUser().getUserId());
+                addRelationshipAttributesToModel(model);
                 return showHomeRelationship();
             }
 
@@ -112,19 +114,5 @@ public class RelationshipController {
         }
 
         return ViewNameConstants.RELATIONSHIP_HOME;
-    }
-
-
-    /**
-     * charge la liste des relations associées à l'utilisateur connecté
-     *
-     * @param model model en cours
-     * @throws PMBException si l'identifiant transmis est nul
-     *                      ou que l'utilisateur n'existe pas
-     */
-    private void loadRelationshipDTOListForCurrentUser(Model model, Long userId) throws PMBException {
-        List<RelationshipDTO> relationshipDTOList =
-                relationshipService.getAllRelationshipsForUser(userId);
-        model.addAttribute("relationshipDTOList", relationshipDTOList);
     }
 }

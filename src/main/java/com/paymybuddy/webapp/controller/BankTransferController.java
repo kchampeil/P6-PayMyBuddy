@@ -40,7 +40,7 @@ public class BankTransferController {
 
     /**
      * initialise le modèle avec la liste des types de transferts,
-     * des transferts bancaires associés à l'utilisateur courant
+     * des transferts bancaires et des comptes bancaires associés à l'utilisateur courant
      * et avec un bankTransferDTO initialisé
      */
     @ModelAttribute
@@ -48,7 +48,17 @@ public class BankTransferController {
 
         model.addAttribute("typeOfTransferList", BankTransferTypes.values());
 
-        loadNeededListsForCurrentUser(model);
+        if (model.getAttribute("user") != null) {
+            UserDTO currentUser = (UserDTO) model.getAttribute("user");
+
+            List<BankAccountDTO> bankAccountDTOList =
+                    bankAccountService.getAllBankAccountsForUser(currentUser.getUserId());
+            model.addAttribute("bankAccountDTOList", bankAccountDTOList);
+
+            List<BankTransferDTO> bankTransferDTOList =
+                    bankTransferService.getAllBankTransfersForUser(currentUser.getUserId());
+            model.addAttribute("bankTransferDTOList", bankTransferDTOList);
+        }
 
         BankTransferDTO bankTransferDTO = new BankTransferDTO();
         model.addAttribute("bankTransferDTO", bankTransferDTO);
@@ -93,9 +103,9 @@ public class BankTransferController {
                 log.info(LogConstants.ADD_BANK_TRANSFER_REQUEST_OK
                         + bankTransferDTOAdded.get().getBankTransferId() + "\n");
 
-                /* actualise la liste des transferts bancaires associés à l'utilisateur
+                /* met à jour les éléments du modèle
                 avant de réafficher la page pour une autre saisie */
-                loadNeededListsForCurrentUser(model);
+                addBankTransferAttributesToModel(model);
                 return showHomeBankTransfer();
             }
 
@@ -122,23 +132,5 @@ public class BankTransferController {
         }
 
         return ViewNameConstants.BANK_TRANSFER_HOME;
-    }
-
-
-    /**
-     * charge la liste des comptes bancaires et la liste des transferts bancaires
-     * pour l'utilisateur en cours et les ajoute au modèle
-     */
-    private void loadNeededListsForCurrentUser(Model model) throws PMBException {
-
-        if (model.getAttribute("user") != null) {
-            UserDTO currentUser = (UserDTO) model.getAttribute("user");
-
-            List<BankAccountDTO> bankAccountDTOList = bankAccountService.getAllBankAccountsForUser(currentUser.getUserId());
-            model.addAttribute("bankAccountDTOList", bankAccountDTOList);
-
-            List<BankTransferDTO> bankTransferDTOList = bankTransferService.getAllBankTransfersForUser(currentUser.getUserId());
-            model.addAttribute("bankTransferDTOList", bankTransferDTOList);
-        }
     }
 }

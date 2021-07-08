@@ -38,13 +38,23 @@ public class TransactionController {
     }
 
     /**
-     * initialise le modèle avec la liste des transactions associées à l'utilisateur courant
+     * initialise le modèle avec la liste des transactions associées à l'utilisateur courant,
+     * la liste des relations de l'utilisateur courant
      * et avec un transactionDTO initialisé
      */
     @ModelAttribute
     public void addTransactionAttributesToModel(Model model) throws PMBException {
 
-        loadNeededListsForCurrentUser(model);
+        if (model.getAttribute("user") != null) {
+            UserDTO currentUser = (UserDTO) model.getAttribute("user");
+
+            List<RelationshipDTO> relationshipDTOList = relationshipService.getAllRelationshipsForUser(currentUser.getUserId());
+
+            model.addAttribute("relationshipDTOList", relationshipDTOList);
+
+            List<TransactionDTO> transactionDTOList = transactionService.getAllTransactionsForUser(currentUser.getUserId());
+            model.addAttribute("transactionDTOList", transactionDTOList);
+        }
 
         TransactionDTO transactionDTO = new TransactionDTO();
         model.addAttribute("transactionDTO", transactionDTO);
@@ -89,9 +99,9 @@ public class TransactionController {
                 log.info(LogConstants.ADD_TRANSACTION_REQUEST_OK
                         + transactionDTOAdded.get().getTransactionId() + "\n");
 
-                /* actualise la liste des transactions associées à l'utilisateur
+               /* met à jour les éléments du modèle
                 avant de réafficher la page pour une autre saisie */
-                loadNeededListsForCurrentUser(model);
+                addTransactionAttributesToModel(model);
                 return showHomeTransaction();
             }
 
@@ -119,24 +129,5 @@ public class TransactionController {
         }
 
         return ViewNameConstants.TRANSACTION_HOME;
-    }
-
-
-    /**
-     * charge toutes les listes utiles (liste des connexions, liste des transactions)
-     * pour l'utilisateur en cours et les ajoute au modèle
-     */
-    private void loadNeededListsForCurrentUser(Model model) throws PMBException {
-
-        if (model.getAttribute("user") != null) {
-            UserDTO currentUser = (UserDTO) model.getAttribute("user");
-
-            List<RelationshipDTO> relationshipDTOList = relationshipService.getAllRelationshipsForUser(currentUser.getUserId());
-
-            model.addAttribute("relationshipDTOList", relationshipDTOList);
-
-            List<TransactionDTO> transactionDTOList = transactionService.getAllTransactionsForUser(currentUser.getUserId());
-            model.addAttribute("transactionDTOList", transactionDTOList);
-        }
     }
 }

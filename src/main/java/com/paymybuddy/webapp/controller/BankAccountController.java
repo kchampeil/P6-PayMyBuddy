@@ -41,7 +41,9 @@ public class BankAccountController {
         if (model.getAttribute("user") != null) {
             UserDTO currentUser = (UserDTO) model.getAttribute("user");
 
-            loadBankAccountDTOListForCurrentUser(model, currentUser.getUserId());
+            List<BankAccountDTO> bankAccountDTOList =
+                    bankAccountService.getAllBankAccountsForUser(currentUser.getUserId());
+            model.addAttribute("bankAccountDTOList", bankAccountDTOList);
 
             BankAccountDTO bankAccountDTO = new BankAccountDTO();
             bankAccountDTO.setUserId(currentUser.getUserId());
@@ -86,9 +88,9 @@ public class BankAccountController {
                 log.info(LogConstants.ADD_BANK_ACCOUNT_REQUEST_OK
                         + bankAccountDTOAdded.get().getBankAccountId() + "\n");
 
-                /* actualise la liste des comptes bancaires associés à l'utilisateur
+                /* met à jour les éléments du modèle
                 avant de réafficher la page pour une autre saisie */
-                loadBankAccountDTOListForCurrentUser(model, bankAccountDTOAdded.get().getUserId());
+                addBankAccountAttributesToModel(model);
                 return showHomeBankAccount();
             }
 
@@ -112,20 +114,6 @@ public class BankAccountController {
         }
 
         return ViewNameConstants.BANK_ACCOUNT_HOME;
-    }
-
-
-    /**
-     * charge la liste des comptes bancaires associés à l'utilisateur connecté
-     *
-     * @param model model en cours
-     * @throws PMBException si l'identifiant transmis est nul
-     *                      ou que l'utilisateur n'existe pas
-     */
-    private void loadBankAccountDTOListForCurrentUser(Model model, Long userId) throws PMBException {
-        List<BankAccountDTO> bankAccountDTOList =
-                bankAccountService.getAllBankAccountsForUser(userId);
-        model.addAttribute("bankAccountDTOList", bankAccountDTOList);
     }
 }
 
