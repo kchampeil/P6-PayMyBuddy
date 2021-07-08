@@ -63,6 +63,8 @@ public class BankTransferController {
 
         log.info(LogConstants.GET_BANK_TRANSFER_REQUEST_RECEIVED);
 
+        //TODO V2 gérer la pagination de la liste de transferts bancaires
+
         return ViewNameConstants.BANK_TRANSFER_HOME;
     }
 

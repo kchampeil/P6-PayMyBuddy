@@ -58,6 +58,8 @@ public class BankAccountController {
 
         log.info(LogConstants.GET_BANK_ACCOUNT_REQUEST_RECEIVED);
 
+        //TODO V2 gérer la pagination de la liste des comptes bancaires
+
         return ViewNameConstants.BANK_ACCOUNT_HOME;
     }
 

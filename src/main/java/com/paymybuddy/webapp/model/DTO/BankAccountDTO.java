@@ -8,6 +8,7 @@ import lombok.Setter;
 import org.apache.commons.lang3.EnumUtils;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 @Getter
@@ -24,7 +25,7 @@ public class BankAccountDTO {
     @Size(max = 64)
     private String name;
 
-    //TODO @NotNull
+    @NotNull(message = "The user id must be specified")
     private Long userId;
 
     /**
@@ -40,7 +41,7 @@ public class BankAccountDTO {
 
     /**
      * vérifie si l IBAN est valide conformément à la norme
-     * TODO : pour l instant on vérifie juste la longueur et que ça commence par deux lettres autorisées
+     * TODO V2 : pour l instant on vérifie juste la longueur et que ça commence par deux lettres autorisées
      *
      * @return true si l IBAN est correct, sinon false
      */

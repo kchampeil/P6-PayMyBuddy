@@ -28,7 +28,6 @@ public class UserDTO {
     @Size(max = 64)
     private String lastname;
 
-    //TODO à voir car pas à renvoyer ou pas en clair ?
     @NotBlank(message = "Password should not be empty")
     @Size(min = 7, max = 64, message = "Password length must be between 7 and 64 characters")
     private String password;
@@ -51,7 +50,7 @@ public class UserDTO {
     /**
      * vérifie si l email est correct
      * NB : à ce stade seule la présence du @ est vérifiée.
-     * TODO : A voir si d autres exigences sont requises au niveau de la validité du mail
+     * TODO V2 : A voir si d autres exigences sont requises au niveau de la validité du mail
      *
      * @return true si l'email est correct, sinon false
      */

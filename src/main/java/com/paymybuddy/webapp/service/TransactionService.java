@@ -116,7 +116,7 @@ public class TransactionService implements ITransactionService {
     /**
      * récupération de la liste de toutes les transactions d'un utilisateur donné
      * TODO V2 : pour l'instant la liste ne récupère que les transactions où l'utilisateur est le payeur.
-     * TODO (suite) Les transactions dont il est bénéficiaire pourront être ajoutées dans la prochaine version
+     * TODO V2 (suite) Les transactions dont il est bénéficiaire pourront être ajoutées dans la prochaine version
      *
      * @param userId id de l utilisateur dont on souhaite à récupérer la liste des transactions
      * @return la liste des transactions (DTO)

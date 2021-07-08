@@ -55,20 +55,13 @@ public class TransactionController {
      * afficher la page d'accueil transaction
      */
     @GetMapping(value = "/transfer")
-    // TODO public String showHomeTransaction(Model model, @RequestParam(name = "page", defaultValue = "0") int page) throws PMBException {
     public String showHomeTransaction() throws PMBException {
 
         log.info(LogConstants.GET_TRANSACTION_REQUEST_RECEIVED);
 
-        return ViewNameConstants.TRANSACTION_HOME;
+        //TODO V2 gérer la pagination de la liste de transactions
 
-        /* TODO voir la pagination
-        Page<TransactionDTO> transactionDTOList=transactionService.getAllTransactionsForUser(20L, PageRequest.of(0,3));
-        model.addAttribute("transactionDTOList", transactionDTOList.getContent());
-        model.addAttribute("pages", new int[transactionDTOList.getTotalPages()]);
         return ViewNameConstants.TRANSACTION_HOME;
-
-         */
     }
 
 

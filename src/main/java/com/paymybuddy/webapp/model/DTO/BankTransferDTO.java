@@ -26,7 +26,6 @@ public class BankTransferDTO {
     @DecimalMin(value = "0.00", inclusive = false, message = "An amount must be specified")
     private BigDecimal amount = BigDecimal.ZERO;
 
-    //TODO à voir @NotEmpty
     private BankTransferTypes type;
 
     @NotBlank(message = "Bank transfer description must be specified")

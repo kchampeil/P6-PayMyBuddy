@@ -58,6 +58,8 @@ public class RelationshipController {
 
         log.info(LogConstants.GET_RELATIONSHIP_REQUEST_RECEIVED);
 
+        //TODO V2 gérer la pagination de la liste de relations/connexions
+
         return ViewNameConstants.RELATIONSHIP_HOME;
     }
 
