@@ -1,13 +1,13 @@
 # Pay My Buddy
-***
+
 
 ## Description
-***
+
 Application permettant de transférer facilement de l'argent entre amis/relations.
 Il est également possible de transférer de l'argent depuis ou vers son compte bancaire
 
 ## Eléments techniques
-***
+
 * Build automation : `Maven`
 * Langage : `Java` *version 1.8*
 * Framework `Spring Boot` *version 2.5.0* avec notamment les starters suivants :
@@ -25,7 +25,7 @@ Il est également possible de transférer de l'argent depuis ou vers son compte 
 * Tests unitaires avec `Surefire`
 
 ## Installation
-***
+
 
 #### Environnement de production
 * Créer une base MySQL en utilisant le fichier `src/main/resources/static/sql/schema-prod.sql`
@@ -38,7 +38,7 @@ _email : balthazar.picsou@pmb.com / mdp : BP2021!_
 * Créer une base MySQL en utilisant le fichier  `src/test/resources/static/sql/schema-test.sql`
 
 ## Documentation
-***
+
 
 #### Diagramme de classe
 ![Diagramme De Classe](https://github.com/kchampeil/P6-PayMyBuddy/blob/develop/doc/DiagrammeDeClasse.png)
