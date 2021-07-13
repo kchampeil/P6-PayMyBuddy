@@ -41,7 +41,7 @@ _email : balthazar.picsou@pmb.com / mdp : BP2021!_
 ***
 
 #### Diagramme de classe
-![Diagramme De Classe] (doc/DiagrammeDeClasse.png?raw=true)
+![Diagramme De Classe] (https://github.com/kchampeil/P6-PayMyBuddy/blob/develop/doc/DiagrammeDeClasse.png)
 
 #### Modèle physique de données
-![Modèle physique de données] (doc/ModelePhysique.png?raw=true)
+![Modèle physique de données] (https://github.com/kchampeil/P6-PayMyBuddy/blob/develop/doc/ModelePhysique.png)
